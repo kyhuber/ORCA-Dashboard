@@ -1,6 +1,12 @@
 // Orca Half Marathon — training data
 // Edit this file to update run data; index.html reads these as globals.
 
+// Goal race pace, min:sec per mile. Drives the projected finish time, the
+// target paces on goal-pace sessions in weeks 7-8, the dashed line on the
+// pace chart, and the 10K time the Predicted Finish card asks you to hit.
+// Revisit this after the Aug 22 time trial.
+window.GOAL_PACE = "7:56";
+
 // Logged runs. Seeded from Apple Health, pulled by Claude on Aug 13, 2026.
 // Runs under 1.0 mi are excluded (accidental / partial recordings).
 // Fields: date (YYYY-MM-DD), dist (mi), mins — hrAvg / hrMax / elev optional.

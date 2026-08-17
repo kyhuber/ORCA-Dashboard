@@ -57,11 +57,12 @@
   .count-card.gold .num{color:var(--gold);}
   .count-card .cap{font-size:0.78rem; color:var(--text-dim); margin-top:6px;}
 
-  .goal-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:16px; font-size:0.9rem; color:var(--text-muted);}
-  .goal-row b{color:var(--text); font-family:var(--font-mono); font-weight:600;}
-  .goal-row input{width:70px; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--font-mono); padding:5px 8px; font-size:0.85rem;}
-  .goal-row button{background:var(--teal-dim); color:var(--teal); border:1px solid rgba(53,214,190,0.35); border-radius:8px; padding:5px 12px; font-size:0.8rem; cursor:pointer; font-family:var(--font-body); font-weight:600;}
-  .goal-row button:hover{background:rgba(53,214,190,0.24);}
+  .goal-row{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-top:16px; font-size:0.9rem; color:var(--text-muted);}
+  .goal-row b{color:var(--text); font-family:var(--font-mono); font-weight:600; font-size:1rem;}
+  .goal-row #goal-finish{color:var(--gold);}
+  .goal-arrow{color:var(--text-dim); font-family:var(--font-mono);}
+  .goal-note{color:var(--text-dim); font-size:0.78rem; flex-basis:100%;}
+  .goal-note code{font-family:var(--font-mono); font-size:0.95em; color:var(--text-muted);}
 
   /* ---- cards ---- */
   .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px 22px 24px; margin-bottom:18px;}
@@ -210,10 +211,10 @@
     </div>
 
     <div class="goal-row">
-      <span>Goal race pace:</span> <b id="goal-display">7:56/mi</b>
-      <input id="goal-input" type="text" placeholder="7:56" />
-      <button id="goal-save">Save</button>
-      <span style="color:var(--text-dim); font-size:0.8rem;">(adjust after your Week 4 time trial if needed)</span>
+      <span>Goal race pace</span> <b id="goal-display">7:56/mi</b>
+      <span class="goal-arrow">→</span>
+      <span>projected finish</span> <b id="goal-finish">1:44:00</b>
+      <span class="goal-note">set in <code>data.js</code> · worth revisiting after the Aug 22 time trial</span>
     </div>
 
     <svg class="wave" viewBox="0 0 400 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9"/></svg>
@@ -355,7 +356,10 @@
   const CROSS_TRAINING = window.CROSS_TRAINING || [];
 
   const STORAGE_KEY = "dashboard-state";
-  let state = {notes:"", goalPace:7.9333, manualRuns:[], hideMissed:true};
+  // Goal pace is a property of the plan, not of this browser — it lives in
+  // data.js so it reads the same on every device. parsePace is hoisted.
+  const GOAL_PACE = parsePace(window.GOAL_PACE) || 7.9333;
+  let state = {notes:"", manualRuns:[], hideMissed:true};
 
   function fmtPace(dec){
     if(dec==null || isNaN(dec)) return "--:--";
@@ -373,6 +377,12 @@
     const v=parseFloat(str);
     return isNaN(v)?null:v;
   }
+  function fmtClock(totalMin){
+    let secs = Math.round(totalMin*60);
+    const h = Math.floor(secs/3600); secs -= h*3600;
+    const m = Math.floor(secs/60);   secs -= m*60;
+    return `${h}:${String(m).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+  }
   function fmtDate(iso){
     const d=new Date(iso+"T00:00:00");
     return d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
@@ -382,7 +392,7 @@
   }
 
   function getTargetRange(session){
-    if(session.useGoal) return [state.goalPace-0.08, state.goalPace+0.08];
+    if(session.useGoal) return [GOAL_PACE-0.08, GOAL_PACE+0.08];
     return PACE_ZONES[session.type] || null;
   }
 
@@ -422,8 +432,8 @@
   }
 
   function renderGoal(){
-    document.getElementById("goal-display").textContent = fmtPace(state.goalPace)+"/mi";
-    document.getElementById("goal-input").value = fmtPace(state.goalPace);
+    document.getElementById("goal-display").textContent = fmtPace(GOAL_PACE)+"/mi";
+    document.getElementById("goal-finish").textContent = fmtClock(GOAL_PACE*HALF_MI);
   }
 
   function findCurrentWeek(){
@@ -595,25 +605,24 @@
     const bench = actuals.find(a=>a.date==="2026-08-22");
     const box=document.getElementById("predict-box");
     if(!bench){
-      const needed = (state.goalPace*HALF_MI) / Math.pow(HALF_MI/TEN_K_MI, 1.06);
+      const needed = (GOAL_PACE*HALF_MI) / Math.pow(HALF_MI/TEN_K_MI, 1.06);
       const nm=Math.floor(needed), ns=Math.round((needed%1)*60);
       box.className="predict-empty";
       box.innerHTML = `Log your Aug 22 benchmark to see a data-based prediction here.<br/><br/>
         <span style="color:var(--gold); font-family:var(--font-mono);">${nm}:${String(ns).padStart(2,"0")}</span>
-        — the 10K time that projects to your current goal of ${fmtPace(state.goalPace)}/mi.`;
+        — the 10K time that projects to your goal of ${fmtPace(GOAL_PACE)}/mi (${fmtClock(GOAL_PACE*HALF_MI)} finish).`;
       return;
     }
     const t1 = bench.mins;
     const predictedMin = t1 * Math.pow(HALF_MI/TEN_K_MI, 1.06);
-    const h=Math.floor(predictedMin/60), m=Math.floor(predictedMin%60), s=Math.round((predictedMin%1)*60);
-    const goalMin = state.goalPace*HALF_MI;
+    const goalMin = GOAL_PACE*HALF_MI;
     const diff = predictedMin - goalMin;
     let note;
     if(diff<=1) note="Right on track for your goal pace. 🎯";
     else if(diff<=6) note="Close to your goal — a bit more speed work could close the gap.";
-    else note="Meaningfully behind your current goal — worth revisiting your target pace for race day.";
+    else note=`Meaningfully behind your goal of ${fmtClock(goalMin)} — worth resetting GOAL_PACE in data.js.`;
     box.className="";
-    box.innerHTML = `<div class="predict-value">${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}</div>
+    box.innerHTML = `<div class="predict-value">${fmtClock(predictedMin)}</div>
       <div class="predict-note">From your ${bench.dist.toFixed(1)} mi time trial in ${t1.toFixed(1)} min, via Riegel's formula. ${note}</div>`;
   }
 
@@ -652,7 +661,7 @@
   function renderPaceChart(actuals){
     const labels = actuals.map(a=>fmtDate(a.date));
     const paces = actuals.map(a=>+(a.mins/a.dist).toFixed(2));
-    const goalLine = actuals.map(()=>state.goalPace);
+    const goalLine = actuals.map(()=>GOAL_PACE);
     const ctx=document.getElementById("paceChart");
     if(paceChart) paceChart.destroy();
     paceChart = new Chart(ctx, {
@@ -736,10 +745,6 @@
     state.hideMissed = e.target.checked;
     await saveState();
     renderAll();
-  });
-  document.getElementById("goal-save").addEventListener("click", async ()=>{
-    const v=parsePace(document.getElementById("goal-input").value);
-    if(v){ state.goalPace=v; await saveState(); renderAll(); }
   });
   document.getElementById("log-add").addEventListener("click", async ()=>{
     const date=document.getElementById("log-date").value;
