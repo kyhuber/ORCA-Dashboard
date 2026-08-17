@@ -68,6 +68,24 @@
   .card h2{font-family:var(--font-display); font-weight:600; font-size:1.25rem; margin:0 0 4px;}
   .card .card-sub{color:var(--text-muted); font-size:0.85rem; margin:0 0 16px;}
 
+  /* The "what do I run next" card — the reason to open this page. */
+  .card-focus{border-color:rgba(53,214,190,0.38); background:linear-gradient(180deg, rgba(53,214,190,0.05), transparent 220px), var(--surface);}
+  .card-focus h2{font-size:1.4rem;}
+
+  /* ---- history disclosure ---- */
+  .history{margin-bottom:18px;}
+  .history > summary{list-style:none; cursor:pointer; display:flex; align-items:center; gap:12px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius); padding:16px 20px;}
+  .history > summary::-webkit-details-marker{display:none;}
+  .history > summary:hover{border-color:var(--text-dim);}
+  .hist-title{font-family:var(--font-display); font-weight:600; font-size:1.05rem; color:var(--text);}
+  .hist-hint{flex:1; color:var(--text-dim); font-size:0.82rem;}
+  .hist-arrow{color:var(--teal); font-family:var(--font-mono); transition:transform 0.2s ease;}
+  .history[open] > summary{border-bottom-left-radius:0; border-bottom-right-radius:0; margin-bottom:0;}
+  .history[open] .hist-arrow{transform:rotate(90deg);}
+  .history-body{padding-top:18px;}
+  @media (max-width:560px){ .hist-hint{display:none;} }
+
   /* ---- session rows ---- */
   .session{display:flex; align-items:center; gap:14px; padding:12px 0; border-top:1px solid var(--border);}
   .session:first-of-type{border-top:none;}
@@ -92,6 +110,12 @@
   /* A missed session is history — keep it readable, but don't let it compete
      with sessions you can still act on. */
   .session.is-missed{opacity:0.5;}
+  .session.is-next{background:rgba(53,214,190,0.055); border-radius:8px;
+    box-shadow:inset 2px 0 0 var(--teal); padding-left:12px;}
+  .next-flag{display:block; font-family:var(--font-mono); font-size:9.5px; letter-spacing:0.14em;
+    text-transform:uppercase; color:var(--teal); margin-bottom:5px;}
+  .week-acc.is-past .wk-title, .week-acc.is-past .wk-phase{color:var(--text-dim);}
+  .wk-logged{color:var(--teal);}
   .missed-note{font-family:var(--font-mono); font-size:0.74rem; color:var(--text-dim);
     padding:10px 0 2px; border-top:1px solid var(--border); letter-spacing:0.03em;}
   .session + .missed-note{margin-top:2px;}
@@ -179,7 +203,7 @@
         <p class="cap" id="cd-race-cap"></p>
       </div>
       <div class="count-card gold">
-        <p class="label">Week 4 benchmark</p>
+        <p class="label">Days to benchmark</p>
         <div class="num" id="cd-bench">–</div>
         <p class="cap" id="cd-bench-cap"></p>
       </div>
@@ -192,16 +216,12 @@
       <span style="color:var(--text-dim); font-size:0.8rem;">(adjust after your Week 4 time trial if needed)</span>
     </div>
 
-    <div class="toggle-row">
-      <label><input type="checkbox" id="hide-missed"/> Hide missed sessions</label>
-    </div>
-
     <svg class="wave" viewBox="0 0 400 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9"/></svg>
 
-    <div class="card">
-      <h2 id="week-title">This Week</h2>
-      <p class="card-sub" id="week-sub"></p>
-      <div id="week-sessions"></div>
+    <div class="card card-focus">
+      <h2 id="next-title">Up Next</h2>
+      <p class="card-sub" id="next-sub"></p>
+      <div id="next-sessions"></div>
     </div>
 
     <div class="card">
@@ -209,6 +229,23 @@
       <p class="card-sub">Based on Riegel's race-time formula, applied to your Week 4 10K time trial</p>
       <div id="predict-box" class="predict-empty">Log your Week 4 benchmark to see a data-based prediction here.</div>
     </div>
+
+    <div class="card">
+      <h2>Full 8-Week Schedule</h2>
+      <p class="card-sub">Tap a week to expand · the upcoming week opens by default</p>
+      <div class="toggle-row">
+        <label><input type="checkbox" id="hide-missed"/> Hide missed sessions</label>
+      </div>
+      <div id="schedule"></div>
+    </div>
+
+    <details class="history" id="history">
+      <summary>
+        <span class="hist-title">Training History</span>
+        <span class="hist-hint">Charts and logged sessions to date</span>
+        <span class="hist-arrow">›</span>
+      </summary>
+      <div class="history-body">
 
     <div class="card">
       <h2>Weekly Mileage</h2>
@@ -228,11 +265,8 @@
       <div id="cross-list"></div>
     </div>
 
-    <div class="card">
-      <h2>Full 8-Week Schedule</h2>
-      <p class="card-sub">Tap a week to expand</p>
-      <div id="schedule"></div>
-    </div>
+      </div>
+    </details>
 
     <div class="card">
       <h2>Log &amp; Notes</h2>
@@ -383,7 +417,8 @@
     document.getElementById("cd-race").textContent = dRace>=0 ? dRace : "🏁";
     document.getElementById("cd-race-cap").textContent = dRace>=0 ? "until the start line" : "Race complete!";
     document.getElementById("cd-bench").textContent = dBench>0 ? dBench : (dBench===0?"Today":"Done");
-    document.getElementById("cd-bench-cap").textContent = dBench>0 ? "until your 10K time trial" : "10K time trial checkpoint";
+    document.getElementById("cd-bench-cap").textContent = dBench>0 ? "until your Week 4 10K time trial"
+      : dBench===0 ? "your 10K time trial is today" : "10K time trial complete";
   }
 
   function renderGoal(){
@@ -399,6 +434,28 @@
     }
     if(today < new Date(WEEK_STARTS[0]+"T00:00:00")) return -1;
     return 99;
+  }
+
+  // A session still ahead of you: dated today or later, with nothing logged
+  // against it yet. A run you already did today is not "up next".
+  function isPending(session, actuals, today){
+    if(new Date(session.date+"T00:00:00") < today) return false;
+    return !actuals.some(a=>a.date===session.date);
+  }
+
+  // The week to lead with. On the last day of a finished week this rolls
+  // forward to the next one, rather than showing a week that's already done.
+  function findUpcomingWeek(actuals){
+    const today=todayLocal();
+    for(let i=0;i<PLAN.length;i++){
+      if(PLAN[i].sessions.some(s=>isPending(s, actuals, today))) return i;
+    }
+    return -1;
+  }
+
+  function weekLoggedMiles(i, actuals){
+    return actuals.filter(a=>a.date>=WEEK_STARTS[i] && a.date<=WEEK_ENDS[i])
+                  .reduce((s,a)=>s+a.dist,0);
   }
 
   function sessionStatus(session, actuals, today){
@@ -425,7 +482,8 @@
     return `<div class="missed-note">+ ${n} missed session${n===1?"":"s"} hidden</div>`;
   }
 
-  function sessionRowHTML(session, actuals, today){
+  function sessionRowHTML(session, actuals, today, opts){
+    const isNext = opts && opts.isNext;
     const {status, actual} = sessionStatus(session, actuals, today);
     const range = getTargetRange(session);
     const targetStr = session.type==="Benchmark" ? "All-out effort — no target pace"
@@ -447,9 +505,10 @@
       badge = `<span class="badge missed">Missed</span>`;
     }
 
-    return `<div class="session${status==="missed"?" is-missed":""}">
+    return `<div class="session${status==="missed"?" is-missed":""}${isNext?" is-next":""}">
       <div class="s-date"><span class="dow">${session.day}</span>${fmtDate(session.date)}</div>
       <div class="s-mid">
+        ${isNext?`<span class="next-flag">Next up</span>`:""}
         <span class="pill ${session.type.toLowerCase()}">${session.type}</span>
         <div class="s-desc">${session.desc}</div>
         ${targetStr?`<div class="s-target">${targetStr}</div>`:""}
@@ -458,27 +517,39 @@
     </div>`;
   }
 
-  function renderThisWeek(actuals){
+  function renderUpNext(actuals){
     const today=todayLocal();
-    const idx=findCurrentWeek();
-    const titleEl=document.getElementById("week-title"), subEl=document.getElementById("week-sub"), body=document.getElementById("week-sessions");
+    const idx=findUpcomingWeek(actuals);
+    const titleEl=document.getElementById("next-title"), subEl=document.getElementById("next-sub"), body=document.getElementById("next-sessions");
+
     if(idx===-1){
-      titleEl.textContent="Plan starts soon";
-      subEl.textContent="Your 8-week plan kicks off "+fmtDate(WEEK_STARTS[0]);
+      titleEl.textContent="Plan complete";
+      subEl.textContent="Every session in the 8-week plan is behind you. Open Training History for the full record.";
       body.innerHTML="";
       return;
     }
-    if(idx===99){
-      titleEl.textContent="Race complete!";
-      subEl.textContent="Hope Orca went great — check the full schedule below for a recap.";
-      body.innerHTML="";
-      return;
-    }
+
     const wk=PLAN[idx];
+    const pending = wk.sessions.filter(s=>isPending(s, actuals, today));
     titleEl.textContent=`Week ${wk.week} of 8 · ${wk.phase}`;
-    subEl.textContent=wk.range;
-    const {shown, hidden} = partitionSessions(wk.sessions, actuals, today);
-    body.innerHTML = shown.map(s=>sessionRowHTML(s, actuals, today)).join("") + missedNoteHTML(hidden);
+
+    // Lead with when it starts if the week hasn't begun, otherwise with how
+    // much of it is left.
+    const wkStart = new Date(WEEK_STARTS[idx]+"T00:00:00");
+    let lead;
+    if(wkStart > today){
+      const d = Math.round((wkStart-today)/86400000);
+      lead = d===1 ? "starts tomorrow" : `starts in ${d} days`;
+    } else {
+      lead = `${pending.length} session${pending.length===1?"":"s"} to go`;
+    }
+    subEl.textContent = `${wk.range} · ${lead}`;
+
+    // Only the sessions still ahead of you; the rest of the week lives in the
+    // full schedule below. The flag marks the next actual run — a rest day is
+    // worth listing but isn't the thing you're getting ready for.
+    const nextRun = pending.find(s=>s.type!=="Rest");
+    body.innerHTML = pending.map(s=>sessionRowHTML(s, actuals, today, {isNext:s===nextRun})).join("");
   }
 
   function renderSchedule(actuals){
@@ -487,9 +558,15 @@
     el.innerHTML = PLAN.map((wk,i)=>{
       const planned = wk.sessions.reduce((s,x)=>s+x.dist,0);
       const {shown, hidden} = partitionSessions(wk.sessions, actuals, today);
-      return `<div class="week-acc">
+      const started = today >= new Date(WEEK_STARTS[i]+"T00:00:00");
+      const isPast = today > new Date(WEEK_ENDS[i]+"T23:59:59");
+      const logged = weekLoggedMiles(i, actuals);
+      const miles = started
+        ? `${planned.toFixed(1)} mi planned · <span class="wk-logged">${logged.toFixed(1)} logged</span>`
+        : `${planned.toFixed(1)} mi planned`;
+      return `<div class="week-acc${isPast?" is-past":""}">
         <button class="week-head" aria-expanded="false" data-idx="${i}">
-          <span><span class="wk-title">Week ${wk.week}</span> — <span class="wk-phase">${wk.phase} · ${wk.range} · ${planned.toFixed(1)} mi planned</span></span>
+          <span><span class="wk-title">Week ${wk.week}</span> — <span class="wk-phase">${wk.phase} · ${wk.range} · ${miles}</span></span>
           <span class="wk-arrow">›</span>
         </button>
         <div class="week-body" id="wk-body-${i}">
@@ -505,8 +582,8 @@
         btn.setAttribute("aria-expanded", open?"true":"false");
       });
     });
-    // auto-open current week
-    const idx=findCurrentWeek();
+    // auto-open the week you're heading into, not the one just finished
+    const idx=findUpcomingWeek(actuals);
     if(idx>=0 && idx<8){
       const body=document.getElementById("wk-body-"+idx);
       const btn=el.querySelector(`.week-head[data-idx="${idx}"]`);
@@ -638,7 +715,7 @@
     const actuals = allActuals();
     renderCountdowns();
     renderGoal();
-    renderThisWeek(actuals);
+    renderUpNext(actuals);
     renderPrediction(actuals);
     renderMileageChart(actuals);
     renderPaceChart(actuals);
@@ -648,6 +725,13 @@
   }
 
   // ---------- events ----------
+  // Charts built inside a closed <details> have no box to measure, so give
+  // them a resize once the section is actually visible.
+  document.getElementById("history").addEventListener("toggle", (e)=>{
+    if(!e.target.open) return;
+    if(mileageChart) mileageChart.resize();
+    if(paceChart) paceChart.resize();
+  });
   document.getElementById("hide-missed").addEventListener("change", async (e)=>{
     state.hideMissed = e.target.checked;
     await saveState();
