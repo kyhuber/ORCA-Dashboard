@@ -79,14 +79,26 @@
   .pill.interval, .pill.tempo{background:var(--coral-dim); color:var(--coral);}
   .pill.benchmark, .pill.race{background:var(--gold-dim); color:var(--gold);}
   .pill.rest{background:rgba(255,255,255,0.06); color:var(--text-dim);}
+  .pill.cross{background:rgba(135,171,180,0.16); color:var(--text-muted);}
   .s-desc{font-size:0.88rem; color:var(--text-muted); margin-top:4px;}
   .s-target{font-family:var(--font-mono); font-size:0.78rem; color:var(--text-dim); margin-top:3px;}
   .s-right{flex:none; text-align:right; min-width:118px;}
   .badge{display:inline-block; font-size:0.74rem; padding:3px 9px; border-radius:20px; font-weight:600; white-space:nowrap;}
   .badge.done{background:var(--teal-dim); color:var(--teal);}
-  .badge.unsynced{background:rgba(255,255,255,0.06); color:var(--text-dim); border:1px dashed var(--border);}
+  .badge.missed{background:transparent; color:var(--text-dim); border:1px dashed var(--border);}
   .badge.upcoming{background:transparent; color:var(--text-dim); border:1px solid var(--border);}
   .s-actual{font-family:var(--font-mono); font-size:0.76rem; color:var(--text); margin-top:5px;}
+
+  /* A missed session is history — keep it readable, but don't let it compete
+     with sessions you can still act on. */
+  .session.is-missed{opacity:0.5;}
+  .missed-note{font-family:var(--font-mono); font-size:0.74rem; color:var(--text-dim);
+    padding:10px 0 2px; border-top:1px solid var(--border); letter-spacing:0.03em;}
+  .session + .missed-note{margin-top:2px;}
+
+  .toggle-row{display:flex; align-items:center; gap:8px; margin-top:12px; font-size:0.84rem; color:var(--text-muted);}
+  .toggle-row label{display:flex; align-items:center; gap:8px; cursor:pointer;}
+  .toggle-row input{width:15px; height:15px; accent-color:var(--teal); cursor:pointer;}
 
   /* ---- predicted finish ---- */
   .predict-empty{color:var(--text-muted); font-size:0.88rem;}
@@ -124,10 +136,22 @@
   @media (prefers-reduced-motion: reduce){
     .orca-dash *{transition:none !important; animation:none !important;}
   }
-  @media (max-width:520px){
+
+  /* Below ~560px the three-column session row can't hold: the monospace
+     "Actual:" block won't shrink, so it crushes the description column to a
+     few px and the text spills. Stack the row instead. */
+  @media (max-width:560px){
     .hero h1{font-size:1.6rem;}
     .count-card .num{font-size:1.6rem;}
-    .s-right{min-width:90px;}
+    .orca-dash{padding:28px 14px 64px;}
+    .card{padding:18px 16px 20px;}
+
+    .session{flex-wrap:wrap; align-items:flex-start; gap:0; padding:14px 0;}
+    .s-date{flex:1 1 100%; width:auto; display:flex; align-items:baseline; gap:7px; margin-bottom:6px;}
+    .s-date .dow{display:inline;}
+    .s-mid{flex:1 1 100%; min-width:0;}
+    .s-right{flex:1 1 100%; min-width:0; text-align:left; margin-top:8px;}
+    .s-actual{margin-top:4px;}
   }
 </style>
 </head>
@@ -166,6 +190,10 @@
       <input id="goal-input" type="text" placeholder="7:56" />
       <button id="goal-save">Save</button>
       <span style="color:var(--text-dim); font-size:0.8rem;">(adjust after your Week 4 time trial if needed)</span>
+    </div>
+
+    <div class="toggle-row">
+      <label><input type="checkbox" id="hide-missed"/> Hide missed sessions</label>
     </div>
 
     <svg class="wave" viewBox="0 0 400 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9"/></svg>
@@ -220,7 +248,7 @@
       <textarea id="notes" placeholder="How runs are feeling, adjustments to make, anything to remember..."></textarea>
     </div>
 
-    <p class="footer-note">Health data last pulled by Claude: Aug 16, 2026 (Jun 11 – Aug 16 range).<br/>Workouts under 1.0 mi are filtered out. Ask Claude to refresh anytime to pull your latest synced sessions.</p>
+    <p class="footer-note">Run data last updated Aug 16, 2026 (Jun 11 – Aug 16 range). Workouts under 1.0 mi are filtered out.<br/>Edit <code>data.js</code> in the repo to add runs, or use the manual log above — that saves to this browser only.</p>
 
   </div>
 </div>
@@ -293,7 +321,7 @@
   const CROSS_TRAINING = window.CROSS_TRAINING || [];
 
   const STORAGE_KEY = "dashboard-state";
-  let state = {notes:"", goalPace:7.9333, manualRuns:[]};
+  let state = {notes:"", goalPace:7.9333, manualRuns:[], hideMissed:true};
 
   function fmtPace(dec){
     if(dec==null || isNaN(dec)) return "--:--";
@@ -379,7 +407,22 @@
     if(session.type==="Rest") return {status:"rest"};
     const d=new Date(session.date+"T00:00:00");
     if(d>today) return {status:"upcoming"};
-    return {status:"unsynced"};
+    // A planned session whose date has passed with nothing logged against it.
+    // It can't be completed after the fact, so it's missed, not pending.
+    return {status:"missed"};
+  }
+
+  // Missed sessions are optionally hidden; returns the kept rows plus a count
+  // of what was dropped, so the gap still shows up as a line of text.
+  function partitionSessions(sessions, actuals, today){
+    if(!state.hideMissed) return {shown:sessions, hidden:0};
+    const shown = sessions.filter(s=>sessionStatus(s, actuals, today).status!=="missed");
+    return {shown, hidden:sessions.length-shown.length};
+  }
+
+  function missedNoteHTML(n){
+    if(!n) return "";
+    return `<div class="missed-note">+ ${n} missed session${n===1?"":"s"} hidden</div>`;
   }
 
   function sessionRowHTML(session, actuals, today){
@@ -401,10 +444,10 @@
     } else if(status==="upcoming"){
       badge = `<span class="badge upcoming">Upcoming</span>`;
     } else {
-      badge = `<span class="badge unsynced">Not synced</span>`;
+      badge = `<span class="badge missed">Missed</span>`;
     }
 
-    return `<div class="session">
+    return `<div class="session${status==="missed"?" is-missed":""}">
       <div class="s-date"><span class="dow">${session.day}</span>${fmtDate(session.date)}</div>
       <div class="s-mid">
         <span class="pill ${session.type.toLowerCase()}">${session.type}</span>
@@ -434,7 +477,8 @@
     const wk=PLAN[idx];
     titleEl.textContent=`Week ${wk.week} of 8 · ${wk.phase}`;
     subEl.textContent=wk.range;
-    body.innerHTML = wk.sessions.map(s=>sessionRowHTML(s, actuals, today)).join("");
+    const {shown, hidden} = partitionSessions(wk.sessions, actuals, today);
+    body.innerHTML = shown.map(s=>sessionRowHTML(s, actuals, today)).join("") + missedNoteHTML(hidden);
   }
 
   function renderSchedule(actuals){
@@ -442,13 +486,15 @@
     const el=document.getElementById("schedule");
     el.innerHTML = PLAN.map((wk,i)=>{
       const planned = wk.sessions.reduce((s,x)=>s+x.dist,0);
+      const {shown, hidden} = partitionSessions(wk.sessions, actuals, today);
       return `<div class="week-acc">
         <button class="week-head" aria-expanded="false" data-idx="${i}">
           <span><span class="wk-title">Week ${wk.week}</span> — <span class="wk-phase">${wk.phase} · ${wk.range} · ${planned.toFixed(1)} mi planned</span></span>
           <span class="wk-arrow">›</span>
         </button>
         <div class="week-body" id="wk-body-${i}">
-          ${wk.sessions.map(s=>sessionRowHTML(s, actuals, today)).join("")}
+          ${shown.map(s=>sessionRowHTML(s, actuals, today)).join("")}
+          ${missedNoteHTML(hidden)}
         </div>
       </div>`;
     }).join("");
@@ -535,7 +581,10 @@
     paceChart = new Chart(ctx, {
       type:"line",
       data:{labels, datasets:[
-        {label:"Pace (min/mi)", data:paces, borderColor:"#35D6BE", backgroundColor:"rgba(53,214,190,0.15)", tension:0.3, fill:true, pointRadius:4, pointBackgroundColor:"#35D6BE"},
+        // No area fill: the y-axis is reversed, so a fill toward the origin
+        // shades everything *faster* than you ran — reads as the opposite of
+        // what it means.
+        {label:"Pace (min/mi)", data:paces, borderColor:"#35D6BE", tension:0.3, fill:false, pointRadius:4, pointBackgroundColor:"#35D6BE"},
         {label:"Goal pace", data:goalLine, borderColor:"#EFC25A", borderDash:[6,5], pointRadius:0, borderWidth:1.5}
       ]},
       options:{
@@ -560,7 +609,7 @@
       return `<div class="session">
         <div class="s-date"><span class="dow">${dow}</span>${fmtDate(c.date)}</div>
         <div class="s-mid">
-          <span class="pill benchmark">${c.kind}</span>
+          <span class="pill cross">${c.kind}</span>
           <div class="s-desc">${c.dist.toFixed(2)} mi · ${Math.round(c.mins)} min</div>
           ${c.note?`<div class="s-target">${c.note}</div>`:""}
         </div>
@@ -599,6 +648,11 @@
   }
 
   // ---------- events ----------
+  document.getElementById("hide-missed").addEventListener("change", async (e)=>{
+    state.hideMissed = e.target.checked;
+    await saveState();
+    renderAll();
+  });
   document.getElementById("goal-save").addEventListener("click", async ()=>{
     const v=parsePace(document.getElementById("goal-input").value);
     if(v){ state.goalPace=v; await saveState(); renderAll(); }
@@ -625,6 +679,7 @@
   (async function init(){
     await loadState();
     document.getElementById("notes").value = state.notes || "";
+    document.getElementById("hide-missed").checked = !!state.hideMissed;
     renderAll();
   })();
 })();
