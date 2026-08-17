@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Orca Half Marathon — Training Dashboard</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="data.js"></script>
+
+<style>
+  :root{
+    --bg:#0A1E29; --bg-glow: radial-gradient(ellipse 900px 500px at 50% -10%, rgba(53,214,190,0.10), transparent 60%);
+    --surface:#12303F; --surface-2:#0F2733; --border:#25495A;
+    --text:#EAF4F2; --text-muted:#87ABB4; --text-dim:#587680;
+    --teal:#35D6BE; --teal-dim:rgba(53,214,190,0.14);
+    --coral:#F2795C; --coral-dim:rgba(242,121,92,0.14);
+    --gold:#EFC25A; --gold-dim:rgba(239,194,90,0.14);
+    --radius:14px;
+    --font-display:'Fraunces', serif;
+    --font-body:'Inter', sans-serif;
+    --font-mono:'IBM Plex Mono', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0; padding:0;}
+  body{background:var(--bg);}
+  .orca-dash{
+    background:var(--bg-glow), var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    padding:36px 18px 80px;
+    min-height:100vh;
+  }
+  .orca-dash .wrap{max-width:880px; margin:0 auto;}
+  .orca-dash *:focus-visible{outline:2px solid var(--teal); outline-offset:2px;}
+  .orca-dash a{color:var(--teal);}
+
+  /* ---- wave divider signature element ---- */
+  .wave{width:100%; height:18px; margin:26px 0; opacity:0.55;}
+  .wave path{fill:none; stroke:var(--teal); stroke-width:2; stroke-linecap:round;}
+
+  /* ---- hero ---- */
+  .hero{display:flex; align-items:flex-start; gap:16px; margin-bottom:8px;}
+  .fin{flex:none; width:38px; height:38px; margin-top:6px;}
+  .eyebrow{font-family:var(--font-mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--teal); margin:0 0 6px;}
+  .hero h1{font-family:var(--font-display); font-weight:600; font-size:2.1rem; line-height:1.15; margin:0 0 6px; color:var(--text);}
+  .hero .sub{color:var(--text-muted); font-size:0.95rem; margin:0;}
+
+  .countdowns{display:flex; gap:14px; margin:24px 0 6px; flex-wrap:wrap;}
+  .count-card{flex:1; min-width:150px; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px 18px;}
+  .count-card .label{font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin:0 0 8px;}
+  .count-card .num{font-family:var(--font-mono); font-weight:600; font-size:2.1rem; line-height:1; color:var(--teal);}
+  .count-card.gold .num{color:var(--gold);}
+  .count-card .cap{font-size:0.78rem; color:var(--text-dim); margin-top:6px;}
+
+  .goal-row{display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:16px; font-size:0.9rem; color:var(--text-muted);}
+  .goal-row b{color:var(--text); font-family:var(--font-mono); font-weight:600;}
+  .goal-row input{width:70px; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--font-mono); padding:5px 8px; font-size:0.85rem;}
+  .goal-row button{background:var(--teal-dim); color:var(--teal); border:1px solid rgba(53,214,190,0.35); border-radius:8px; padding:5px 12px; font-size:0.8rem; cursor:pointer; font-family:var(--font-body); font-weight:600;}
+  .goal-row button:hover{background:rgba(53,214,190,0.24);}
+
+  /* ---- cards ---- */
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px 22px 24px; margin-bottom:18px;}
+  .card h2{font-family:var(--font-display); font-weight:600; font-size:1.25rem; margin:0 0 4px;}
+  .card .card-sub{color:var(--text-muted); font-size:0.85rem; margin:0 0 16px;}
+
+  /* ---- session rows ---- */
+  .session{display:flex; align-items:center; gap:14px; padding:12px 0; border-top:1px solid var(--border);}
+  .session:first-of-type{border-top:none;}
+  .s-date{flex:none; width:64px; font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted); text-align:left; line-height:1.3;}
+  .s-date .dow{display:block; color:var(--text); font-weight:600;}
+  .s-mid{flex:1; min-width:0;}
+  .pill{display:inline-block; font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.06em; text-transform:uppercase; padding:2px 8px; border-radius:6px; margin-right:8px; vertical-align:middle;}
+  .pill.easy, .pill.group, .pill.long{background:var(--teal-dim); color:var(--teal);}
+  .pill.interval, .pill.tempo{background:var(--coral-dim); color:var(--coral);}
+  .pill.benchmark, .pill.race{background:var(--gold-dim); color:var(--gold);}
+  .pill.rest{background:rgba(255,255,255,0.06); color:var(--text-dim);}
+  .s-desc{font-size:0.88rem; color:var(--text-muted); margin-top:4px;}
+  .s-target{font-family:var(--font-mono); font-size:0.78rem; color:var(--text-dim); margin-top:3px;}
+  .s-right{flex:none; text-align:right; min-width:118px;}
+  .badge{display:inline-block; font-size:0.74rem; padding:3px 9px; border-radius:20px; font-weight:600; white-space:nowrap;}
+  .badge.done{background:var(--teal-dim); color:var(--teal);}
+  .badge.unsynced{background:rgba(255,255,255,0.06); color:var(--text-dim); border:1px dashed var(--border);}
+  .badge.upcoming{background:transparent; color:var(--text-dim); border:1px solid var(--border);}
+  .s-actual{font-family:var(--font-mono); font-size:0.76rem; color:var(--text); margin-top:5px;}
+
+  /* ---- predicted finish ---- */
+  .predict-empty{color:var(--text-muted); font-size:0.88rem;}
+  .predict-value{font-family:var(--font-mono); font-size:1.6rem; color:var(--gold); font-weight:600; margin:6px 0 4px;}
+  .predict-note{font-size:0.82rem; color:var(--text-muted);}
+
+  /* ---- charts ---- */
+  .chart-box{position:relative; height:230px;}
+
+  /* ---- accordion ---- */
+  .week-acc{border-top:1px solid var(--border);}
+  .week-acc:first-child{border-top:none;}
+  .week-head{width:100%; display:flex; justify-content:space-between; align-items:center; gap:10px; background:none; border:none; color:var(--text); padding:14px 0; cursor:pointer; text-align:left; font-family:var(--font-body); font-size:0.94rem;}
+  .week-head .wk-title{font-weight:600;}
+  .week-head .wk-phase{color:var(--text-muted); font-weight:400; font-size:0.82rem;}
+  .week-head .wk-arrow{color:var(--teal); font-family:var(--font-mono); transition:transform 0.2s ease;}
+  .week-body{display:none; padding-bottom:8px;}
+  .week-body.open{display:block;}
+  .week-head[aria-expanded="true"] .wk-arrow{transform:rotate(90deg);}
+
+  /* ---- notes / manual log ---- */
+  textarea{width:100%; min-height:88px; background:var(--surface-2); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:var(--font-body); font-size:0.88rem; padding:12px; resize:vertical;}
+  .log-form{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; align-items:flex-end;}
+  .log-form .field{display:flex; flex-direction:column; gap:5px;}
+  .log-form label{font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono); text-transform:uppercase; letter-spacing:0.05em;}
+  .log-form input{background:var(--surface-2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--font-mono); padding:7px 9px; font-size:0.85rem; width:110px;}
+  .log-form button{background:var(--teal); color:#062824; border:none; border-radius:8px; padding:8px 16px; font-weight:700; font-size:0.85rem; cursor:pointer; height:34px;}
+  .log-form button:hover{filter:brightness(1.08);}
+  .manual-list{margin-top:14px; font-size:0.82rem; color:var(--text-muted);}
+  .manual-item{display:flex; justify-content:space-between; padding:6px 0; border-top:1px solid var(--border);}
+  .manual-item button{background:none; border:none; color:var(--coral); cursor:pointer; font-size:0.78rem;}
+
+  .footer-note{color:var(--text-dim); font-size:0.78rem; text-align:center; margin-top:26px; line-height:1.6;}
+
+  @media (prefers-reduced-motion: reduce){
+    .orca-dash *{transition:none !important; animation:none !important;}
+  }
+  @media (max-width:520px){
+    .hero h1{font-size:1.6rem;}
+    .count-card .num{font-size:1.6rem;}
+    .s-right{min-width:90px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="orca-dash">
+  <div class="wrap">
+
+    <div class="hero">
+      <svg class="fin" viewBox="0 0 48 48" fill="none">
+        <path d="M6 40 C 14 40 20 8 26 4 C 24 16 30 30 40 34 C 30 38 16 40 6 40 Z" fill="var(--text)" opacity="0.92"/>
+        <path d="M6 40 C 14 40 20 8 26 4 C 24 16 30 30 40 34 C 30 38 16 40 6 40 Z" stroke="var(--teal)" stroke-width="1.2" fill="none"/>
+      </svg>
+      <div>
+        <p class="eyebrow">Orca Half Marathon · Seattle</p>
+        <h1>Training Dashboard</h1>
+        <p class="sub">Race day: Saturday, September 19, 2026</p>
+      </div>
+    </div>
+
+    <div class="countdowns">
+      <div class="count-card">
+        <p class="label">Days to race</p>
+        <div class="num" id="cd-race">–</div>
+        <p class="cap" id="cd-race-cap"></p>
+      </div>
+      <div class="count-card gold">
+        <p class="label">Week 4 benchmark</p>
+        <div class="num" id="cd-bench">–</div>
+        <p class="cap" id="cd-bench-cap"></p>
+      </div>
+    </div>
+
+    <div class="goal-row">
+      <span>Goal race pace:</span> <b id="goal-display">7:56/mi</b>
+      <input id="goal-input" type="text" placeholder="7:56" />
+      <button id="goal-save">Save</button>
+      <span style="color:var(--text-dim); font-size:0.8rem;">(adjust after your Week 4 time trial if needed)</span>
+    </div>
+
+    <svg class="wave" viewBox="0 0 400 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9"/></svg>
+
+    <div class="card">
+      <h2 id="week-title">This Week</h2>
+      <p class="card-sub" id="week-sub"></p>
+      <div id="week-sessions"></div>
+    </div>
+
+    <div class="card">
+      <h2>Predicted Finish</h2>
+      <p class="card-sub">Based on Riegel's race-time formula, applied to your Week 4 10K time trial</p>
+      <div id="predict-box" class="predict-empty">Log your Week 4 benchmark to see a data-based prediction here.</div>
+    </div>
+
+    <div class="card">
+      <h2>Weekly Mileage</h2>
+      <p class="card-sub">Planned vs. logged, by training week</p>
+      <div class="chart-box"><canvas id="mileageChart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h2>Pace Trend</h2>
+      <p class="card-sub">All logged runs · dashed line marks your goal race pace</p>
+      <div class="chart-box"><canvas id="paceChart"></canvas></div>
+    </div>
+
+    <div class="card">
+      <h2>Cross-Training Load</h2>
+      <p class="card-sub">Non-running work — counts toward aerobic load, excluded from pace analysis</p>
+      <div id="cross-list"></div>
+    </div>
+
+    <div class="card">
+      <h2>Full 8-Week Schedule</h2>
+      <p class="card-sub">Tap a week to expand</p>
+      <div id="schedule"></div>
+    </div>
+
+    <div class="card">
+      <h2>Log &amp; Notes</h2>
+      <p class="card-sub">If a run hasn't synced from Health yet, add it here — it'll count toward your charts immediately.</p>
+      <div class="log-form">
+        <div class="field"><label>Date</label><input id="log-date" type="date"/></div>
+        <div class="field"><label>Distance (mi)</label><input id="log-dist" type="number" step="0.01" placeholder="3.10"/></div>
+        <div class="field"><label>Time (min)</label><input id="log-time" type="number" step="0.1" placeholder="29.5"/></div>
+        <button id="log-add">Add run</button>
+      </div>
+      <div id="manual-list" class="manual-list"></div>
+      <p class="card-sub" style="margin-top:20px;">Notes</p>
+      <textarea id="notes" placeholder="How runs are feeling, adjustments to make, anything to remember..."></textarea>
+    </div>
+
+    <p class="footer-note">Health data last pulled by Claude: Aug 16, 2026 (Jun 11 – Aug 16 range).<br/>Workouts under 1.0 mi are filtered out. Ask Claude to refresh anytime to pull your latest synced sessions.</p>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  const HALF_MI = 13.10938, TEN_K_MI = 6.21371;
+  const WEEK_STARTS = ["2026-07-27","2026-08-03","2026-08-10","2026-08-17","2026-08-24","2026-08-31","2026-09-07","2026-09-14"];
+  const WEEK_ENDS   = ["2026-08-02","2026-08-09","2026-08-16","2026-08-23","2026-08-30","2026-09-06","2026-09-13","2026-09-19"];
+
+  const PACE_ZONES = {
+    Easy:[8.833,9.333], Group:[9.0,9.5], Tempo:[7.667,7.917],
+    Long:[8.667,9.167], Interval:[6.917,7.333]
+  };
+
+  const PLAN = [
+    {week:1, phase:"Rebuild", range:"Jul 27 – Aug 2", sessions:[
+      {date:"2026-07-28", day:"Tue", type:"Easy", desc:"Easy run", dist:3},
+      {date:"2026-07-30", day:"Thu", type:"Group", desc:"Group run — fixed pace, 5K", dist:3.1},
+      {date:"2026-08-01", day:"Sat", type:"Tempo", desc:"1mi WU + 2mi tempo + 1mi CD", dist:4},
+      {date:"2026-08-02", day:"Sun", type:"Long", desc:"Long run, easy pace", dist:6},
+    ]},
+    {week:2, phase:"Rebuild", range:"Aug 3 – Aug 9", sessions:[
+      {date:"2026-08-04", day:"Tue", type:"Interval", desc:"1mi WU + 6×400m + 1mi CD", dist:4.75},
+      {date:"2026-08-06", day:"Thu", type:"Group", desc:"Group run — fixed pace, 5K", dist:3.1},
+      {date:"2026-08-08", day:"Sat", type:"Tempo", desc:"1mi WU + 2mi tempo + 1mi CD", dist:4},
+      {date:"2026-08-09", day:"Sun", type:"Long", desc:"Long run, easy pace", dist:7},
+    ]},
+    {week:3, phase:"Build", range:"Aug 10 – Aug 16", sessions:[
+      {date:"2026-08-11", day:"Tue", type:"Interval", desc:"1mi WU + 5×800m + 1mi CD", dist:6},
+      {date:"2026-08-13", day:"Thu", type:"Group", desc:"Group run — fixed pace, 5K", dist:3.1},
+      {date:"2026-08-15", day:"Sat", type:"Tempo", desc:"1mi WU + 3mi tempo + 1mi CD", dist:5},
+      {date:"2026-08-16", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace", dist:8},
+    ]},
+    {week:4, phase:"Benchmark", range:"Aug 17 – Aug 23", sessions:[
+      {date:"2026-08-17", day:"Mon", type:"Rest", desc:"Rest — recovery from 9 mi Sunday", dist:0},
+      {date:"2026-08-18", day:"Tue", type:"Easy", desc:"Easy run — conversational, no pace targets", dist:4},
+      {date:"2026-08-20", day:"Thu", type:"Interval", desc:"Sharpener: 1mi WU + 4×400m @ 10K effort + 1mi CD", dist:3.5},
+      {date:"2026-08-22", day:"Sat", type:"Benchmark", desc:"10K time trial — flat out-and-back, morning", dist:6.2},
+      {date:"2026-08-23", day:"Sun", type:"Long", desc:"Long run — flat, steady effort (decoupling test)", dist:7.5},
+    ]},
+    {week:5, phase:"Peak build", range:"Aug 24 – Aug 30", sessions:[
+      {date:"2026-08-25", day:"Tue", type:"Interval", desc:"1mi WU + 5×1mi + 1mi CD", dist:7},
+      {date:"2026-08-27", day:"Thu", type:"Group", desc:"Group run — fixed pace, 5K", dist:3.1},
+      {date:"2026-08-29", day:"Sat", type:"Tempo", desc:"1mi WU + 4mi tempo + 1mi CD", dist:6},
+      {date:"2026-08-30", day:"Sun", type:"Long", desc:"Long run, last 3mi @ goal pace", dist:10},
+    ]},
+    {week:6, phase:"Peak", range:"Aug 31 – Sep 6", sessions:[
+      {date:"2026-09-01", day:"Tue", type:"Interval", desc:"1mi WU + 4×1mi + 1mi CD", dist:6},
+      {date:"2026-09-03", day:"Thu", type:"Group", desc:"Group run — fixed pace, 5K", dist:3.1},
+      {date:"2026-09-05", day:"Sat", type:"Tempo", desc:"1mi WU + 4mi tempo + 1mi CD", dist:6},
+      {date:"2026-09-06", day:"Sun", type:"Long", desc:"Peak long run, middle miles @ goal pace", dist:11.5},
+    ]},
+    {week:7, phase:"Taper begins", range:"Sep 7 – Sep 13", sessions:[
+      {date:"2026-09-08", day:"Tue", type:"Interval", desc:"1mi WU + 4×800m @ goal pace + 1mi CD", dist:5, useGoal:true},
+      {date:"2026-09-10", day:"Thu", type:"Group", desc:"Group run — fixed pace, 5K", dist:3.1},
+      {date:"2026-09-12", day:"Sat", type:"Tempo", desc:"1mi WU + 3mi @ goal pace + 1mi CD", dist:5, useGoal:true},
+      {date:"2026-09-13", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace", dist:8},
+    ]},
+    {week:8, phase:"Race week", range:"Sep 14 – Sep 19", sessions:[
+      {date:"2026-09-14", day:"Mon", type:"Easy", desc:"Easy run", dist:3},
+      {date:"2026-09-17", day:"Thu", type:"Group", desc:"Group run — shakeout, 5K", dist:3.1},
+      {date:"2026-09-18", day:"Fri", type:"Rest", desc:"Rest", dist:0},
+      {date:"2026-09-19", day:"Sat", type:"Race", desc:"🏁 ORCA HALF MARATHON", dist:13.1, useGoal:true},
+    ]},
+  ];
+
+  // Run + cross-training data live in data.js, loaded before this script.
+  const SEEDED_ACTUALS = window.SEEDED_ACTUALS || [];
+  const CROSS_TRAINING = window.CROSS_TRAINING || [];
+
+  const STORAGE_KEY = "dashboard-state";
+  let state = {notes:"", goalPace:7.9333, manualRuns:[]};
+
+  function fmtPace(dec){
+    if(dec==null || isNaN(dec)) return "--:--";
+    const m=Math.floor(dec), s=Math.round((dec-m)*60);
+    return m+":"+String(s).padStart(2,"0");
+  }
+  function parsePace(str){
+    if(!str) return null;
+    str=str.trim();
+    if(str.includes(":")){
+      const [m,s]=str.split(":").map(Number);
+      if(isNaN(m)||isNaN(s)) return null;
+      return m+s/60;
+    }
+    const v=parseFloat(str);
+    return isNaN(v)?null:v;
+  }
+  function fmtDate(iso){
+    const d=new Date(iso+"T00:00:00");
+    return d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
+  }
+  function todayLocal(){
+    const d=new Date(); d.setHours(0,0,0,0); return d;
+  }
+
+  function getTargetRange(session){
+    if(session.useGoal) return [state.goalPace-0.08, state.goalPace+0.08];
+    return PACE_ZONES[session.type] || null;
+  }
+
+  function allActuals(){
+    const map={};
+    SEEDED_ACTUALS.forEach(a=>map[a.date]=a);
+    state.manualRuns.forEach(a=>map[a.date]=a);
+    return Object.values(map).sort((a,b)=>a.date.localeCompare(b.date));
+  }
+
+  async function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        state = Object.assign(state, parsed);
+      }
+    }catch(e){ /* no saved state yet */ }
+  }
+  async function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e){ console.error("storage save failed", e); }
+  }
+
+  // ---------- rendering ----------
+  function renderCountdowns(){
+    const today=todayLocal();
+    const race=new Date("2026-09-19T00:00:00");
+    const bench=new Date("2026-08-22T00:00:00");
+    const dRace=Math.round((race-today)/86400000);
+    const dBench=Math.round((bench-today)/86400000);
+    document.getElementById("cd-race").textContent = dRace>=0 ? dRace : "🏁";
+    document.getElementById("cd-race-cap").textContent = dRace>=0 ? "until the start line" : "Race complete!";
+    document.getElementById("cd-bench").textContent = dBench>0 ? dBench : (dBench===0?"Today":"Done");
+    document.getElementById("cd-bench-cap").textContent = dBench>0 ? "until your 10K time trial" : "10K time trial checkpoint";
+  }
+
+  function renderGoal(){
+    document.getElementById("goal-display").textContent = fmtPace(state.goalPace)+"/mi";
+    document.getElementById("goal-input").value = fmtPace(state.goalPace);
+  }
+
+  function findCurrentWeek(){
+    const today=todayLocal();
+    for(let i=0;i<WEEK_STARTS.length;i++){
+      const s=new Date(WEEK_STARTS[i]+"T00:00:00"), e=new Date(WEEK_ENDS[i]+"T23:59:59");
+      if(today>=s && today<=e) return i;
+    }
+    if(today < new Date(WEEK_STARTS[0]+"T00:00:00")) return -1;
+    return 99;
+  }
+
+  function sessionStatus(session, actuals, today){
+    const match = actuals.find(a=>a.date===session.date);
+    if(match) return {status:"done", actual:match};
+    if(session.type==="Rest") return {status:"rest"};
+    const d=new Date(session.date+"T00:00:00");
+    if(d>today) return {status:"upcoming"};
+    return {status:"unsynced"};
+  }
+
+  function sessionRowHTML(session, actuals, today){
+    const {status, actual} = sessionStatus(session, actuals, today);
+    const range = getTargetRange(session);
+    const targetStr = session.type==="Benchmark" ? "All-out effort — no target pace"
+      : session.type==="Rest" ? ""
+      : range ? `${session.dist} mi @ ${fmtPace(range[0])}–${fmtPace(range[1])}/mi` : `${session.dist} mi`;
+
+    let badge, actualLine="";
+    if(status==="done"){
+      badge = `<span class="badge done">✓ Synced</span>`;
+      const pace = actual.mins/actual.dist;
+      actualLine = `<div class="s-actual">Actual: ${actual.dist.toFixed(2)} mi @ ${fmtPace(pace)}/mi</div>`;
+      if(actual.hrAvg) actualLine += `<div class="s-actual" style="color:var(--coral);">♥ ${actual.hrAvg} avg · ${actual.hrMax} max</div>`;
+      if(actual.elev) actualLine += `<div class="s-actual" style="color:var(--text-dim);">${actual.elev}</div>`;
+    } else if(status==="rest"){
+      badge = `<span class="badge upcoming">Rest</span>`;
+    } else if(status==="upcoming"){
+      badge = `<span class="badge upcoming">Upcoming</span>`;
+    } else {
+      badge = `<span class="badge unsynced">Not synced</span>`;
+    }
+
+    return `<div class="session">
+      <div class="s-date"><span class="dow">${session.day}</span>${fmtDate(session.date)}</div>
+      <div class="s-mid">
+        <span class="pill ${session.type.toLowerCase()}">${session.type}</span>
+        <div class="s-desc">${session.desc}</div>
+        ${targetStr?`<div class="s-target">${targetStr}</div>`:""}
+      </div>
+      <div class="s-right">${badge}${actualLine}</div>
+    </div>`;
+  }
+
+  function renderThisWeek(actuals){
+    const today=todayLocal();
+    const idx=findCurrentWeek();
+    const titleEl=document.getElementById("week-title"), subEl=document.getElementById("week-sub"), body=document.getElementById("week-sessions");
+    if(idx===-1){
+      titleEl.textContent="Plan starts soon";
+      subEl.textContent="Your 8-week plan kicks off "+fmtDate(WEEK_STARTS[0]);
+      body.innerHTML="";
+      return;
+    }
+    if(idx===99){
+      titleEl.textContent="Race complete!";
+      subEl.textContent="Hope Orca went great — check the full schedule below for a recap.";
+      body.innerHTML="";
+      return;
+    }
+    const wk=PLAN[idx];
+    titleEl.textContent=`Week ${wk.week} of 8 · ${wk.phase}`;
+    subEl.textContent=wk.range;
+    body.innerHTML = wk.sessions.map(s=>sessionRowHTML(s, actuals, today)).join("");
+  }
+
+  function renderSchedule(actuals){
+    const today=todayLocal();
+    const el=document.getElementById("schedule");
+    el.innerHTML = PLAN.map((wk,i)=>{
+      const planned = wk.sessions.reduce((s,x)=>s+x.dist,0);
+      return `<div class="week-acc">
+        <button class="week-head" aria-expanded="false" data-idx="${i}">
+          <span><span class="wk-title">Week ${wk.week}</span> — <span class="wk-phase">${wk.phase} · ${wk.range} · ${planned.toFixed(1)} mi planned</span></span>
+          <span class="wk-arrow">›</span>
+        </button>
+        <div class="week-body" id="wk-body-${i}">
+          ${wk.sessions.map(s=>sessionRowHTML(s, actuals, today)).join("")}
+        </div>
+      </div>`;
+    }).join("");
+    el.querySelectorAll(".week-head").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        const body=document.getElementById("wk-body-"+btn.dataset.idx);
+        const open=body.classList.toggle("open");
+        btn.setAttribute("aria-expanded", open?"true":"false");
+      });
+    });
+    // auto-open current week
+    const idx=findCurrentWeek();
+    if(idx>=0 && idx<8){
+      const body=document.getElementById("wk-body-"+idx);
+      const btn=el.querySelector(`.week-head[data-idx="${idx}"]`);
+      if(body && btn){ body.classList.add("open"); btn.setAttribute("aria-expanded","true"); }
+    }
+  }
+
+  function renderPrediction(actuals){
+    const bench = actuals.find(a=>a.date==="2026-08-22");
+    const box=document.getElementById("predict-box");
+    if(!bench){
+      const needed = (state.goalPace*HALF_MI) / Math.pow(HALF_MI/TEN_K_MI, 1.06);
+      const nm=Math.floor(needed), ns=Math.round((needed%1)*60);
+      box.className="predict-empty";
+      box.innerHTML = `Log your Aug 22 benchmark to see a data-based prediction here.<br/><br/>
+        <span style="color:var(--gold); font-family:var(--font-mono);">${nm}:${String(ns).padStart(2,"0")}</span>
+        — the 10K time that projects to your current goal of ${fmtPace(state.goalPace)}/mi.`;
+      return;
+    }
+    const t1 = bench.mins;
+    const predictedMin = t1 * Math.pow(HALF_MI/TEN_K_MI, 1.06);
+    const h=Math.floor(predictedMin/60), m=Math.floor(predictedMin%60), s=Math.round((predictedMin%1)*60);
+    const goalMin = state.goalPace*HALF_MI;
+    const diff = predictedMin - goalMin;
+    let note;
+    if(diff<=1) note="Right on track for your goal pace. 🎯";
+    else if(diff<=6) note="Close to your goal — a bit more speed work could close the gap.";
+    else note="Meaningfully behind your current goal — worth revisiting your target pace for race day.";
+    box.className="";
+    box.innerHTML = `<div class="predict-value">${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}</div>
+      <div class="predict-note">From your ${bench.dist.toFixed(1)} mi time trial in ${t1.toFixed(1)} min, via Riegel's formula. ${note}</div>`;
+  }
+
+  let mileageChart, paceChart;
+  function renderMileageChart(actuals){
+    const labels = PLAN.map(w=>"W"+w.week);
+    const planned = PLAN.map(w=>w.sessions.reduce((s,x)=>s+x.dist,0));
+    const logged = PLAN.map(w=>{
+      return actuals.filter(a=>a.date>=WEEK_STARTS[w.week-1] && a.date<=WEEK_ENDS[w.week-1])
+                    .reduce((s,a)=>s+a.dist,0);
+    });
+    const cross = PLAN.map(w=>{
+      return CROSS_TRAINING.filter(c=>c.date>=WEEK_STARTS[w.week-1] && c.date<=WEEK_ENDS[w.week-1])
+                           .reduce((s,c)=>s+c.dist,0);
+    });
+    const ctx=document.getElementById("mileageChart");
+    if(mileageChart) mileageChart.destroy();
+    mileageChart = new Chart(ctx, {
+      type:"bar",
+      data:{labels, datasets:[
+        {label:"Planned", data:planned, backgroundColor:"rgba(135,171,180,0.25)", borderRadius:4},
+        {label:"Logged (runs)", data:logged, backgroundColor:"#35D6BE", borderRadius:4},
+        {label:"Cross-training", data:cross, backgroundColor:"rgba(239,194,90,0.6)", borderRadius:4}
+      ]},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        scales:{
+          x:{ticks:{color:"#87ABB4", font:{family:"IBM Plex Mono", size:11}}, grid:{color:"rgba(255,255,255,0.05)"}},
+          y:{ticks:{color:"#87ABB4", font:{family:"IBM Plex Mono", size:11}}, grid:{color:"rgba(255,255,255,0.05)"}, title:{display:true, text:"miles", color:"#87ABB4"}}
+        },
+        plugins:{legend:{labels:{color:"#EAF4F2", font:{family:"Inter"}}}}
+      }
+    });
+  }
+
+  function renderPaceChart(actuals){
+    const labels = actuals.map(a=>fmtDate(a.date));
+    const paces = actuals.map(a=>+(a.mins/a.dist).toFixed(2));
+    const goalLine = actuals.map(()=>state.goalPace);
+    const ctx=document.getElementById("paceChart");
+    if(paceChart) paceChart.destroy();
+    paceChart = new Chart(ctx, {
+      type:"line",
+      data:{labels, datasets:[
+        {label:"Pace (min/mi)", data:paces, borderColor:"#35D6BE", backgroundColor:"rgba(53,214,190,0.15)", tension:0.3, fill:true, pointRadius:4, pointBackgroundColor:"#35D6BE"},
+        {label:"Goal pace", data:goalLine, borderColor:"#EFC25A", borderDash:[6,5], pointRadius:0, borderWidth:1.5}
+      ]},
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        scales:{
+          x:{ticks:{color:"#87ABB4", font:{family:"IBM Plex Mono", size:10}}, grid:{color:"rgba(255,255,255,0.05)"}},
+          y:{reverse:true, ticks:{color:"#87ABB4", font:{family:"IBM Plex Mono", size:11}, callback:v=>fmtPace(v)}, grid:{color:"rgba(255,255,255,0.05)"}, title:{display:true, text:"min/mi (lower = faster)", color:"#87ABB4"}}
+        },
+        plugins:{legend:{labels:{color:"#EAF4F2", font:{family:"Inter"}}}}
+      }
+    });
+  }
+
+  function renderCrossTraining(){
+    const el=document.getElementById("cross-list");
+    if(!el) return;
+    if(CROSS_TRAINING.length===0){ el.innerHTML=`<p class="predict-empty">Nothing logged yet.</p>`; return; }
+    el.innerHTML = CROSS_TRAINING.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(c=>{
+      const d=new Date(c.date+"T00:00:00");
+      const dow=d.toLocaleDateString("en-US",{weekday:"short"});
+      const hrLine = c.hrAvg ? `<div class="s-actual" style="color:var(--coral);">♥ ${c.hrAvg} avg · ${c.hrMax} max</div>` : "";
+      return `<div class="session">
+        <div class="s-date"><span class="dow">${dow}</span>${fmtDate(c.date)}</div>
+        <div class="s-mid">
+          <span class="pill benchmark">${c.kind}</span>
+          <div class="s-desc">${c.dist.toFixed(2)} mi · ${Math.round(c.mins)} min</div>
+          ${c.note?`<div class="s-target">${c.note}</div>`:""}
+        </div>
+        <div class="s-right"><span class="badge done">✓ Synced</span>${hrLine}</div>
+      </div>`;
+    }).join("");
+  }
+
+  function renderManualList(){
+    const el=document.getElementById("manual-list");
+    if(state.manualRuns.length===0){ el.innerHTML=""; return; }
+    el.innerHTML = state.manualRuns.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(r=>{
+      const pace=fmtPace(r.mins/r.dist);
+      return `<div class="manual-item"><span>${fmtDate(r.date)} — ${r.dist} mi @ ${pace}/mi</span><button data-date="${r.date}">Remove</button></div>`;
+    }).join("");
+    el.querySelectorAll("button[data-date]").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        state.manualRuns = state.manualRuns.filter(r=>r.date!==btn.dataset.date);
+        await saveState();
+        renderAll();
+      });
+    });
+  }
+
+  function renderAll(){
+    const actuals = allActuals();
+    renderCountdowns();
+    renderGoal();
+    renderThisWeek(actuals);
+    renderPrediction(actuals);
+    renderMileageChart(actuals);
+    renderPaceChart(actuals);
+    renderSchedule(actuals);
+    renderCrossTraining();
+    renderManualList();
+  }
+
+  // ---------- events ----------
+  document.getElementById("goal-save").addEventListener("click", async ()=>{
+    const v=parsePace(document.getElementById("goal-input").value);
+    if(v){ state.goalPace=v; await saveState(); renderAll(); }
+  });
+  document.getElementById("log-add").addEventListener("click", async ()=>{
+    const date=document.getElementById("log-date").value;
+    const dist=parseFloat(document.getElementById("log-dist").value);
+    const mins=parseFloat(document.getElementById("log-time").value);
+    if(!date || !dist || !mins) return;
+    state.manualRuns = state.manualRuns.filter(r=>r.date!==date).concat([{date,dist,mins}]);
+    await saveState();
+    document.getElementById("log-date").value="";
+    document.getElementById("log-dist").value="";
+    document.getElementById("log-time").value="";
+    renderAll();
+  });
+  let notesTimer;
+  document.getElementById("notes").addEventListener("input", (e)=>{
+    state.notes = e.target.value;
+    clearTimeout(notesTimer);
+    notesTimer = setTimeout(saveState, 600);
+  });
+
+  (async function init(){
+    await loadState();
+    document.getElementById("notes").value = state.notes || "";
+    renderAll();
+  })();
+})();
+</script>
+
+</body>
+</html>
