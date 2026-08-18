@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Matches the privacy posture of the dashboard: shareable by link, not indexed
+     by Google under your real name. Delete this line if you want it findable. -->
+<meta name="robots" content="noindex, nofollow">
+<title>Date-Kyle</title>
+<meta name="description" content="A bachelor, showing his work.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- ==========================================================================
+     EDIT ME — this is the only block you need to touch.
+     On mobile: GitHub → this file → pencil icon → change the quoted text.
+     ========================================================================== -->
+<script>
+window.KYLE = {
+  // Your Instagram handle, with or without the @. Leave it "" and the page
+  // shows a "find me here tonight" line instead of a broken link.
+  instagram: "",
+
+  // Shown only when instagram is empty. Say where you'll be standing.
+  atEvent: "I'm here tonight — come say hi and I'll skip straight to the part where I ask about you.",
+
+  // Optional. Leave "" to hide the line entirely.
+  extra: ""
+};
+</script>
+<!-- Pulls your live training log when served from the repo, so this page stays
+     true as you keep running. Falls back to the numbers below if unavailable. -->
+<script src="../data.js" onerror="void 0"></script>
+
+<style>
+  :root{
+    --bg:#0A1E29;
+    --bg-glow: radial-gradient(ellipse 800px 480px at 50% -8%, rgba(242,121,92,0.13), transparent 62%);
+    --surface:#12303F;
+    --surface-2:#0F2733;
+    --border:#25495A;
+    --border-soft:rgba(37,73,90,0.6);
+    --text:#EAF4F2;
+    --text-muted:#9DBCC3;
+    --text-dim:#5E7E89;
+    --coral:#F2795C;
+    --coral-dim:rgba(242,121,92,0.13);
+    --gold:#EFC25A;
+    --teal:#35D6BE;
+    --radius:14px;
+    --font-display:'Fraunces', Georgia, 'Times New Roman', serif;
+    --font-body:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0; padding:0;}
+
+  body{
+    background:var(--bg-glow), var(--bg);
+    background-repeat:no-repeat;
+    color:var(--text);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    padding:44px 20px 64px;
+    min-height:100vh;
+  }
+
+  .wrap{max-width:620px; margin:0 auto;}
+  a{color:var(--teal);}
+  *:focus-visible{outline:2px solid var(--coral); outline-offset:3px; border-radius:3px;}
+
+  /* ---- wave divider: signature element carried over from the dashboard ---- */
+  .wave{display:block; width:100%; height:16px; margin:44px 0; opacity:0.4;}
+  .wave path{fill:none; stroke:var(--coral); stroke-width:2; stroke-linecap:round;}
+
+  /* ---- hero ---- */
+  .eyebrow{
+    font-family:var(--font-mono); font-size:11px; font-weight:500;
+    letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--coral); margin:0 0 14px;
+  }
+  h1{
+    font-family:var(--font-display); font-weight:600;
+    font-size:clamp(2.9rem, 15vw, 4.4rem);
+    line-height:0.98; letter-spacing:-0.025em;
+    text-wrap:balance; margin:0 0 4px; color:var(--text);
+  }
+  h1 .dash{color:var(--coral);}
+  .domain{
+    font-family:var(--font-mono); font-size:12px; color:var(--text-dim);
+    letter-spacing:0.04em; margin:0 0 26px;
+  }
+  .lede{
+    font-family:var(--font-display); font-style:italic; font-weight:500;
+    font-size:1.3rem; line-height:1.45; color:var(--text);
+    text-wrap:balance; margin:0 0 18px;
+  }
+  .lede-sub{color:var(--text-muted); margin:0; font-size:1.02rem;}
+
+  /* ---- stat strip ---- */
+  .stats{
+    display:grid; grid-template-columns:repeat(3, 1fr);
+    gap:10px; margin:34px 0 0;
+  }
+  .stat{
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius); padding:15px 13px;
+  }
+  .stat .num{
+    font-family:var(--font-mono); font-weight:600; font-size:1.6rem;
+    line-height:1; color:var(--gold); font-variant-numeric:tabular-nums;
+  }
+  .stat.is-coral .num{color:var(--coral);}
+  .stat.is-teal .num{color:var(--teal);}
+  .stat .lbl{
+    font-family:var(--font-mono); font-size:9.5px; font-weight:500;
+    letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--text-dim); margin-top:9px; line-height:1.35;
+  }
+
+  /* ---- sections ---- */
+  h2{
+    font-family:var(--font-display); font-weight:600; font-size:1.55rem;
+    letter-spacing:-0.015em; line-height:1.2; text-wrap:balance;
+    margin:0 0 22px; color:var(--text);
+  }
+  p{margin:0 0 17px;}
+  p:last-child{margin-bottom:0;}
+
+  /* ---- the case: a real chronology, so dates carry the structure ---- */
+  .case{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:26px;}
+  .case li{display:grid; grid-template-columns:66px 1fr; gap:16px; align-items:start;}
+  .case .when{
+    font-family:var(--font-mono); font-size:10.5px; font-weight:500;
+    letter-spacing:0.08em; text-transform:uppercase; color:var(--coral);
+    padding-top:5px; line-height:1.5;
+  }
+  .case .what{margin:0; color:var(--text-muted);}
+  .case .what strong{color:var(--text); font-weight:600;}
+
+  /* ---- receipts ---- */
+  .receipts-note{
+    font-size:0.9rem; color:var(--text-dim); margin:0 0 16px; line-height:1.55;
+  }
+  .table-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch;}
+  table{
+    width:100%; border-collapse:collapse;
+    font-family:var(--font-mono); font-size:12.5px;
+    font-variant-numeric:tabular-nums;
+  }
+  th{
+    text-align:left; font-weight:500; font-size:9.5px;
+    letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim);
+    padding:0 12px 9px 0; border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  th:last-child, td:last-child{padding-right:0; text-align:right;}
+  td{
+    padding:9px 12px 9px 0; border-bottom:1px solid var(--border-soft);
+    color:var(--text-muted); white-space:nowrap;
+  }
+  tr:last-child td{border-bottom:none;}
+  td.dist{color:var(--text); font-weight:500;}
+  td.pace{color:var(--gold);}
+  tr.is-long td.dist{color:var(--coral);}
+
+  /* ---- closing ---- */
+  .adds-up{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:18px;}
+  .adds-up li{
+    padding-left:18px; border-left:2px solid var(--coral-dim);
+    color:var(--text-muted);
+  }
+  .adds-up li strong{color:var(--text); font-weight:600;}
+
+  .rest{
+    margin-top:30px; padding:20px 22px;
+    background:var(--surface-2); border:1px solid var(--border);
+    border-radius:var(--radius); color:var(--text-muted); font-size:0.97rem;
+  }
+
+  /* ---- contact ---- */
+  .contact{text-align:center; padding-top:8px;}
+  .contact h2{margin-bottom:16px;}
+  .cta{
+    display:inline-block; font-family:var(--font-body); font-weight:600;
+    font-size:1rem; text-decoration:none;
+    background:var(--coral); color:#0A1E29;
+    padding:15px 30px; border-radius:999px;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow:0 6px 22px rgba(242,121,92,0.22);
+  }
+  .cta:hover{transform:translateY(-2px); box-shadow:0 10px 28px rgba(242,121,92,0.3);}
+  .cta:active{transform:translateY(0);}
+  .at-event{
+    font-family:var(--font-display); font-style:italic; font-weight:500;
+    font-size:1.15rem; line-height:1.5; color:var(--text);
+    text-wrap:balance; margin:0 auto; max-width:26em;
+  }
+  .extra{margin-top:18px; color:var(--text-muted); font-size:0.97rem;}
+
+  footer{
+    margin-top:52px; padding-top:22px; border-top:1px solid var(--border-soft);
+    font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.06em;
+    color:var(--text-dim); text-align:center; line-height:1.9;
+  }
+  footer a{color:var(--text-dim); text-decoration:underline; text-underline-offset:3px;}
+  footer a:hover{color:var(--teal);}
+
+  /* ---- entrance ---- */
+  .reveal{opacity:0; transform:translateY(14px); animation:rise 0.7s cubic-bezier(0.2,0.7,0.3,1) forwards;}
+  @keyframes rise{to{opacity:1; transform:none;}}
+  @media (prefers-reduced-motion: reduce){
+    .reveal{animation:none; opacity:1; transform:none;}
+    .cta{transition:none;}
+    .cta:hover{transform:none;}
+  }
+
+  @media (max-width:420px){
+    body{padding:34px 16px 52px;}
+    .stats{gap:8px;}
+    .stat{padding:13px 11px;}
+    .stat .num{font-size:1.35rem;}
+    .case li{grid-template-columns:1fr; gap:5px;}
+    .case .when{padding-top:0;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="reveal" style="animation-delay:0.05s">
+    <p class="eyebrow">Seattle &middot; single &middot; showing his work</p>
+    <h1>Date<span class="dash">-</span>Kyle</h1>
+    <p class="domain">no domain, just receipts</p>
+    <p class="lede">A friend was going to stand up tonight and tell you I&rsquo;m worth your time.</p>
+    <p class="lede-sub">I figured I&rsquo;d save them the trouble and just show you the evidence instead. Every number on this page is pulled live from a training log I&rsquo;ve been keeping since June. None of it is rounded in my favor.</p>
+
+    <div class="stats">
+      <div class="stat is-coral"><div class="num" id="s-miles">50.1</div><div class="lbl">Miles since June</div></div>
+      <div class="stat"><div class="num" id="s-pace">8:33</div><div class="lbl">Last long run pace</div></div>
+      <div class="stat is-teal"><div class="num" id="s-days">32</div><div class="lbl">Days to race day</div></div>
+    </div>
+  </header>
+
+  <svg class="wave" viewBox="0 0 400 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 9 Q12.5 1 25 9 T50 9 T75 9 T100 9 T125 9 T150 9 T175 9 T200 9 T225 9 T250 9 T275 9 T300 9 T325 9 T350 9 T375 9 T400 9"/></svg>
+
+  <section class="reveal" style="animation-delay:0.15s">
+    <h2>Three days that make the case</h2>
+    <ul class="case">
+      <li>
+        <div class="when">Jun 11</div>
+        <p class="what"><strong>3.05 miles at a 10:25 pace.</strong> Slow. Genuinely unimpressive. It matters only because it&rsquo;s the first line of a log that hasn&rsquo;t stopped since.</p>
+      </li>
+      <li>
+        <div class="when">Aug 9&ndash;10</div>
+        <p class="what"><strong>Two mornings under a 60&#8209;pound pack</strong> &mdash; eight miles, 1,080 feet of climbing, moving slower than a walk. Nobody asked me to and nobody was watching. I&rsquo;d said I would.</p>
+      </li>
+      <li>
+        <div class="when">Aug 16</div>
+        <p class="what"><strong>9.02 miles at 8:33.</strong> The longest and fastest I&rsquo;ve gone. Still 37 seconds a mile off where I need to be on September 19, which is roughly how I feel about most things I care about.</p>
+      </li>
+    </ul>
+  </section>
+
+  <svg class="wave" viewBox="0 0 400 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 9 Q12.5 1 25 9 T50 9 T75 9 T100 9 T125 9 T150 9 T175 9 T200 9 T225 9 T250 9 T275 9 T300 9 T325 9 T350 9 T375 9 T400 9"/></svg>
+
+  <section class="reveal" style="animation-delay:0.25s">
+    <h2>The receipts</h2>
+    <p class="receipts-note">Every run, in order, nothing removed. The <span style="color:var(--coral)">coral</span> ones are the long ones &mdash; the days it stopped being fun somewhere around mile six.</p>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th scope="col">Date</th><th scope="col">Miles</th><th scope="col">Time</th><th scope="col">Pace</th></tr>
+        </thead>
+        <tbody id="log"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <svg class="wave" viewBox="0 0 400 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 9 Q12.5 1 25 9 T50 9 T75 9 T100 9 T125 9 T150 9 T175 9 T200 9 T225 9 T250 9 T275 9 T300 9 T325 9 T350 9 T375 9 T400 9"/></svg>
+
+  <section class="reveal" style="animation-delay:0.35s">
+    <h2>What that actually adds up to</h2>
+    <ul class="adds-up">
+      <li><strong>I show up on the days it isn&rsquo;t fun.</strong> Statistically, that&rsquo;s most days.</li>
+      <li><strong>I keep the promises I make when no one is checking.</strong> I&rsquo;ve found that generalizes.</li>
+      <li><strong>I built the dashboard this data lives in, by hand, for an audience of one.</strong> I like making people things. Given time, that would probably be you.</li>
+    </ul>
+    <p class="rest">The rest of it &mdash; what I do all day, where I grew up, whether I&rsquo;m any good in a kitchen &mdash; I&rsquo;d genuinely rather tell you in person than put on a webpage.</p>
+  </section>
+
+  <svg class="wave" viewBox="0 0 400 18" preserveAspectRatio="none" aria-hidden="true"><path d="M0 9 Q12.5 1 25 9 T50 9 T75 9 T100 9 T125 9 T150 9 T175 9 T200 9 T225 9 T250 9 T275 9 T300 9 T325 9 T350 9 T375 9 T400 9"/></svg>
+
+  <section class="contact reveal" style="animation-delay:0.45s">
+    <h2>So &mdash; hi.</h2>
+    <div id="contact-slot"></div>
+    <p class="extra" id="extra-slot" hidden></p>
+  </section>
+
+  <footer>
+    Training for the Orca Half Marathon &middot; Seattle &middot; September 19, 2026<br>
+    <a href="../">The dashboard all of this comes from &rarr;</a>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CFG = window.KYLE || {};
+
+  /* Fallback log — real values, used when ../data.js isn't reachable
+     (e.g. previewing this file on its own). */
+  var FALLBACK = [
+    {date:"2026-06-11", dist:3.05, mins:31.78},
+    {date:"2026-06-12", dist:4.02, mins:34.43},
+    {date:"2026-06-13", dist:9.14, mins:96.11},
+    {date:"2026-07-23", dist:3.14, mins:30.35},
+    {date:"2026-07-27", dist:4.35, mins:36.96},
+    {date:"2026-07-29", dist:3.02, mins:25.07},
+    {date:"2026-07-30", dist:3.16, mins:28.84},
+    {date:"2026-08-02", dist:6.14, mins:59.57},
+    {date:"2026-08-13", dist:5.08, mins:42.68},
+    {date:"2026-08-16", dist:9.02, mins:77.10}
+  ];
+
+  var runs = (Array.isArray(window.SEEDED_ACTUALS) && window.SEEDED_ACTUALS.length)
+    ? window.SEEDED_ACTUALS
+    : FALLBACK;
+
+  function clock(mins){
+    var t = Math.round(mins * 60);
+    var m = Math.floor(t / 60), s = t % 60;
+    return m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  /* Durations past an hour read as 1:36:07, not 96:07. */
+  function dur(mins){
+    if (mins < 60) return clock(mins);
+    var t = Math.round(mins * 60);
+    var h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+    return h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  /* ---- stat strip ---- */
+  var total = runs.reduce(function(a, r){ return a + r.dist; }, 0);
+  var el = document.getElementById("s-miles");
+  if (el) el.textContent = total.toFixed(1);
+
+  var longs = runs.filter(function(r){ return r.dist >= 8; });
+  var lastLong = longs.length ? longs[longs.length - 1] : runs[runs.length - 1];
+  el = document.getElementById("s-pace");
+  if (el && lastLong) el.textContent = clock(lastLong.mins / lastLong.dist);
+
+  var RACE = new Date(2026, 8, 19); /* Sept 19, 2026 */
+  var now = new Date();
+  var days = Math.ceil((RACE - new Date(now.getFullYear(), now.getMonth(), now.getDate())) / 86400000);
+  el = document.getElementById("s-days");
+  if (el) el.textContent = days > 0 ? String(days) : "0";
+
+  /* ---- receipts table ---- */
+  var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var body = document.getElementById("log");
+  if (body){
+    runs.forEach(function(r){
+      var p = r.date.split("-");
+      var tr = document.createElement("tr");
+      if (r.dist >= 8) tr.className = "is-long";
+
+      var td = document.createElement("td");
+      td.textContent = MON[parseInt(p[1], 10) - 1] + " " + parseInt(p[2], 10);
+      tr.appendChild(td);
+
+      td = document.createElement("td");
+      td.className = "dist";
+      td.textContent = r.dist.toFixed(2);
+      tr.appendChild(td);
+
+      td = document.createElement("td");
+      td.textContent = dur(r.mins);
+      tr.appendChild(td);
+
+      td = document.createElement("td");
+      td.className = "pace";
+      td.textContent = clock(r.mins / r.dist);
+      tr.appendChild(td);
+
+      body.appendChild(tr);
+    });
+  }
+
+  /* ---- contact ---- */
+  var slot = document.getElementById("contact-slot");
+  var handle = (CFG.instagram || "").trim().replace(/^@/, "").replace(/\/+$/, "");
+  if (slot){
+    if (handle && /^[A-Za-z0-9._]+$/.test(handle)){
+      var a = document.createElement("a");
+      a.className = "cta";
+      a.href = "https://instagram.com/" + encodeURIComponent(handle);
+      a.rel = "noopener";
+      a.textContent = "Say hi on Instagram →";
+      slot.appendChild(a);
+    } else {
+      var p = document.createElement("p");
+      p.className = "at-event";
+      p.textContent = CFG.atEvent || "I'm here tonight — come say hi.";
+      slot.appendChild(p);
+    }
+  }
+
+  var extra = (CFG.extra || "").trim();
+  if (extra){
+    var ex = document.getElementById("extra-slot");
+    if (ex){ ex.textContent = extra; ex.hidden = false; }
+  }
+})();
+</script>
+</body>
+</html>
