@@ -1,0 +1,76 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kyhuber/ORCA-Dashboard/schema/health-export.schema.json",
+  "title": "Orca Training — HealthKit export",
+  "description": "One file per pull, written by the Claude iOS app into the Google Drive folder 'orca-health-exports'. Append-only: never edit a previous export. Omit any field that was not actually measured — never estimate or back-fill.",
+  "type": "object",
+  "required": ["pulledAt", "window", "workouts"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1,
+      "description": "Bump only on a breaking shape change."
+    },
+    "pulledAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this pull ran, ISO 8601 with offset, e.g. 2026-08-22T07:30:00-07:00."
+    },
+    "window": {
+      "type": "object",
+      "description": "Inclusive date range this pull covers. Lets the consumer tell 'no runs in this window' apart from 'window not queried'.",
+      "required": ["from", "to"],
+      "additionalProperties": false,
+      "properties": {
+        "from": { "type": "string", "format": "date" },
+        "to":   { "type": "string", "format": "date" }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free text from the pulling session — e.g. which data types were unavailable, or that the health integration needs reconnecting."
+    },
+    "workouts": {
+      "type": "array",
+      "description": "Every workout in the window, running and non-running alike. The consumer routes Running to SEEDED_ACTUALS and everything else to CROSS_TRAINING.",
+      "items": { "$ref": "#/$defs/workout" }
+    }
+  },
+  "$defs": {
+    "workout": {
+      "type": "object",
+      "required": ["date", "kind", "dist", "mins"],
+      "additionalProperties": false,
+      "properties": {
+        "date":  { "type": "string", "format": "date", "description": "Local Seattle date, YYYY-MM-DD." },
+        "start": { "type": "string", "pattern": "^([01][0-9]|2[0-3]):[0-5][0-9]$", "description": "Local Seattle start time, HH:MM. Distinguishes two workouts on one date." },
+        "kind":  { "type": "string", "description": "HealthKit workout type: Running, Cycling, Ruck, Walking, Hiking, Strength, ...", "examples": ["Running", "Cycling", "Ruck"] },
+        "dist":  { "type": "number", "exclusiveMinimum": 0, "description": "Distance in miles." },
+        "mins":  { "type": "number", "exclusiveMinimum": 0, "description": "Elapsed duration in decimal minutes, e.g. 47.40 — matches the existing data.js convention." },
+        "hrAvg": { "type": "integer", "minimum": 30, "maximum": 240, "description": "Average heart rate, bpm. Omit if unavailable." },
+        "hrMax": { "type": "integer", "minimum": 30, "maximum": 240, "description": "Peak heart rate, bpm. Needs sample-level data — see the timezone gotcha in SKILL.md." },
+        "elevGainFt": { "type": "number", "minimum": 0, "description": "Cumulative elevation gain in feet." },
+        "cadenceAvg": { "type": "integer", "minimum": 0, "maximum": 260, "description": "Average cadence in steps per minute (both feet)." },
+        "calories":   { "type": "integer", "minimum": 0, "description": "Active energy burned, kcal." },
+        "source":     { "type": "string", "description": "Recording device, e.g. 'Apple Watch Series 9'. Useful when accuracy varies by source.", "examples": ["Apple Watch", "iPhone"] },
+        "note":       { "type": "string", "description": "Anything notable — terrain, weather, pack weight, 'replaced Sat tempo'." },
+        "splits": {
+          "type": "array",
+          "description": "Per-mile splits, in order. Powers decoupling and pacing-discipline analysis. Omit the whole array rather than inventing entries — a partial final mile is fine as a fractional 'mi'.",
+          "items": {
+            "type": "object",
+            "required": ["mi", "mins"],
+            "additionalProperties": false,
+            "properties": {
+              "mi":    { "type": "number", "exclusiveMinimum": 0, "description": "Mile marker, 1-indexed. A trailing partial mile uses its fractional distance, e.g. 6.21." },
+              "mins":  { "type": "number", "exclusiveMinimum": 0, "description": "Decimal minutes for this split." },
+              "hrAvg": { "type": "integer", "minimum": 30, "maximum": 240, "description": "Average bpm across this split — the key input for cardiac drift." },
+              "elevGainFt": { "type": "number", "description": "Net elevation change across this split, feet. Negative for net downhill; contextualizes a slow or fast split." }
+            }
+          }
+        }
+      }
+    }
+  }
+}
