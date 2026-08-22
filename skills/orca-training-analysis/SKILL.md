@@ -62,10 +62,46 @@ health_query_v0     →     orca-health-exports/   →     read → merge → da
    (already created, at Drive root). Never edit a previous export — these are append-only, which avoids
    read-modify-write races and keeps an audit trail.
 3. Filename: `export-YYYY-MM-DD-HHMM.json` using local Seattle time of the pull.
-4. Conform exactly to `schema/health-export.schema.json` on the **`main` branch** of
-   kyhuber/ORCA-Dashboard. `schema/example-export.json` is a worked example. If you cannot
-   read the schema, say so in `notes` and keep going with your best approximation — do not
-   silently invent a shape.
+4. Conform to the shape below. It is reproduced here **on purpose**: the iOS app has twice
+   reported this repo as containing only `.gitignore`, `data.js` and `index.html` — including
+   fifteen hours after `schema/` was merged to `main` — so it cannot read the repo live and a
+   contract referenced by path will never arrive. `schema/health-export.schema.json` in the
+   repo is the machine-readable copy for the consumer side; **this block is the authority for
+   the producer.** If the two ever disagree, say so in `notes`.
+
+```jsonc
+{
+  "schemaVersion": 1,
+  "pulledAt": "2026-08-22T16:07:09-07:00",   // ISO 8601 with local offset
+  "window": { "from": "2026-08-17", "to": "2026-08-23" },
+  "notes": "free text — anything odd about this pull",
+  "restingHr": [ { "date": "2026-08-21", "bpm": 67 } ],
+  "workouts": [{
+    "date": "2026-08-22",                     // local Seattle date
+    "startLocal": "2026-08-22T14:31:23-07:00",
+    "kind": "Running",                        // Running | Cycling | Walking | Ruck | ...
+    "segment": "benchmark",                   // OPTIONAL: warmup | benchmark | cooldown.
+                                              // Set it whenever a date holds more than one
+                                              // record, so they don't collapse together.
+    "dist": 6.01,                             // miles; required for Running
+    "mins": 44.16,                            // decimal minutes
+    "hrAvg": 161, "hrMax": 179,
+    "elevGainFt": 0, "cadenceAvg": 196, "calories": 661,
+    "source": "Apple Watch",
+    "planMatch": "Week 4 Sat — 10K time trial",
+    "note": "free text",
+    "flags": ["observations only — leave the coaching call to the consumer"],
+    "splits": [ { "mi": 1, "mins": 7.38, "hrAvg": 149, "elevGainFt": 15 } ]
+  }],
+  "missing": [ "state plainly what this pull could NOT capture" ]
+}
+```
+
+   **`splits` must be distance-based** — one entry per mile, `mi` counting 1, 2, 3… with a
+   fractional final entry. Time-quartered segments are not splits: they cannot be compared
+   across runs and they do not reconcile against `dist`. If HealthKit will not yield
+   distance-based splits, put that in `missing` and omit the array — do not substitute
+   time windows under the `splits` key.
 5. **Splits require a second query.** The workout aggregate does not carry them: after pulling
    `workoutType`, run a per-segment `runningSpeed` + heart-rate query for each run, using the
    local-time workaround below. Skipping this step is the single most common way an export

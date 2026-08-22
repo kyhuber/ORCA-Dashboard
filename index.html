@@ -396,11 +396,21 @@
     return PACE_ZONES[session.type] || null;
   }
 
+  // Segments that support a hard effort rather than being one. They are real
+  // miles, so they count toward weekly volume, but they are run at deliberately
+  // easy pace and would read as a collapse in fitness on the pace chart.
+  const ANCILLARY = new Set(["warmup","cooldown"]);
+
+  // A date can hold more than one logged run — a warm-up jog and the benchmark
+  // effort after it are separate records sharing a date. Key on the segment too
+  // so they don't collapse into one, and order the longest run of a date first:
+  // that's the one a planned session should match against.
   function allActuals(){
     const map={};
-    SEEDED_ACTUALS.forEach(a=>map[a.date]=a);
-    state.manualRuns.forEach(a=>map[a.date]=a);
-    return Object.values(map).sort((a,b)=>a.date.localeCompare(b.date));
+    const key=a=>a.date+"|"+(a.segment||"");
+    SEEDED_ACTUALS.forEach(a=>map[key(a)]=a);
+    state.manualRuns.forEach(a=>map[key(a)]=a);
+    return Object.values(map).sort((a,b)=>a.date.localeCompare(b.date) || b.dist-a.dist);
   }
 
   async function loadState(){
@@ -602,7 +612,8 @@
   }
 
   function renderPrediction(actuals){
-    const bench = actuals.find(a=>a.date==="2026-08-22");
+    const bench = actuals.find(a=>a.date==="2026-08-22" && a.segment==="benchmark")
+               || actuals.find(a=>a.date==="2026-08-22");
     const box=document.getElementById("predict-box");
     if(!bench){
       const needed = (GOAL_PACE*HALF_MI) / Math.pow(HALF_MI/TEN_K_MI, 1.06);
@@ -614,7 +625,11 @@
       return;
     }
     const t1 = bench.mins;
-    const predictedMin = t1 * Math.pow(HALF_MI/TEN_K_MI, 1.06);
+    // Scale from the distance actually covered, not from a nominal 10K. Treating
+    // a GPS-measured 6.01 mi as 6.21 flatters the projection by ~3 minutes while
+    // the note below still quotes the real figure — the two disagreeing is worse
+    // than either being wrong alone.
+    const predictedMin = t1 * Math.pow(HALF_MI/bench.dist, 1.06);
     const goalMin = GOAL_PACE*HALF_MI;
     const diff = predictedMin - goalMin;
     let note;
@@ -658,7 +673,8 @@
     });
   }
 
-  function renderPaceChart(actuals){
+  function renderPaceChart(allRuns){
+    const actuals = allRuns.filter(a=>!ANCILLARY.has(a.segment));
     const labels = actuals.map(a=>fmtDate(a.date));
     const paces = actuals.map(a=>+(a.mins/a.dist).toFixed(2));
     const goalLine = actuals.map(()=>GOAL_PACE);
