@@ -152,5 +152,11 @@ https://kyhuber.github.io/ORCA-Dashboard/ from the `main` branch.
 - `index.html` — the plan (`const PLAN`) and all rendering. Only changes when the plan changes.
 
 Edit `data.js` in place and commit — don't regenerate the site from scratch, that loses history.
+
+**Verifying a deploy from a Claude Code container:** don't curl the live site. `kyhuber.github.io`
+is blocked by the sandbox network policy and the request fails with HTTP 000, which is easy to
+misread as a stale or failed deploy. Check the `pages build and deployment` workflow run for the
+pushed SHA instead — a `success` conclusion means the site is live. `raw.githubusercontent.com`
+is reachable, so that works for confirming file contents on `main`.
 Keep the tone of any written update motivational and specific — Kai's stated goal for this whole
 project is having "an AI partner to help me stay focused and motivated," not a clinical report.
