@@ -7,7 +7,8 @@
 // Revisit this after the Aug 22 time trial.
 window.GOAL_PACE = "7:56";
 
-// Logged runs. Seeded from Apple Health, pulled by Claude on Aug 13, 2026.
+// Logged runs. Seeded from Apple Health; latest pull Aug 22, 2026 via the
+// orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
 // Runs under 1.0 mi are excluded (accidental / partial recordings).
 // Fields: date (YYYY-MM-DD), dist (mi), mins — hrAvg / hrMax / elev optional.
 window.SEEDED_ACTUALS = [
@@ -21,6 +22,8 @@ window.SEEDED_ACTUALS = [
   {date:"2026-08-02", dist:6.14, mins:59.57, hrAvg:145, hrMax:170, elev:"~430 ft gain"},
   {date:"2026-08-13", dist:5.08, mins:42.68, hrAvg:157, hrMax:185, elev:"~110 ft gain"},
   {date:"2026-08-16", dist:9.02, mins:77.10, hrAvg:154, hrMax:175, elev:"~440 ft gain"},
+  {date:"2026-08-18", dist:4.04, mins:35.38, hrAvg:153, hrMax:171, elev:"~320 ft gain"},
+  {date:"2026-08-21", dist:3.02, mins:27.55, hrAvg:126, hrMax:157, elev:"~80 ft gain"},
 ];
 
 // Non-running load — counted for training stress, excluded from pace analysis.

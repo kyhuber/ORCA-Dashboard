@@ -32,6 +32,9 @@ description: Use when Kai asks to check his running/workout data, update his tra
 - **Frequency:** 3–4 runs/week is the real target. Explicitly: "4 days feel like a win, 5 feel
   like a bonus." Kai has said he *could* run 7 days but that this backfires on motivation.
   Never program 7-day weeks. Never frame a missed run as a failure — reframe and move forward.
+- **Training partner:** Doug. They don't always run together, but **Doug is also running the
+  Orca Half on Sep 19.** Doug is separately being coached by Claude — do not conflate their
+  plans, paces, or goal times.
 - **Physiology baseline:**
   - True Zone 2 sits around 10:00–10:30/mile at ~136–142 bpm.
   - Last year's Orca Half (run untrained): 8:30/mile average, 166–176 bpm, negative-split,
@@ -59,19 +62,31 @@ health_query_v0     →     orca-health-exports/   →     read → merge → da
    (already created, at Drive root). Never edit a previous export — these are append-only, which avoids
    read-modify-write races and keeps an audit trail.
 3. Filename: `export-YYYY-MM-DD-HHMM.json` using local Seattle time of the pull.
-4. Conform exactly to `schema/health-export.schema.json` in the ORCA-Dashboard repo.
-   `schema/example-export.json` is a worked example.
-5. **Omit any field you could not actually measure.** Never estimate, interpolate, or
+4. Conform exactly to `schema/health-export.schema.json` on the **`main` branch** of
+   kyhuber/ORCA-Dashboard. `schema/example-export.json` is a worked example. If you cannot
+   read the schema, say so in `notes` and keep going with your best approximation — do not
+   silently invent a shape.
+5. **Splits require a second query.** The workout aggregate does not carry them: after pulling
+   `workoutType`, run a per-segment `runningSpeed` + heart-rate query for each run, using the
+   local-time workaround below. Skipping this step is the single most common way an export
+   comes back thinner than it should. If splits genuinely cannot be retrieved, list that in
+   `missing` rather than omitting it silently.
+6. Fill `missing[]` honestly — unavailable data types, a workout that has not happened yet,
+   anything you chose not to query. This is what lets the consumer tell "no runs" apart from
+   "not pulled," and it is the honest alternative to guessing.
+7. **Omit any field you could not actually measure.** Never estimate, interpolate, or
    back-fill a value to make the schema look complete — a missing `splits` array is fine,
    an invented one corrupts the analysis. Same for `hrAvg`/`hrMax`/`cadenceAvg`.
-6. Report to Kai what you wrote and what was missing.
+8. Report to Kai what you wrote and what was missing.
 
 ### If you are Claude Code (you have Drive + the repo): consume
 
 1. List `orca-health-exports`, read any export newer than the newest run already in `data.js`.
 2. Merge into `window.SEEDED_ACTUALS`, **deduping by `date`**. Existing rows win only if the
    incoming row has strictly less detail; otherwise the richer row replaces it.
-3. Keep runs under 1.0 mi out (accidental / partial recordings).
+3. Keep runs under 1.0 mi out (accidental / partial recordings). Also drop any workout with
+   no distance — `index.html` calls `c.dist.toFixed(2)` unguarded, so a distance-less entry
+   breaks the page.
 4. Non-running workouts go to `window.CROSS_TRAINING`, not `SEEDED_ACTUALS` — they count for
    training load but must stay out of pace analysis.
 5. Commit and push. GitHub Pages redeploys automatically.

@@ -1,12 +1,29 @@
 {
   "schemaVersion": 1,
   "pulledAt": "2026-08-22T09:15:00-07:00",
-  "window": { "from": "2026-08-17", "to": "2026-08-22" },
-  "notes": "EXAMPLE FILE — illustrative values showing the expected shape, not real data. Lives in the repo for reference only; real exports go to the Drive folder 'orca-health-exports' and are never committed here. Cadence unavailable on the Tue easy run (recorded on iPhone, not Watch), so the field is omitted rather than estimated.",
+  "window": {
+    "from": "2026-08-17",
+    "to": "2026-08-22"
+  },
+  "notes": "EXAMPLE FILE \u2014 illustrative values showing the expected shape, not real data. Lives in the repo for reference only; real exports go to the Drive folder 'orca-health-exports' and are never committed here. Cadence unavailable on the Tue easy run (recorded on iPhone, not Watch), so the field is omitted rather than estimated.",
+  "restingHr": [
+    {
+      "date": "2026-08-18",
+      "bpm": 83
+    },
+    {
+      "date": "2026-08-20",
+      "bpm": 80
+    },
+    {
+      "date": "2026-08-22",
+      "bpm": 67
+    }
+  ],
   "workouts": [
     {
       "date": "2026-08-18",
-      "start": "06:42",
+      "startLocal": "2026-08-18T06:42:00-07:00",
       "kind": "Running",
       "dist": 4.03,
       "mins": 40.18,
@@ -15,17 +32,38 @@
       "elevGainFt": 120,
       "calories": 402,
       "source": "iPhone",
+      "planMatch": "Week 4 Tue \u2014 Easy run, conversational, no pace target (planned 4 mi)",
       "note": "Easy run, conversational. No pace targets.",
       "splits": [
-        { "mi": 1, "mins": 10.20, "hrAvg": 134, "elevGainFt": 45 },
-        { "mi": 2, "mins": 10.05, "hrAvg": 140, "elevGainFt": 30 },
-        { "mi": 3, "mins": 9.92, "hrAvg": 144, "elevGainFt": -20 },
-        { "mi": 4, "mins": 10.01, "hrAvg": 146, "elevGainFt": 65 }
+        {
+          "mi": 1,
+          "mins": 10.2,
+          "hrAvg": 134,
+          "elevGainFt": 45
+        },
+        {
+          "mi": 2,
+          "mins": 10.05,
+          "hrAvg": 140,
+          "elevGainFt": 30
+        },
+        {
+          "mi": 3,
+          "mins": 9.92,
+          "hrAvg": 144,
+          "elevGainFt": -20
+        },
+        {
+          "mi": 4,
+          "mins": 10.01,
+          "hrAvg": 146,
+          "elevGainFt": 65
+        }
       ]
     },
     {
       "date": "2026-08-22",
-      "start": "07:31",
+      "startLocal": "2026-08-22T07:31:00-07:00",
       "kind": "Running",
       "dist": 6.21,
       "mins": 47.82,
@@ -35,29 +73,73 @@
       "cadenceAvg": 178,
       "calories": 638,
       "source": "Apple Watch",
-      "note": "10K time trial — flat out-and-back, Alki. Cool and overcast.",
+      "planMatch": "Week 4 Sat \u2014 Benchmark: 10K time trial (planned 6.2 mi)",
+      "note": "10K time trial \u2014 flat out-and-back, Alki. Cool and overcast.",
+      "flags": [
+        "Even splits with HR climbing 158\u2192181 across the effort \u2014 normal for a maximal time trial, not cardiac drift."
+      ],
       "splits": [
-        { "mi": 1, "mins": 7.70, "hrAvg": 158, "elevGainFt": 15 },
-        { "mi": 2, "mins": 7.65, "hrAvg": 165, "elevGainFt": 10 },
-        { "mi": 3, "mins": 7.72, "hrAvg": 169, "elevGainFt": 20 },
-        { "mi": 4, "mins": 7.80, "hrAvg": 172, "elevGainFt": 15 },
-        { "mi": 5, "mins": 7.75, "hrAvg": 174, "elevGainFt": 10 },
-        { "mi": 6, "mins": 7.62, "hrAvg": 178, "elevGainFt": 10 },
-        { "mi": 6.21, "mins": 1.58, "hrAvg": 181, "elevGainFt": 5 }
+        {
+          "mi": 1,
+          "mins": 7.7,
+          "hrAvg": 158,
+          "elevGainFt": 15
+        },
+        {
+          "mi": 2,
+          "mins": 7.65,
+          "hrAvg": 165,
+          "elevGainFt": 10
+        },
+        {
+          "mi": 3,
+          "mins": 7.72,
+          "hrAvg": 169,
+          "elevGainFt": 20
+        },
+        {
+          "mi": 4,
+          "mins": 7.8,
+          "hrAvg": 172,
+          "elevGainFt": 15
+        },
+        {
+          "mi": 5,
+          "mins": 7.75,
+          "hrAvg": 174,
+          "elevGainFt": 10
+        },
+        {
+          "mi": 6,
+          "mins": 7.62,
+          "hrAvg": 178,
+          "elevGainFt": 10
+        },
+        {
+          "mi": 6.21,
+          "mins": 1.58,
+          "hrAvg": 181,
+          "elevGainFt": 5
+        }
       ]
     },
     {
       "date": "2026-08-20",
-      "start": "18:05",
+      "startLocal": "2026-08-20T18:05:00-07:00",
       "kind": "Cycling",
-      "dist": 8.40,
-      "mins": 32.60,
+      "dist": 8.4,
+      "mins": 32.6,
       "hrAvg": 128,
       "hrMax": 149,
       "elevGainFt": 210,
       "calories": 295,
       "source": "Apple Watch",
-      "note": "Commute — counts as load, excluded from pace analysis."
+      "note": "Commute \u2014 counts as load, excluded from pace analysis."
     }
+  ],
+  "missing": [
+    "Cadence unavailable on the Aug 18 easy run (recorded on iPhone, not Apple Watch) \u2014 omitted rather than estimated.",
+    "The Aug 20 cycling commute returned no distance from HealthKit, so none is reported.",
+    "No resting HR reading for Aug 19 or Aug 21."
   ]
 }
