@@ -294,8 +294,13 @@
   const WEEK_STARTS = ["2026-07-27","2026-08-03","2026-08-10","2026-08-17","2026-08-24","2026-08-31","2026-09-07","2026-09-14"];
   const WEEK_ENDS   = ["2026-08-02","2026-08-09","2026-08-16","2026-08-23","2026-08-30","2026-09-06","2026-09-13","2026-09-19"];
 
+  // Easy was 8:50-9:20, which is not easy: it sits ~20 bpm above the true Zone 2
+  // anchor of 10:00-10:30 at 136-142 bpm, so following it turned every recovery
+  // day into a tempo day and left the aerobic base with nothing to grow on.
+  // Long stays 8:40-9:10 -- roughly 60-90 s/mi slower than goal pace, which is
+  // where a long run belongs.
   const PACE_ZONES = {
-    Easy:[8.833,9.333], Group:[9.0,9.5], Tempo:[7.667,7.917],
+    Easy:[10.0,10.5], Group:[9.0,9.5], Tempo:[7.667,7.917],
     Long:[8.667,9.167], Interval:[6.917,7.333]
   };
 
@@ -325,22 +330,29 @@
       {date:"2026-08-22", day:"Sat", type:"Benchmark", desc:"10K time trial — flat out-and-back, morning", dist:6.2},
       {date:"2026-08-23", day:"Sun", type:"Long", desc:"Long run — flat, steady effort (decoupling test)", dist:7.5},
     ]},
+    // Weeks 5-7 rebuilt Aug 23, after the benchmark. The original build asked for
+    // 26.1 mi in week 5 against the 14.09 actually run in week 4 -- an 85% jump,
+    // and the ramp rate is the injury Kai is most exposed to. It also carried
+    // three hard sessions a week, including a 4mi tempo the day before the long
+    // run. The benchmark settled that speed is not the limiter (7:07/mi for the
+    // closing 3.01 mi, alone, in direct sun); untested endurance is. So: the
+    // Saturday tempos are gone, 1-mile repeats become goal-pace work at the pace
+    // actually being trained for, and the freed volume goes to genuinely easy
+    // aerobic miles. Long runs are untouched -- they are the point.
+    // 53.6 mi across W5-W7 against the 73.8 originally planned.
     {week:5, phase:"Peak build", range:"Aug 24 – Aug 30", sessions:[
-      {date:"2026-08-25", day:"Tue", type:"Interval", desc:"1mi WU + 5×1mi + 1mi CD", dist:7},
-      {date:"2026-08-27", day:"Thu", type:"Group", desc:"Group run — fixed pace, 5K", dist:3.1},
-      {date:"2026-08-29", day:"Sat", type:"Tempo", desc:"1mi WU + 4mi tempo + 1mi CD", dist:6},
-      {date:"2026-08-30", day:"Sun", type:"Long", desc:"Long run, last 3mi @ goal pace", dist:10},
+      {date:"2026-08-25", day:"Tue", type:"Tempo", desc:"1mi WU + 2mi @ goal pace + 1mi CD", dist:4, useGoal:true},
+      {date:"2026-08-27", day:"Thu", type:"Easy", desc:"Easy run — solo, no group. True Zone 2, hold back.", dist:4},
+      {date:"2026-08-30", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace", dist:10},
     ]},
     {week:6, phase:"Peak", range:"Aug 31 – Sep 6", sessions:[
-      {date:"2026-09-01", day:"Tue", type:"Interval", desc:"1mi WU + 4×1mi + 1mi CD", dist:6},
-      {date:"2026-09-03", day:"Thu", type:"Group", desc:"Group run — fixed pace, 5K", dist:3.1},
-      {date:"2026-09-05", day:"Sat", type:"Tempo", desc:"1mi WU + 4mi tempo + 1mi CD", dist:6},
-      {date:"2026-09-06", day:"Sun", type:"Long", desc:"Peak long run, middle miles @ goal pace", dist:11.5},
+      {date:"2026-09-01", day:"Tue", type:"Tempo", desc:"1mi WU + 3mi @ goal pace + 1mi CD", dist:5, useGoal:true},
+      {date:"2026-09-03", day:"Thu", type:"Easy", desc:"Easy run — solo, no group. True Zone 2, hold back.", dist:4},
+      {date:"2026-09-06", day:"Sun", type:"Long", desc:"Peak long run, middle 3mi @ goal pace", dist:11.5},
     ]},
     {week:7, phase:"Taper begins", range:"Sep 7 – Sep 13", sessions:[
-      {date:"2026-09-08", day:"Tue", type:"Interval", desc:"1mi WU + 4×800m @ goal pace + 1mi CD", dist:5, useGoal:true},
+      {date:"2026-09-08", day:"Tue", type:"Interval", desc:"1mi WU + 4×800m @ goal pace + 1mi CD", dist:4, useGoal:true},
       {date:"2026-09-10", day:"Thu", type:"Group", desc:"Group run — fixed pace, 5K", dist:3.1},
-      {date:"2026-09-12", day:"Sat", type:"Tempo", desc:"1mi WU + 3mi @ goal pace + 1mi CD", dist:5, useGoal:true},
       {date:"2026-09-13", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace", dist:8},
     ]},
     {week:8, phase:"Race week", range:"Sep 14 – Sep 19", sessions:[
