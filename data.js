@@ -4,8 +4,10 @@
 // Goal race pace, min:sec per mile. Drives the projected finish time, the
 // target paces on goal-pace sessions in weeks 7-8, the dashed line on the
 // pace chart, and the 10K time the Predicted Finish card asks you to hit.
-// Revisit this after the Aug 22 time trial.
-window.GOAL_PACE = "7:56";
+// Set from the Aug 22 benchmark: 6.01 mi in 44.16 (7:21/mi) projects to 1:40:56
+// via Riegel. Riegel assumes endurance scales with speed; the longest run this
+// cycle is 9.02 mi, so this target leads the endurance base rather than reflecting it.
+window.GOAL_PACE = "7:42";
 
 // Logged runs. Seeded from Apple Health; latest pull Aug 22, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
