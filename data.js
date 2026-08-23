@@ -31,7 +31,20 @@ window.SEEDED_ACTUALS = [
   // trial — kicked at the 5-mile mark for a perceived final mile and stopped there.
   // A genuine all-out effort for the distance covered, so Riegel scales from it cleanly.
   // Mid-70s, direct sun, breeze outbound and still air after the turnaround.
-  {date:"2026-08-22", segment:"benchmark", dist:6.01, mins:44.16, hrAvg:161, hrMax:179, elev:"flat — no gain recorded"},
+  // Splits read from the Apple Fitness splits screen. Miles 1-3 were run alongside
+  // Doug, who was slowing; Kai held back to stay with him, so they are not a
+  // maximal effort. The final entry is inferred (total time less miles 1-5) and
+  // carries no HR. Nothing renders these yet — they are here so the highest
+  // resolution record of the benchmark is not lost to a Drive file.
+  {date:"2026-08-22", segment:"benchmark", dist:6.01, mins:44.16, hrAvg:161, hrMax:179, elev:"flat — no gain recorded",
+   splits:[
+     {mi:1, mins:7.450, hrAvg:149},
+     {mi:2, mins:7.583, hrAvg:156},
+     {mi:3, mins:7.717, hrAvg:161},
+     {mi:4, mins:7.500, hrAvg:162},
+     {mi:5, mins:7.233, hrAvg:167},
+     {mi:6.01, mins:6.677},
+   ]},
 ];
 
 // Non-running load — counted for training stress, excluded from pace analysis.

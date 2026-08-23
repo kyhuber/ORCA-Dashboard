@@ -122,6 +122,12 @@ health_query_v0     →     orca-health-exports/   →     read → merge → da
 
 ### If you are Claude Code (you have Drive + the repo): consume
 
+0. Read exports newest-last and honour `supersedes` / `corrects`: a later export carrying real
+   per-mile splits replaces an earlier approximation, and an annotation can change what a run
+   *means* without changing a single measurement. Never edit or delete the superseded file.
+   A metric that looks like a physiological signal may be an artifact of who Kai was running
+   with, what the weather did, or where he thought the finish line was — ask before concluding
+   from a number alone, and prefer his account of the run over an inference from the data.
 1. List `orca-health-exports`, read any export newer than the newest run already in `data.js`.
 2. Merge into `window.SEEDED_ACTUALS`, **deduping by `date`**. Existing rows win only if the
    incoming row has strictly less detail; otherwise the richer row replaces it.

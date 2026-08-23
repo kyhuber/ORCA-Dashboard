@@ -80,6 +80,14 @@
           }
         }
       }
+    },
+    "supersedes": {
+      "type": "string",
+      "description": "Filename of an earlier export this one replaces in full for the workouts it contains \u2014 e.g. a pull that returns real per-mile splits where the earlier one only had an approximation. Exports stay append-only: never edit the superseded file, and the consumer prefers the later one."
+    },
+    "corrects": {
+      "type": "string",
+      "description": "Filename of an earlier export whose interpretation was wrong, where the measurements still stand. Use this for an annotation carrying context only Kai has \u2014 'held back to stay with a partner' \u2014 that changes what the numbers mean without changing the numbers."
     }
   },
   "$defs": {
