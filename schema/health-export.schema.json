@@ -204,6 +204,38 @@
         "planMatch": {
           "type": "string",
           "description": "Which planned session this appears to be, or a note that it matches none. The consumer reconciles against PLAN in index.html, so this is a hint, not authority."
+        },
+        "weather": {
+          "type": "object",
+          "description": "Conditions during the workout. Recorded to CONTEXTUALIZE pace, never to correct it \u2014 see SKILL.md. Apple Watch stores weather metadata on outdoor workouts (HKMetadataKeyWeatherTemperature / HKMetadataKeyWeatherHumidity), so try reading it from the workout before asking Kai. Omit any field HealthKit does not supply.",
+          "additionalProperties": false,
+          "properties": {
+            "tempF": {
+              "type": "number",
+              "description": "Dry-bulb air temperature, \u00b0F."
+            },
+            "humidityPct": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "feelsLikeF": {
+              "type": "number",
+              "description": "Heat index if available. Closer to what the body experiences than dry-bulb, but still ignores solar load."
+            },
+            "windMph": {
+              "type": "number",
+              "minimum": 0
+            },
+            "conditions": {
+              "type": "string",
+              "description": "Free text for what a thermometer misses and what actually drives heat strain: sun vs overcast, wind direction relative to the route, whether it changed partway. e.g. 'breeze outbound, still air and direct sun on the return'.",
+              "examples": [
+                "overcast, light headwind outbound",
+                "direct sun, no wind after the turnaround"
+              ]
+            }
+          }
         }
       },
       "if": {

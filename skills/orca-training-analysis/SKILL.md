@@ -91,6 +91,11 @@ health_query_v0     →     orca-health-exports/   →     read → merge → da
     "planMatch": "Week 4 Sat — 10K time trial",
     "note": "free text",
     "flags": ["observations only — leave the coaching call to the consumer"],
+    "weather": {                              // try HKMetadataKeyWeatherTemperature /
+      "tempF": 75, "humidityPct": 48,         // HKMetadataKeyWeatherHumidity on the workout
+      "feelsLikeF": 78, "windMph": 2,         // before asking Kai for it
+      "conditions": "direct sun, breeze outbound, still air after the turnaround"
+    },
     "splits": [ { "mi": 1, "mins": 7.38, "hrAvg": 149, "elevGainFt": 15 } ]
   }],
   "missing": [ "state plainly what this pull could NOT capture" ]
@@ -152,6 +157,19 @@ Compare each new run against two references, not just against last week:
    easy, or drifting into Zone 3 on "easy" days?
 2. **Last year's race data** — as fitness builds, easy-pace HR should trend down over weeks;
    that's the fitness signal worth calling out explicitly when it shows up.
+
+**Weather contextualizes pace; it does not correct it.** Never adjust a logged pace, a projection,
+or `GOAL_PACE` for conditions — the correction factor would carry more uncertainty than the signal
+it is trying to recover, applied on top of a Riegel projection that is already estimating. What
+weather is *for* is preventing a misread: a long run 40 s/mi slower in mid-70s direct sun is not a
+loss of fitness, and without the conditions logged that is exactly what it looks like six weeks
+later. State the conditions alongside the pace and let Kai weigh them.
+
+Useful anchors: endurance performance degrades above roughly 10–15 °C WBGT, and WBGT — not air
+temperature — is the metric that matters, because it folds in humidity, wind and solar load. Same
+thermometer reading in shade with a breeze versus direct sun with still air is a materially
+different physiological cost. Shorter efforts are penalized less than long ones: a 45-minute 10K
+accumulates far less core heat than a 1:40 half.
 
 With `splits` available, also check:
 - **Cardiac drift / decoupling** on long runs — HR climbing while pace holds flat is the
