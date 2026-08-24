@@ -102,6 +102,12 @@ health_query_v0     →     orca-health-exports/   →     read → merge → da
 }
 ```
 
+   **Inferring a closing partial mile gets less reliable as the remainder shrinks.** Subtracting
+   the sum of miles 1–5 from the total spreads all of their rounding error across whatever
+   distance is left: over a 1.01 mi remainder that is a few seconds per mile, over 0.32 mi it
+   swings the answer by ±9 s/mi. Report an inferred partial as indicative, name the remainder
+   it was derived over, and never treat it as a measured split.
+
    **`splits` must be distance-based** — one entry per mile, `mi` counting 1, 2, 3… with a
    fractional final entry. Time-quartered segments are not splits: they cannot be compared
    across runs and they do not reconcile against `dist`. If HealthKit will not yield

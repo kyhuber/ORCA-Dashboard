@@ -45,6 +45,21 @@ window.SEEDED_ACTUALS = [
      {mi:5, mins:7.233, hrAvg:167},
      {mi:6.01, mins:6.677},
    ]},
+  // Club run, moved to Sunday. Ran 5.32 easy in place of the planned 7.5 mi
+  // decoupling test — a sound call the day after an all-out 10K. HR drifted
+  // 132->162 while pace slowed 41 s/mi: 9:55/mi at 162 bpm here against
+  // 7:21/mi at 161 the day before. Next-day fatigue, not a fitness reading.
+  // The closing 0.32 mi is inferred; over so short a remainder the rounding
+  // on miles 1-5 swings it between 9:02 and 9:19, so treat it as indicative.
+  {date:"2026-08-23", dist:5.32, mins:50.19, hrAvg:144, hrMax:162, elev:"275 ft gain",
+   splits:[
+     {mi:1, mins:9.233, hrAvg:132},
+     {mi:2, mins:9.283, hrAvg:138},
+     {mi:3, mins:9.450, hrAvg:144},
+     {mi:4, mins:9.367, hrAvg:154},
+     {mi:5, mins:9.917, hrAvg:162},
+     {mi:5.32, mins:2.937},
+   ]},
 ];
 
 // Non-running load — counted for training stress, excluded from pace analysis.
