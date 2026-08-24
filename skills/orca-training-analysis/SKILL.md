@@ -27,8 +27,13 @@ description: Use when Kai asks to check his running/workout data, update his tra
   reconstructing the calendar. (An earlier 13-week June-start plan was drafted but never run;
   there are no logged runs between Jun 13 and Jul 23. Ignore any reference to it.)
 - **Key benchmark:** Aug 22, 2026 — 10K time trial. Feeds the Predicted Finish card via Riegel.
-- **Fixed anchor:** Thursday running club — social, slow, conversational pace. Never programmed
-  as a hard effort day.
+- **Running club:** meets **Thursday or Sunday** — not a fixed Thursday anchor, and Kai often
+  does not know in advance which day he can make. Social, conversational pace (~9:00–9:30/mi),
+  never programmed as a hard effort day. Because attendance is unpredictable, do not build a
+  week that depends on a club run landing on a particular day: program the *session* Kai needs
+  and note where a club run can substitute. Club pace is easier than a workout but faster than
+  his true Zone 2, so it substitutes for an easy day only loosely — if the club run replaces a
+  Zone 2 session, that week has one less genuinely easy run in it.
 - **Frequency:** 3–4 runs/week is the real target. Explicitly: "4 days feel like a win, 5 feel
   like a bonus." Kai has said he *could* run 7 days but that this backfires on motivation.
   Never program 7-day weeks. Never frame a missed run as a failure — reframe and move forward.
