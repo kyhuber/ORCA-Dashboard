@@ -57,6 +57,31 @@
   .count-card.gold .num{color:var(--gold);}
   .count-card .cap{font-size:0.78rem; color:var(--text-dim); margin-top:6px;}
 
+  /* Phase banner and race card only ever render inside their own window, so
+     they carry the "what now" the rest of the page is too general to say. */
+  .phase-banner{margin-top:18px; padding:14px 18px; border-radius:var(--radius);
+    border:1px solid rgba(239,194,90,0.35); background:rgba(239,194,90,0.07);
+    color:var(--text); font-size:0.9rem; line-height:1.5;}
+  .phase-banner b{font-family:var(--font-mono); letter-spacing:0.04em; text-transform:uppercase;
+    font-size:0.78rem; color:var(--gold); display:block; margin-bottom:5px;}
+  .card-race{border-color:rgba(239,194,90,0.45);
+    background:linear-gradient(180deg, rgba(239,194,90,0.07), transparent 240px), var(--surface);}
+  .card-race h2{font-size:1.4rem;}
+  .race-pace{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:4px 0 18px;
+    font-family:var(--font-mono); font-size:1.5rem; font-weight:600; color:var(--gold);}
+  .race-arrow{color:var(--text-muted); font-size:1rem;}
+  .race-plan{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:11px;
+    font-size:0.9rem; line-height:1.55; color:var(--text-muted);}
+  .race-plan b{color:var(--text);}
+  .race-note{margin:18px 0 0; padding-top:14px; border-top:1px solid var(--border);
+    font-size:0.87rem; line-height:1.55; color:var(--text-muted);}
+  .race-note b{color:var(--teal);}
+  /* Easy-day check: a statement of what was run against the zone, never a verdict.
+     Muted when outside the zone rather than red -- this is information, not a grade. */
+  .s-zone{font-family:var(--font-mono); font-size:0.73rem; margin-top:3px;}
+  .s-zone.in{color:var(--teal);}
+  .s-zone.out{color:var(--text-dim);}
+
   .goal-row{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-top:16px; font-size:0.9rem; color:var(--text-muted);}
   .goal-row b{color:var(--text); font-family:var(--font-mono); font-weight:600; font-size:1rem;}
   .goal-row #goal-finish{color:var(--gold);}
@@ -204,31 +229,45 @@
         <p class="cap" id="cd-race-cap"></p>
       </div>
       <div class="count-card gold">
-        <p class="label">Days to benchmark</p>
-        <div class="num" id="cd-bench">–</div>
-        <p class="cap" id="cd-bench-cap"></p>
+        <p class="label">Longest run</p>
+        <div class="num" id="cd-long">–</div>
+        <p class="cap" id="cd-long-cap"></p>
       </div>
     </div>
 
     <div class="goal-row">
-      <span>Goal race pace</span> <b id="goal-display">7:56/mi</b>
+      <span>Goal race pace</span> <b id="goal-display">7:42/mi</b>
       <span class="goal-arrow">→</span>
-      <span>projected finish</span> <b id="goal-finish">1:44:00</b>
-      <span class="goal-note">set in <code>data.js</code> · worth revisiting after the Aug 22 time trial</span>
+      <span>projected finish</span> <b id="goal-finish">1:40:56</b>
+      <span class="goal-note">set in <code>data.js</code> from the Aug 22 benchmark</span>
     </div>
 
     <svg class="wave" viewBox="0 0 400 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9"/></svg>
+
+    <div class="phase-banner" id="phase-banner" hidden></div>
+
+    <div class="card card-race" id="race-card" hidden>
+      <h2>Race Day</h2>
+      <p class="card-sub">Saturday, September 19 · Lincoln Park → Don Armeni Boat Launch</p>
+      <div class="race-pace">
+        <span id="race-goal">–</span>
+        <span class="race-arrow">→</span>
+        <span id="race-finish">–</span>
+      </div>
+      <ol class="race-plan">
+        <li><b>Mile 1 — hold back.</b> Open around 7:50. It should feel mildly frustrating.</li>
+        <li><b>Miles 2–6 — settle to 7:42.</b> Comfortably hard. Three or four words, not a sentence.</li>
+        <li><b>Miles 7–9 — the honest stretch.</b> This is where it starts costing. Hold the pace, don't chase it.</li>
+        <li><b>Miles 10–13.1 — spend it.</b> You have closed hard in every single effort on record. Trust that.</li>
+      </ol>
+      <p class="race-note"><b>Run your own race from the gun.</b> In the benchmark you ran 28 sec/mi faster
+        once you were on your own effort rather than a partner's. Wish Doug well at the start and go.</p>
+    </div>
 
     <div class="card card-focus">
       <h2 id="next-title">Up Next</h2>
       <p class="card-sub" id="next-sub"></p>
       <div id="next-sessions"></div>
-    </div>
-
-    <div class="card">
-      <h2>Predicted Finish</h2>
-      <p class="card-sub">Based on Riegel's race-time formula, applied to your Week 4 10K time trial</p>
-      <div id="predict-box" class="predict-empty">Log your Week 4 benchmark to see a data-based prediction here.</div>
     </div>
 
     <div class="card">
@@ -247,6 +286,12 @@
         <span class="hist-arrow">›</span>
       </summary>
       <div class="history-body">
+
+    <div class="card">
+      <h2>Benchmark Result</h2>
+      <p class="card-sub">Aug 22 10K time trial, extrapolated to the half via Riegel's formula</p>
+      <div id="predict-box" class="predict-empty">No benchmark logged.</div>
+    </div>
 
     <div class="card">
       <h2>Weekly Mileage</h2>
@@ -299,6 +344,10 @@
   // day into a tempo day and left the aerobic base with nothing to grow on.
   // Long stays 8:40-9:10 -- roughly 60-90 s/mi slower than goal pace, which is
   // where a long run belongs.
+  // Upper bound of true Zone 2 (136-142 bpm). Heart rate is the honest test of an
+  // easy day -- pace alone hides terrain, heat, and how tired the legs already are.
+  const ZONE2_MAX_HR = 142;
+
   const PACE_ZONES = {
     Easy:[10.0,10.5], Group:[9.0,9.5], Tempo:[7.667,7.917],
     Long:[8.667,9.167], Interval:[6.917,7.333]
@@ -440,17 +489,68 @@
   }
 
   // ---------- rendering ----------
-  function renderCountdowns(){
+  // The benchmark counter used to live here and read "Done" forever once Aug 22
+  // passed. Longest run replaces it: endurance is the limiter now, and it is the
+  // one number still genuinely unsettled. Deliberately not a bar toward 13.1 --
+  // never running the full distance in training is correct, not a shortfall.
+  function renderCountdowns(actuals){
     const today=todayLocal();
     const race=new Date("2026-09-19T00:00:00");
-    const bench=new Date("2026-08-22T00:00:00");
     const dRace=Math.round((race-today)/86400000);
-    const dBench=Math.round((bench-today)/86400000);
     document.getElementById("cd-race").textContent = dRace>=0 ? dRace : "🏁";
     document.getElementById("cd-race-cap").textContent = dRace>=0 ? "until the start line" : "Race complete!";
-    document.getElementById("cd-bench").textContent = dBench>0 ? dBench : (dBench===0?"Today":"Done");
-    document.getElementById("cd-bench-cap").textContent = dBench>0 ? "until your Week 4 10K time trial"
-      : dBench===0 ? "your 10K time trial is today" : "10K time trial complete";
+
+    const longest = actuals.length ? Math.max(...actuals.map(a=>a.dist)) : 0;
+    const nextLong = PLAN.flatMap(w=>w.sessions)
+      .find(x=>x.type==="Long" && isPending(x, actuals, today));
+    document.getElementById("cd-long").textContent = longest ? longest.toFixed(2) : "–";
+    document.getElementById("cd-long-cap").textContent = nextLong
+      ? `mi · next: ${nextLong.dist} mi ${new Date(nextLong.date+"T00:00:00").toLocaleDateString("en-US",{weekday:"long"})}`
+      : dRace>=0 ? "mi · 13.1 on race day" : "mi";
+  }
+
+  // What the page leads with should change as the race approaches: a training
+  // tracker through the build, a warning against over-training in the taper, and
+  // a race briefing in the final week. Dates rather than week indices, so this
+  // stays right even if the plan's weeks are edited again.
+  const PHASES = [
+    {until:"2026-09-06", key:"build"},
+    {until:"2026-09-13", key:"taper"},
+    {until:"2026-09-18", key:"raceweek"},
+    {until:"2026-09-19", key:"raceday"},
+  ];
+  function currentPhase(){
+    const iso = new Date(todayLocal().getTime() - todayLocal().getTimezoneOffset()*60000)
+      .toISOString().slice(0,10);
+    for(const p of PHASES) if(iso <= p.until) return p.key;
+    return "post";
+  }
+
+  function renderPhase(){
+    const phase = currentPhase();
+    const banner = document.getElementById("phase-banner");
+    const raceCard = document.getElementById("race-card");
+    const copy = {
+      taper: ["Taper","Volume drops on purpose from here. The fitness is already banked — nothing "+
+        "you add in the next two weeks makes you faster on race day, and plenty could make you "+
+        "slower. The job now is arriving fresh."],
+      raceweek: ["Race week","Legs up. Keep the runs short and easy, sleep more than feels "+
+        "necessary, and don't test your fitness — it's already measured."],
+      raceday: ["Race day","Everything is done. Go run it."],
+      post: ["After the race","Recovery first. When you're ready, this rolls into the marathon build."],
+    }[phase];
+    if(copy){
+      banner.innerHTML = `<b>${copy[0]}</b>${copy[1]}`;
+      banner.hidden = false;
+    } else {
+      banner.hidden = true;
+    }
+    const showRace = phase==="raceweek" || phase==="raceday";
+    raceCard.hidden = !showRace;
+    if(showRace){
+      document.getElementById("race-goal").textContent = fmtPace(GOAL_PACE)+"/mi";
+      document.getElementById("race-finish").textContent = fmtClock(GOAL_PACE*HALF_MI);
+    }
   }
 
   function renderGoal(){
@@ -529,6 +629,14 @@
       actualLine = `<div class="s-actual">Actual: ${actual.dist.toFixed(2)} mi @ ${fmtPace(pace)}/mi</div>`;
       if(actual.hrAvg) actualLine += `<div class="s-actual" style="color:var(--coral);">♥ ${actual.hrAvg} avg · ${actual.hrMax} max</div>`;
       if(actual.elev) actualLine += `<div class="s-actual" style="color:var(--text-dim);">${actual.elev}</div>`;
+      // On easy days the only question worth asking is whether they were actually
+      // easy. State what was run against the ceiling and stop there -- no verdict.
+      if(session.type==="Easy" && actual.hrAvg){
+        const inZone = actual.hrAvg <= ZONE2_MAX_HR;
+        actualLine += `<div class="s-zone ${inZone?"in":"out"}">${inZone
+          ? `✓ ${actual.hrAvg} bpm — true Zone 2`
+          : `${actual.hrAvg} bpm · Zone 2 tops out at ${ZONE2_MAX_HR}`}</div>`;
+      }
     } else if(status==="rest"){
       badge = `<span class="badge upcoming">Rest</span>`;
     } else if(status==="upcoming"){
@@ -750,7 +858,8 @@
 
   function renderAll(){
     const actuals = allActuals();
-    renderCountdowns();
+    renderCountdowns(actuals);
+    renderPhase();
     renderGoal();
     renderUpNext(actuals);
     renderPrediction(actuals);
