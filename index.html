@@ -82,6 +82,14 @@
   .s-zone.in{color:var(--teal);}
   .s-zone.out{color:var(--text-dim);}
 
+  .unit-toggle{margin-left:auto; display:inline-flex; border:1px solid var(--border);
+    border-radius:20px; overflow:hidden; align-self:center;}
+  .unit-toggle button{appearance:none; border:0; background:transparent; cursor:pointer;
+    font-family:var(--font-mono); font-size:0.74rem; letter-spacing:0.04em; padding:5px 13px;
+    color:var(--text-dim); transition:background 0.15s, color 0.15s;}
+  .unit-toggle button[aria-pressed="true"]{background:var(--teal-dim); color:var(--teal); font-weight:600;}
+  .unit-toggle button:focus-visible{outline:2px solid var(--teal); outline-offset:-2px;}
+
   .goal-row{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-top:16px; font-size:0.9rem; color:var(--text-muted);}
   .goal-row b{color:var(--text); font-family:var(--font-mono); font-weight:600; font-size:1rem;}
   .goal-row #goal-finish{color:var(--gold);}
@@ -240,6 +248,9 @@
       <span class="goal-arrow">→</span>
       <span>projected finish</span> <b id="goal-finish">1:40:56</b>
       <span class="goal-note">set in <code>data.js</code> from the Aug 22 benchmark</span>
+      <div class="unit-toggle" id="unit-toggle" role="group" aria-label="Distance units">
+        <button type="button" data-unit="mi">mi</button><button type="button" data-unit="km">km</button>
+      </div>
     </div>
 
     <svg class="wave" viewBox="0 0 400 18" preserveAspectRatio="none"><path d="M0 9 Q 25 0 50 9 T 100 9 T 150 9 T 200 9 T 250 9 T 300 9 T 350 9 T 400 9"/></svg>
@@ -254,14 +265,10 @@
         <span class="race-arrow">→</span>
         <span id="race-finish">–</span>
       </div>
-      <ol class="race-plan">
-        <li><b>Mile 1 — hold back.</b> Open around 7:50. It should feel mildly frustrating.</li>
-        <li><b>Miles 2–6 — settle to 7:42.</b> Comfortably hard. Three or four words, not a sentence.</li>
-        <li><b>Miles 7–9 — the honest stretch.</b> This is where it starts costing. Hold the pace, don't chase it.</li>
-        <li><b>Miles 10–13.1 — spend it.</b> You have closed hard in every single effort on record. Trust that.</li>
-      </ol>
-      <p class="race-note"><b>Run your own race from the gun.</b> In the benchmark you ran 28 sec/mi faster
-        once you were on your own effort rather than a partner's. Wish Doug well at the start and go.</p>
+      <ol class="race-plan" id="race-plan"></ol>
+      <p class="race-note"><b>Run your own race from the gun.</b> In the benchmark you ran
+        <span id="race-gap">28 sec/mi</span> faster once you were on your own effort rather than a
+        partner's. Wish Doug well at the start and go.</p>
     </div>
 
     <div class="card card-focus">
@@ -319,7 +326,7 @@
       <p class="card-sub">If a run hasn't synced from Health yet, add it here — it'll count toward your charts immediately.</p>
       <div class="log-form">
         <div class="field"><label>Date</label><input id="log-date" type="date"/></div>
-        <div class="field"><label>Distance (mi)</label><input id="log-dist" type="number" step="0.01" placeholder="3.10"/></div>
+        <div class="field"><label>Distance (<span id="log-dist-unit">mi</span>)</label><input id="log-dist" type="number" step="0.01" placeholder="3.10"/></div>
         <div class="field"><label>Time (min)</label><input id="log-time" type="number" step="0.1" placeholder="29.5"/></div>
         <button id="log-add">Add run</button>
       </div>
@@ -328,7 +335,7 @@
       <textarea id="notes" placeholder="How runs are feeling, adjustments to make, anything to remember..."></textarea>
     </div>
 
-    <p class="footer-note">Run data last updated Aug 16, 2026 (Jun 11 – Aug 16 range). Workouts under 1.0 mi are filtered out.<br/>Edit <code>data.js</code> in the repo to add runs, or use the manual log above — that saves to this browser only.</p>
+    <p class="footer-note">Run data last updated Aug 16, 2026 (Jun 11 – Aug 16 range). Workouts under <span id="foot-min">1.0 mi</span> are filtered out.<br/>Edit <code>data.js</code> in the repo to add runs, or use the manual log above — that saves to this browser only.</p>
 
   </div>
 </div>
@@ -420,7 +427,23 @@
   // Goal pace is a property of the plan, not of this browser — it lives in
   // data.js so it reads the same on every device. parsePace is hoisted.
   const GOAL_PACE = parsePace(window.GOAL_PACE) || 7.9333;
-  let state = {notes:"", manualRuns:[], hideMissed:true};
+  // Units are a display preference of this browser, not a property of the plan:
+  // data.js stays canonical in miles and everything converts at render time, so
+  // switching back and forth can never drift the underlying numbers.
+  let state = {notes:"", manualRuns:[], hideMissed:true, units:"mi"};
+
+  const KM_PER_MI = 1.609344;
+  const isMetric = ()=> state.units==="km";
+  const uLabel   = ()=> isMetric() ? "km" : "mi";
+  const uDist    = (mi, dp=2)=> (isMetric() ? mi*KM_PER_MI : mi).toFixed(dp);
+  // Pace is time per unit distance, so it divides where distance multiplies.
+  const uPace    = (minPerMi)=> isMetric() ? minPerMi/KM_PER_MI : minPerMi;
+  const fmtUPace = (minPerMi)=> fmtPace(uPace(minPerMi))+"/"+uLabel();
+  // Prose in PLAN carries distances as "1mi" / "9 mi". Convert those and nothing
+  // else -- "4×800m" and "10K effort" are already metric and must stay put.
+  const uDesc = (t)=> isMetric()
+    ? t.replace(/(\d+(?:\.\d+)?)\s?mi\b/g, (_,d)=>+(d*KM_PER_MI).toFixed(1)+"km")
+    : t;
 
   function fmtPace(dec){
     if(dec==null || isNaN(dec)) return "--:--";
@@ -503,10 +526,10 @@
     const longest = actuals.length ? Math.max(...actuals.map(a=>a.dist)) : 0;
     const nextLong = PLAN.flatMap(w=>w.sessions)
       .find(x=>x.type==="Long" && isPending(x, actuals, today));
-    document.getElementById("cd-long").textContent = longest ? longest.toFixed(2) : "–";
+    document.getElementById("cd-long").textContent = longest ? uDist(longest) : "–";
     document.getElementById("cd-long-cap").textContent = nextLong
-      ? `mi · next: ${nextLong.dist} mi ${new Date(nextLong.date+"T00:00:00").toLocaleDateString("en-US",{weekday:"long"})}`
-      : dRace>=0 ? "mi · 13.1 on race day" : "mi";
+      ? `${uLabel()} · next: ${uDist(nextLong.dist,1)} ${uLabel()} ${new Date(nextLong.date+"T00:00:00").toLocaleDateString("en-US",{weekday:"long"})}`
+      : dRace>=0 ? `${uLabel()} · ${uDist(HALF_MI,1)} on race day` : uLabel();
   }
 
   // What the page leads with should change as the race approaches: a training
@@ -524,6 +547,37 @@
       .toISOString().slice(0,10);
     for(const p of PHASES) if(iso <= p.until) return p.key;
     return "post";
+  }
+
+  // Segment boundaries in miles; the labels are written per unit because
+  // "Mile 1" and "the first 1.6 km" are different idioms, not a conversion.
+  const RACE_PLAN = [
+    {mi:"Mile 1", km:"First 1.6 km", head:"hold back",
+     body:"Open around {open}. It should feel mildly frustrating."},
+    {mi:"Miles 2–6", km:"1.6–9.7 km", head:"settle to {goal}",
+     body:"Comfortably hard. Three or four words, not a sentence."},
+    {mi:"Miles 7–9", km:"9.7–14.5 km", head:"the honest stretch",
+     body:"This is where it starts costing. Hold the pace, don't chase it."},
+    {mi:"Miles 10–13.1", km:"14.5–21.1 km", head:"spend it",
+     body:"You have closed hard in every single effort on record. Trust that."},
+  ];
+  const RACE_OPEN_PACE = 7.8333;   // the deliberately held-back first mile
+
+  function renderRacePlan(){
+    const sub = t => t.replace("{open}", fmtUPace(RACE_OPEN_PACE))
+                      .replace("{goal}", fmtUPace(GOAL_PACE));
+    document.getElementById("race-plan").innerHTML = RACE_PLAN.map(x=>
+      `<li><b>${isMetric()?x.km:x.mi} — ${sub(x.head)}.</b> ${sub(x.body)}</li>`).join("");
+    // 28 sec/mi is a pace differential, so it scales like pace, not distance.
+    document.getElementById("race-gap").textContent =
+      `${Math.round(isMetric() ? 28/KM_PER_MI : 28)} sec/${uLabel()}`;
+  }
+
+  function renderUnits(){
+    document.querySelectorAll("#unit-toggle button").forEach(b=>
+      b.setAttribute("aria-pressed", String(b.dataset.unit===state.units)));
+    document.getElementById("log-dist-unit").textContent = uLabel();
+    document.getElementById("foot-min").textContent = `${uDist(1,1)} ${uLabel()}`;
   }
 
   function renderPhase(){
@@ -548,13 +602,14 @@
     const showRace = phase==="raceweek" || phase==="raceday";
     raceCard.hidden = !showRace;
     if(showRace){
-      document.getElementById("race-goal").textContent = fmtPace(GOAL_PACE)+"/mi";
+      renderRacePlan();
+      document.getElementById("race-goal").textContent = fmtUPace(GOAL_PACE);
       document.getElementById("race-finish").textContent = fmtClock(GOAL_PACE*HALF_MI);
     }
   }
 
   function renderGoal(){
-    document.getElementById("goal-display").textContent = fmtPace(GOAL_PACE)+"/mi";
+    document.getElementById("goal-display").textContent = fmtUPace(GOAL_PACE);
     document.getElementById("goal-finish").textContent = fmtClock(GOAL_PACE*HALF_MI);
   }
 
@@ -616,17 +671,19 @@
 
   function sessionRowHTML(session, actuals, today, opts){
     const isNext = opts && opts.isNext;
+    const desc = uDesc(session.desc);
     const {status, actual} = sessionStatus(session, actuals, today);
     const range = getTargetRange(session);
     const targetStr = session.type==="Benchmark" ? "All-out effort — no target pace"
       : session.type==="Rest" ? ""
-      : range ? `${session.dist} mi @ ${fmtPace(range[0])}–${fmtPace(range[1])}/mi` : `${session.dist} mi`;
+      : range ? `${uDist(session.dist,1)} ${uLabel()} @ ${fmtPace(uPace(range[0]))}–${fmtUPace(range[1])}`
+              : `${uDist(session.dist,1)} ${uLabel()}`;
 
     let badge, actualLine="";
     if(status==="done"){
       badge = `<span class="badge done">✓ Synced</span>`;
       const pace = actual.mins/actual.dist;
-      actualLine = `<div class="s-actual">Actual: ${actual.dist.toFixed(2)} mi @ ${fmtPace(pace)}/mi</div>`;
+      actualLine = `<div class="s-actual">Actual: ${uDist(actual.dist)} ${uLabel()} @ ${fmtUPace(pace)}</div>`;
       if(actual.hrAvg) actualLine += `<div class="s-actual" style="color:var(--coral);">♥ ${actual.hrAvg} avg · ${actual.hrMax} max</div>`;
       if(actual.elev) actualLine += `<div class="s-actual" style="color:var(--text-dim);">${actual.elev}</div>`;
       // On easy days the only question worth asking is whether they were actually
@@ -650,7 +707,7 @@
       <div class="s-mid">
         ${isNext?`<span class="next-flag">Next up</span>`:""}
         <span class="pill ${session.type.toLowerCase()}">${session.type}</span>
-        <div class="s-desc">${session.desc}</div>
+        <div class="s-desc">${desc}</div>
         ${targetStr?`<div class="s-target">${targetStr}</div>`:""}
       </div>
       <div class="s-right">${badge}${actualLine}</div>
@@ -702,8 +759,8 @@
       const isPast = today > new Date(WEEK_ENDS[i]+"T23:59:59");
       const logged = weekLoggedMiles(i, actuals);
       const miles = started
-        ? `${planned.toFixed(1)} mi planned · <span class="wk-logged">${logged.toFixed(1)} logged</span>`
-        : `${planned.toFixed(1)} mi planned`;
+        ? `${uDist(planned,1)} ${uLabel()} planned · <span class="wk-logged">${uDist(logged,1)} logged</span>`
+        : `${uDist(planned,1)} ${uLabel()} planned`;
       return `<div class="week-acc${isPast?" is-past":""}">
         <button class="week-head" aria-expanded="false" data-idx="${i}">
           <span><span class="wk-title">Week ${wk.week}</span> — <span class="wk-phase">${wk.phase} · ${wk.range} · ${miles}</span></span>
@@ -741,7 +798,7 @@
       box.className="predict-empty";
       box.innerHTML = `Log your Aug 22 benchmark to see a data-based prediction here.<br/><br/>
         <span style="color:var(--gold); font-family:var(--font-mono);">${nm}:${String(ns).padStart(2,"0")}</span>
-        — the 10K time that projects to your goal of ${fmtPace(GOAL_PACE)}/mi (${fmtClock(GOAL_PACE*HALF_MI)} finish).`;
+        — the 10K time that projects to your goal of ${fmtUPace(GOAL_PACE)} (${fmtClock(GOAL_PACE*HALF_MI)} finish).`;
       return;
     }
     const t1 = bench.mins;
@@ -758,7 +815,7 @@
     else note=`Meaningfully behind your goal of ${fmtClock(goalMin)} — worth resetting GOAL_PACE in data.js.`;
     box.className="";
     box.innerHTML = `<div class="predict-value">${fmtClock(predictedMin)}</div>
-      <div class="predict-note">From your ${bench.dist.toFixed(1)} mi time trial in ${t1.toFixed(1)} min, via Riegel's formula. ${note}</div>`;
+      <div class="predict-note">From your ${uDist(bench.dist,1)} ${uLabel()} time trial in ${t1.toFixed(1)} min, via Riegel's formula. ${note}</div>`;
   }
 
   let mileageChart, paceChart;
@@ -778,15 +835,15 @@
     mileageChart = new Chart(ctx, {
       type:"bar",
       data:{labels, datasets:[
-        {label:"Planned", data:planned, backgroundColor:"rgba(135,171,180,0.25)", borderRadius:4},
-        {label:"Logged (runs)", data:logged, backgroundColor:"#35D6BE", borderRadius:4},
-        {label:"Cross-training", data:cross, backgroundColor:"rgba(239,194,90,0.6)", borderRadius:4}
+        {label:"Planned", data:planned.map(v=>+uDist(v,2)), backgroundColor:"rgba(135,171,180,0.25)", borderRadius:4},
+        {label:"Logged (runs)", data:logged.map(v=>+uDist(v,2)), backgroundColor:"#35D6BE", borderRadius:4},
+        {label:"Cross-training", data:cross.map(v=>+uDist(v,2)), backgroundColor:"rgba(239,194,90,0.6)", borderRadius:4}
       ]},
       options:{
         responsive:true, maintainAspectRatio:false,
         scales:{
           x:{ticks:{color:"#87ABB4", font:{family:"IBM Plex Mono", size:11}}, grid:{color:"rgba(255,255,255,0.05)"}},
-          y:{ticks:{color:"#87ABB4", font:{family:"IBM Plex Mono", size:11}}, grid:{color:"rgba(255,255,255,0.05)"}, title:{display:true, text:"miles", color:"#87ABB4"}}
+          y:{ticks:{color:"#87ABB4", font:{family:"IBM Plex Mono", size:11}}, grid:{color:"rgba(255,255,255,0.05)"}, title:{display:true, text:isMetric()?"kilometres":"miles", color:"#87ABB4"}}
         },
         plugins:{legend:{labels:{color:"#EAF4F2", font:{family:"Inter"}}}}
       }
@@ -796,8 +853,8 @@
   function renderPaceChart(allRuns){
     const actuals = allRuns.filter(a=>!ANCILLARY.has(a.segment));
     const labels = actuals.map(a=>fmtDate(a.date));
-    const paces = actuals.map(a=>+(a.mins/a.dist).toFixed(2));
-    const goalLine = actuals.map(()=>GOAL_PACE);
+    const paces = actuals.map(a=>+uPace(a.mins/a.dist).toFixed(2));
+    const goalLine = actuals.map(()=>uPace(GOAL_PACE));
     const ctx=document.getElementById("paceChart");
     if(paceChart) paceChart.destroy();
     paceChart = new Chart(ctx, {
@@ -806,14 +863,14 @@
         // No area fill: the y-axis is reversed, so a fill toward the origin
         // shades everything *faster* than you ran — reads as the opposite of
         // what it means.
-        {label:"Pace (min/mi)", data:paces, borderColor:"#35D6BE", tension:0.3, fill:false, pointRadius:4, pointBackgroundColor:"#35D6BE"},
+        {label:`Pace (min/${uLabel()})`, data:paces, borderColor:"#35D6BE", tension:0.3, fill:false, pointRadius:4, pointBackgroundColor:"#35D6BE"},
         {label:"Goal pace", data:goalLine, borderColor:"#EFC25A", borderDash:[6,5], pointRadius:0, borderWidth:1.5}
       ]},
       options:{
         responsive:true, maintainAspectRatio:false,
         scales:{
           x:{ticks:{color:"#87ABB4", font:{family:"IBM Plex Mono", size:10}}, grid:{color:"rgba(255,255,255,0.05)"}},
-          y:{reverse:true, ticks:{color:"#87ABB4", font:{family:"IBM Plex Mono", size:11}, callback:v=>fmtPace(v)}, grid:{color:"rgba(255,255,255,0.05)"}, title:{display:true, text:"min/mi (lower = faster)", color:"#87ABB4"}}
+          y:{reverse:true, ticks:{color:"#87ABB4", font:{family:"IBM Plex Mono", size:11}, callback:v=>fmtPace(v)}, grid:{color:"rgba(255,255,255,0.05)"}, title:{display:true, text:`min/${uLabel()} (lower = faster)`, color:"#87ABB4"}}
         },
         plugins:{legend:{labels:{color:"#EAF4F2", font:{family:"Inter"}}}}
       }
@@ -832,7 +889,7 @@
         <div class="s-date"><span class="dow">${dow}</span>${fmtDate(c.date)}</div>
         <div class="s-mid">
           <span class="pill cross">${c.kind}</span>
-          <div class="s-desc">${c.dist.toFixed(2)} mi · ${Math.round(c.mins)} min</div>
+          <div class="s-desc">${uDist(c.dist)} ${uLabel()} · ${Math.round(c.mins)} min</div>
           ${c.note?`<div class="s-target">${c.note}</div>`:""}
         </div>
         <div class="s-right"><span class="badge done">✓ Synced</span>${hrLine}</div>
@@ -845,7 +902,7 @@
     if(state.manualRuns.length===0){ el.innerHTML=""; return; }
     el.innerHTML = state.manualRuns.slice().sort((a,b)=>b.date.localeCompare(a.date)).map(r=>{
       const pace=fmtPace(r.mins/r.dist);
-      return `<div class="manual-item"><span>${fmtDate(r.date)} — ${r.dist} mi @ ${pace}/mi</span><button data-date="${r.date}">Remove</button></div>`;
+      return `<div class="manual-item"><span>${fmtDate(r.date)} — ${uDist(r.dist,2)} ${uLabel()} @ ${fmtUPace(r.mins/r.dist)}</span><button data-date="${r.date}">Remove</button></div>`;
     }).join("");
     el.querySelectorAll("button[data-date]").forEach(btn=>{
       btn.addEventListener("click", async ()=>{
@@ -858,6 +915,7 @@
 
   function renderAll(){
     const actuals = allActuals();
+    renderUnits();
     renderCountdowns(actuals);
     renderPhase();
     renderGoal();
@@ -883,11 +941,20 @@
     await saveState();
     renderAll();
   });
+  document.getElementById("unit-toggle").addEventListener("click", async (e)=>{
+    const btn = e.target.closest("button[data-unit]");
+    if(!btn || btn.dataset.unit===state.units) return;
+    state.units = btn.dataset.unit;
+    await saveState();
+    renderAll();
+  });
+
   document.getElementById("log-add").addEventListener("click", async ()=>{
     const date=document.getElementById("log-date").value;
-    const dist=parseFloat(document.getElementById("log-dist").value);
+    const entered=parseFloat(document.getElementById("log-dist").value);
+    const dist = isMetric() ? entered/KM_PER_MI : entered;
     const mins=parseFloat(document.getElementById("log-time").value);
-    if(!date || !dist || !mins) return;
+    if(!date || !entered || !mins) return;
     state.manualRuns = state.manualRuns.filter(r=>r.date!==date).concat([{date,dist,mins}]);
     await saveState();
     document.getElementById("log-date").value="";
