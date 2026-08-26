@@ -13,9 +13,11 @@ description: Use when Kai asks to check his running/workout data, update his tra
 
 - **Goal race:** Brooks Orca Half Marathon, **Saturday September 19, 2026**, West Seattle
   (Lincoln Park to Don Armeni Boat Launch). The event weekend spans Sep 19–20; the half is Saturday.
-- **Goal pace:** **7:56/mi → 1:44:00 finish.** Single source of truth is `window.GOAL_PACE`
-  in `data.js`. Never hardcode a goal time anywhere else — the dashboard derives the projected
-  finish, the pace-chart goal line, and the week 7–8 target paces from that one value.
+- **Goal pace:** the single source of truth is `window.GOAL_PACE` in `data.js` — **read it, do
+  not quote a figure from memory.** It was **7:42/mi → 1:40:56** as of the Aug 22 benchmark,
+  reset from an earlier 7:56/mi → 1:44:00; it can be reset again, so any number written here is
+  only ever a snapshot. Never hardcode a goal time anywhere else — the dashboard derives the
+  projected finish, the pace-chart goal line, and the week 7–8 target paces from that one value.
 - **Framing:** Not competitive. Kai's own words: "solid effort, feel good about the race."
   Train the experience, not the clock.
 - **Longer arc:** This half is a stepping stone to an eventual full marathon. Favor aerobic
@@ -26,6 +28,11 @@ description: Use when Kai asks to check his running/workout data, update his tra
   The authoritative week/session list is `const PLAN` in `index.html` — read it rather than
   reconstructing the calendar. (An earlier 13-week June-start plan was drafted but never run;
   there are no logged runs between Jun 13 and Jul 23. Ignore any reference to it.)
+  **This applies to the producer side too.** The iOS app cannot read the repo, so it has no way
+  to check a session it remembers — the Aug 25 export described that day as "1mi WU + 5x1mi +
+  1mi CD (7 mi)" when the plan had said 1mi WU + 2mi @ goal + 1mi CD (4 mi) for some time. If you
+  are producing an export, do not state what was planned: record what was *run*, and let the
+  consumer side match it against `PLAN`. A `planMatch` written from memory is worse than none.
 - **Key benchmark:** Aug 22, 2026 — 10K time trial. Feeds the Predicted Finish card via Riegel.
 - **Running club:** meets **Thursday or Sunday** — not a fixed Thursday anchor, and Kai often
   does not know in advance which day he can make. Social, conversational pace (~9:00–9:30/mi),
@@ -41,7 +48,15 @@ description: Use when Kai asks to check his running/workout data, update his tra
   Orca Half on Sep 19.** Doug is separately being coached by Claude — do not conflate their
   plans, paces, or goal times.
 - **Physiology baseline:**
-  - True Zone 2 sits around 10:00–10:30/mile at ~136–142 bpm.
+  - **Heart-rate zones come from Apple Fitness, not from a hand-set figure.** As of Aug 25, 2026:
+    Z1 <140 · Z2 141–149 · Z3 150–159 · Z4 160–169 · Z5 170+. Apple recalibrates these as fitness
+    changes, so treat them as a dated snapshot: when an export reports different boundaries,
+    update `HR_ZONES` in `index.html` (and its `asOf` date) rather than arguing with the export.
+    A run at or below 149 bpm is an easy day; Zone 1 counts as easy too. These superseded an
+    earlier hand-set Zone 2 ceiling of 142 bpm.
+  - Easy *pace* still sits around 10:00–10:30/mile. That band was calibrated against the old
+    142 bpm ceiling, so it may now be conservative — watch whether easy runs come in under
+    149 bpm at a faster pace before moving it.
   - Last year's Orca Half (run untrained): 8:30/mile average, 166–176 bpm, negative-split,
     closed with a 6:58 final mile. This is the "all-out effort" reference point, not the
     training target.
@@ -170,8 +185,8 @@ Flag this plainly rather than silently working around missing data.
 ## Analysis approach
 
 Compare each new run against two references, not just against last week:
-1. **The Zone 2 baseline** (136–142 bpm / 10:00–10:30 pace) — is he genuinely holding easy effort
-   easy, or drifting into Zone 3 on "easy" days?
+1. **The Zone 2 baseline** (≤149 bpm per Apple's current zones / 10:00–10:30 pace) — is he
+   genuinely holding easy effort easy, or drifting into Zone 3 on "easy" days?
 2. **Last year's race data** — as fitness builds, easy-pace HR should trend down over weeks;
    that's the fitness signal worth calling out explicitly when it shows up.
 
@@ -210,8 +225,11 @@ Watch for:
   over-correct off one data point.
 - Approaching Taper phase (weeks 7–8) → reduce volume, protect the goal-race legs, resist the
   urge to add one more "quality" session.
-- Benchmark projects meaningfully behind 1:44 → say so plainly and propose resetting
-  `GOAL_PACE` in `data.js`. A goal that no longer matches the data is worse than a slower goal.
+- Benchmark projects meaningfully behind the current `GOAL_PACE` → say so plainly and propose
+  resetting it in `data.js`. A goal that no longer matches the data is worse than a slower goal.
+- A goal-pace session run meaningfully *faster* than the target band is a miss, not a win — it
+  trains the strength (top-end speed) and skips the limiter (holding a pace). Name it, and give
+  the next goal-pace session an explicit "do not run faster than" ceiling.
 
 ## Updating the dashboard
 

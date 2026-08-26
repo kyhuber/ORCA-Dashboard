@@ -70,12 +70,13 @@ window.SEEDED_ACTUALS = [
   // 6:37 / 8:57. Nothing on the page renders splits yet, so the Actual line on this
   // session will read as a perfect hit. It wasn't one -- it was an interval session.
   //
-  // Apple's own zone boundaries for Kai, captured for the first time here and
-  // reusable for future runs: Z1 <140, Z2 141-149, Z3 150-159, Z4 160-169, Z5 170+.
-  // Time in zone: 3:04 / 6:24 / 5:02 / 7:43 / 8:49. That is 8:49 above 170 bpm on a
-  // session meant to be comfortably hard. Note these disagree with ZONE2_MAX_HR=142
-  // in index.html, which comes from Kai's own tested easy-effort baseline -- the
-  // dashboard's figure is unchanged pending a decision on which to trust.
+  // Apple's own zone boundaries for Kai, captured for the first time here:
+  // Z1 <140, Z2 141-149, Z3 150-159, Z4 160-169, Z5 170+. Time in zone:
+  // 3:04 / 6:24 / 5:02 / 7:43 / 8:49. That is 8:49 above 170 bpm on a session meant
+  // to be comfortably hard. These are now the dashboard's zones -- see HR_ZONES in
+  // index.html, which previously capped Zone 2 by hand at 142 bpm. Apple recomputes
+  // them as fitness changes, so a later export reporting different boundaries
+  // should update HR_ZONES rather than be reconciled against this entry.
   //
   // hrMax 181 is a block high, past the Aug 22 benchmark's 179. Post-run HR fell
   // 144 -> 120 -> 114 over two minutes; a 24 bpm first-minute drop is strong.

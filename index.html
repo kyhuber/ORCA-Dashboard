@@ -351,9 +351,22 @@
   // day into a tempo day and left the aerobic base with nothing to grow on.
   // Long stays 8:40-9:10 -- roughly 60-90 s/mi slower than goal pace, which is
   // where a long run belongs.
-  // Upper bound of true Zone 2 (136-142 bpm). Heart rate is the honest test of an
-  // easy day -- pace alone hides terrain, heat, and how tired the legs already are.
-  const ZONE2_MAX_HR = 142;
+  // Heart-rate zones exactly as Apple Fitness computes them for Kai, read off the
+  // Heart Rate detail screen for the Aug 25 run. Apple recalibrates these as
+  // fitness changes, so they are a dated snapshot rather than a fixed constant --
+  // when an export reports different boundaries, update them here and move the
+  // date with them. These replace a hand-set ceiling of 142 bpm.
+  //
+  // Apple prints zone 1 as "<140" and zone 2 as "141-149", which leaves 140 itself
+  // unlabelled; it is treated here as the top of zone 1.
+  const HR_ZONES = {asOf:"2026-08-25", bands:[
+    {zone:1, max:140}, {zone:2, max:149}, {zone:3, max:159},
+    {zone:4, max:169}, {zone:5, max:Infinity},
+  ]};
+  function hrZone(bpm){ return HR_ZONES.bands.find(b=>bpm<=b.max).zone; }
+  // Heart rate is the honest test of an easy day -- pace alone hides terrain, heat,
+  // and how tired the legs already are.
+  const ZONE2_MAX_HR = HR_ZONES.bands.find(b=>b.zone===2).max;
 
   const PACE_ZONES = {
     Easy:[10.0,10.5], Group:[9.0,9.5], Tempo:[7.667,7.917],
@@ -711,12 +724,14 @@
       if(actual.hrAvg) actualLine += `<div class="s-actual" style="color:var(--coral);">♥ ${actual.hrAvg} avg · ${actual.hrMax} max</div>`;
       if(actual.elev) actualLine += `<div class="s-actual" style="color:var(--text-dim);">${actual.elev}</div>`;
       // On easy days the only question worth asking is whether they were actually
-      // easy. State what was run against the ceiling and stop there -- no verdict.
+      // easy. Name the zone the run landed in and stop there -- no verdict. Zone 1
+      // passes too: an easy day run easier than Zone 2 is still an easy day.
       if(session.type==="Easy" && actual.hrAvg){
+        const z = hrZone(actual.hrAvg);
         const inZone = actual.hrAvg <= ZONE2_MAX_HR;
         actualLine += `<div class="s-zone ${inZone?"in":"out"}">${inZone
-          ? `✓ ${actual.hrAvg} bpm — true Zone 2`
-          : `${actual.hrAvg} bpm · Zone 2 tops out at ${ZONE2_MAX_HR}`}</div>`;
+          ? `✓ ${actual.hrAvg} bpm — Zone ${z}`
+          : `${actual.hrAvg} bpm · Zone ${z} — Zone 2 tops out at ${ZONE2_MAX_HR}`}</div>`;
       }
     } else if(status==="rest"){
       badge = `<span class="badge upcoming">Rest</span>`;
