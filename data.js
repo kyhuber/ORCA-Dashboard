@@ -9,6 +9,17 @@
 // cycle is 9.02 mi, so this target leads the endurance base rather than reflecting it.
 window.GOAL_PACE = "7:42";
 
+// The last date a health export covers in full. Everything on or before it is
+// known: a planned session with nothing logged against it really was missed.
+// After it the dashboard knows nothing either way, so those sessions read
+// "Awaiting data" instead of being called missed on no evidence.
+//
+// Set this to the last COMPLETE day a pull covers, not the day the pull ran --
+// the Aug 26 00:18 pull covers Aug 25 in full but says nothing about the rest of
+// Aug 26. Move it on every merge, along with the ?v= on the data.js script tag
+// in index.html.
+window.DATA_THROUGH = "2026-08-25";
+
 // Logged runs. Seeded from Apple Health; latest pull Aug 26, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
 // Runs under 1.0 mi are excluded (accidental / partial recordings).

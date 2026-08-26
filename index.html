@@ -10,7 +10,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
-<script src="data.js"></script>
+<!-- Bump ?v= on every data.js change. index.html and data.js are cached
+     separately, so without it a fresh page can load a stale dataset -- and
+     since the page now reads DATA_THROUGH from data.js, that pairing would
+     silently fall back to calling unsynced sessions missed. -->
+<script src="data.js?v=2"></script>
 
 <style>
   :root{
@@ -139,6 +143,7 @@
   .badge.done{background:var(--teal-dim); color:var(--teal);}
   .badge.missed{background:transparent; color:var(--text-dim); border:1px dashed var(--border);}
   .badge.upcoming{background:transparent; color:var(--text-dim); border:1px solid var(--border);}
+  .badge.awaiting{background:transparent; color:var(--gold); border:1px solid var(--gold);}
   .s-actual{font-family:var(--font-mono); font-size:0.76rem; color:var(--text); margin-top:5px;}
 
   /* A missed session is history — keep it readable, but don't let it compete
@@ -335,7 +340,7 @@
       <textarea id="notes" placeholder="How runs are feeling, adjustments to make, anything to remember..."></textarea>
     </div>
 
-    <p class="footer-note">Run data last updated Aug 16, 2026 (Jun 11 – Aug 16 range). Workouts under <span id="foot-min">1.0 mi</span> are filtered out.<br/>Edit <code>data.js</code> in the repo to add runs, or use the manual log above — that saves to this browser only.</p>
+    <p class="footer-note"><span id="foot-through">Run data</span>. Workouts under <span id="foot-min">1.0 mi</span> are filtered out.<br/>Edit <code>data.js</code> in the repo to add runs, or use the manual log above — that saves to this browser only.</p>
 
   </div>
 </div>
@@ -440,6 +445,9 @@
   // Goal pace is a property of the plan, not of this browser — it lives in
   // data.js so it reads the same on every device. parsePace is hoisted.
   const GOAL_PACE = parsePace(window.GOAL_PACE) || 7.9333;
+  // How far the logged data actually reaches. Without it the page falls back to
+  // treating every past unlogged session as missed, which is what it did before.
+  const DATA_THROUGH = window.DATA_THROUGH || null;
   // Units are a display preference of this browser, not a property of the plan:
   // data.js stays canonical in miles and everything converts at render time, so
   // switching back and forth can never drift the underlying numbers.
@@ -611,6 +619,11 @@
       b.setAttribute("aria-pressed", String(b.dataset.unit===state.units)));
     document.getElementById("log-dist-unit").textContent = uLabel();
     document.getElementById("foot-min").textContent = `${uDist(1,1)} ${uLabel()}`;
+    // Staleness should be visible on the page rather than only in the repo.
+    document.getElementById("foot-through").textContent = DATA_THROUGH
+      ? `Run data covers through ${new Date(DATA_THROUGH+"T00:00:00")
+          .toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}`
+      : "Run data as recorded in data.js";
   }
 
   function renderPhase(){
@@ -688,8 +701,14 @@
     // moment its date is behind us, which is why today's date compares equal
     // rather than falling through.
     if(d>=today) return {status:"upcoming"};
-    // A planned session whose date has passed with nothing logged against it.
-    // It can't be completed after the fact, so it's missed, not pending.
+    // The date has passed with nothing logged against it -- but "nothing logged"
+    // and "nothing run" are different claims. Runs reach this page through a
+    // manual pipeline (phone writes an export to Drive, a Claude session merges
+    // it, Pages redeploys), and none of those steps is bounded in time. Beyond
+    // DATA_THROUGH the page has no evidence either way and says so.
+    if(DATA_THROUGH && session.date > DATA_THROUGH) return {status:"awaiting"};
+    // On or before DATA_THROUGH the absence is real: a pull covered this date and
+    // came back with no run on it. It can't be completed after the fact either.
     return {status:"missed"};
   }
 
@@ -737,6 +756,9 @@
       badge = `<span class="badge upcoming">Rest</span>`;
     } else if(status==="upcoming"){
       badge = `<span class="badge upcoming">Upcoming</span>`;
+    } else if(status==="awaiting"){
+      badge = `<span class="badge awaiting">Awaiting data</span>`;
+      actualLine = `<div class="s-actual" style="color:var(--text-dim);">No export covers this date yet</div>`;
     } else {
       badge = `<span class="badge missed">Missed</span>`;
     }

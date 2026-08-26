@@ -162,7 +162,22 @@ health_query_v0     →     orca-health-exports/   →     read → merge → da
    breaks the page.
 4. Non-running workouts go to `window.CROSS_TRAINING`, not `SEEDED_ACTUALS` — they count for
    training load but must stay out of pace analysis.
-5. Commit and push. GitHub Pages redeploys automatically.
+5. **Move `window.DATA_THROUGH` in `data.js` to the last date the pull covers in full**, and
+   **bump `?v=` on the `data.js` script tag in `index.html`**. Both, every time, even when the
+   pull found no new runs — that is exactly when moving `DATA_THROUGH` matters, because it is
+   what turns an unlogged session from "Awaiting data" into "Missed".
+   - `DATA_THROUGH` is the last *complete* day covered, not the day the pull ran. A pull at
+     00:18 on Aug 26 covers Aug 25 in full and says nothing about the rest of Aug 26, so it
+     sets `2026-08-25`.
+   - Sessions after `DATA_THROUGH` with nothing logged read "Awaiting data"; on or before it
+     they read "Missed". The page must never call a session missed on a day it has no data for
+     — runs reach it through a manual pipeline (phone writes to Drive, a session merges it,
+     Pages redeploys) and none of those steps is bounded in time. On Aug 26 a completed run
+     showed as Missed for 40 minutes because the day rolled over before the merge landed.
+   - The `?v=` bump matters because `index.html` and `data.js` are cached separately: without
+     it a browser can pair a fresh page with a stale dataset, and the page would then fall
+     back to calling unsynced sessions missed.
+6. Commit and push. GitHub Pages redeploys automatically.
 
 ### Pulling the data
 
