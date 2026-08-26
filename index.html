@@ -471,8 +471,29 @@
     const d=new Date(iso+"T00:00:00");
     return d.toLocaleDateString("en-US",{month:"short",day:"numeric"});
   }
-  function todayLocal(){
-    const d=new Date(); d.setHours(0,0,0,0); return d;
+  // The plan is written in Pacific dates and run on Pacific days, so the day
+  // boundary has to be Pacific too -- not the viewer's. A phone left on UTC is
+  // already into tomorrow by late afternoon here, which would age today's
+  // session out of the plan hours before the day is actually over.
+  const PLAN_TZ = "America/Los_Angeles";
+  function todayISO(){
+    try{
+      const parts = new Intl.DateTimeFormat("en-US",
+        {timeZone:PLAN_TZ, year:"numeric", month:"2-digit", day:"2-digit"})
+        .formatToParts(new Date())
+        .reduce((o,x)=>(o[x.type]=x.value, o), {});
+      return `${parts.year}-${parts.month}-${parts.day}`;
+    }catch(e){
+      // No time-zone database to consult; the device's own date is the best
+      // available answer.
+      const d=new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    }
+  }
+  // Midnight opening today's Pacific date, built in the same local-midnight
+  // frame the plan's date strings parse into so the two compare directly.
+  function todayPacific(){
+    return new Date(todayISO()+"T00:00:00");
   }
 
   function getTargetRange(session){
@@ -517,7 +538,7 @@
   // one number still genuinely unsettled. Deliberately not a bar toward 13.1 --
   // never running the full distance in training is correct, not a shortfall.
   function renderCountdowns(actuals){
-    const today=todayLocal();
+    const today=todayPacific();
     const race=new Date("2026-09-19T00:00:00");
     const dRace=Math.round((race-today)/86400000);
     document.getElementById("cd-race").textContent = dRace>=0 ? dRace : "🏁";
@@ -543,8 +564,7 @@
     {until:"2026-09-19", key:"raceday"},
   ];
   function currentPhase(){
-    const iso = new Date(todayLocal().getTime() - todayLocal().getTimezoneOffset()*60000)
-      .toISOString().slice(0,10);
+    const iso = todayISO();
     for(const p of PHASES) if(iso <= p.until) return p.key;
     return "post";
   }
@@ -614,7 +634,7 @@
   }
 
   function findCurrentWeek(){
-    const today=todayLocal();
+    const today=todayPacific();
     for(let i=0;i<WEEK_STARTS.length;i++){
       const s=new Date(WEEK_STARTS[i]+"T00:00:00"), e=new Date(WEEK_ENDS[i]+"T23:59:59");
       if(today>=s && today<=e) return i;
@@ -633,7 +653,7 @@
   // The week to lead with. On the last day of a finished week this rolls
   // forward to the next one, rather than showing a week that's already done.
   function findUpcomingWeek(actuals){
-    const today=todayLocal();
+    const today=todayPacific();
     for(let i=0;i<PLAN.length;i++){
       if(PLAN[i].sessions.some(s=>isPending(s, actuals, today))) return i;
     }
@@ -650,7 +670,11 @@
     if(match) return {status:"done", actual:match};
     if(session.type==="Rest") return {status:"rest"};
     const d=new Date(session.date+"T00:00:00");
-    if(d>today) return {status:"upcoming"};
+    // You have until the end of the day to run it. A session dated today is
+    // still upcoming at 6pm and at 11:59pm Pacific -- it only turns missed the
+    // moment its date is behind us, which is why today's date compares equal
+    // rather than falling through.
+    if(d>=today) return {status:"upcoming"};
     // A planned session whose date has passed with nothing logged against it.
     // It can't be completed after the fact, so it's missed, not pending.
     return {status:"missed"};
@@ -715,7 +739,7 @@
   }
 
   function renderUpNext(actuals){
-    const today=todayLocal();
+    const today=todayPacific();
     const idx=findUpcomingWeek(actuals);
     const titleEl=document.getElementById("next-title"), subEl=document.getElementById("next-sub"), body=document.getElementById("next-sessions");
 
@@ -750,7 +774,7 @@
   }
 
   function renderSchedule(actuals){
-    const today=todayLocal();
+    const today=todayPacific();
     const el=document.getElementById("schedule");
     el.innerHTML = PLAN.map((wk,i)=>{
       const planned = wk.sessions.reduce((s,x)=>s+x.dist,0);
