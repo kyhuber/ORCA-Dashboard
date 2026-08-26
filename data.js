@@ -9,7 +9,7 @@
 // cycle is 9.02 mi, so this target leads the endurance base rather than reflecting it.
 window.GOAL_PACE = "7:42";
 
-// Logged runs. Seeded from Apple Health; latest pull Aug 22, 2026 via the
+// Logged runs. Seeded from Apple Health; latest pull Aug 26, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
 // Runs under 1.0 mi are excluded (accidental / partial recordings).
 // Fields: date (YYYY-MM-DD), dist (mi), mins — hrAvg / hrMax / elev optional.
@@ -59,6 +59,37 @@ window.SEEDED_ACTUALS = [
      {mi:4, mins:9.367, hrAvg:154},
      {mi:5, mins:9.917, hrAvg:162},
      {mi:5.32, mins:2.937},
+   ]},
+  // Week 5 Tuesday tempo: 1mi WU + 2mi @ goal pace + 1mi CD. Run solo from home
+  // at 10:51pm. The structure was hit exactly -- easy mile, two hard miles, easy
+  // mile -- but the two middle miles were not run at goal pace. They were run at
+  // 6:54 and 6:37 against a 7:37-7:47 target, roughly 55 s/mi too fast.
+  //
+  // Read the average with care: 7:45/mi overall lands dead centre of the goal band
+  // and looks like textbook execution. It is an artifact of averaging 8:27 / 6:54 /
+  // 6:37 / 8:57. Nothing on the page renders splits yet, so the Actual line on this
+  // session will read as a perfect hit. It wasn't one -- it was an interval session.
+  //
+  // Apple's own zone boundaries for Kai, captured for the first time here and
+  // reusable for future runs: Z1 <140, Z2 141-149, Z3 150-159, Z4 160-169, Z5 170+.
+  // Time in zone: 3:04 / 6:24 / 5:02 / 7:43 / 8:49. That is 8:49 above 170 bpm on a
+  // session meant to be comfortably hard. Note these disagree with ZONE2_MAX_HR=142
+  // in index.html, which comes from Kai's own tested easy-effort baseline -- the
+  // dashboard's figure is unchanged pending a decision on which to trust.
+  //
+  // hrMax 181 is a block high, past the Aug 22 benchmark's 179. Post-run HR fell
+  // 144 -> 120 -> 114 over two minutes; a 24 bpm first-minute drop is strong.
+  // Miles 1-4 read off the Apple Fitness splits screen sum to 30:55 against a 31:04
+  // total; the ~9 s remainder is a 0.01 mi end-of-run fragment plus split rounding,
+  // too small to carry as a segment. Elevation and cadence weren't retrieved -- the
+  // HealthKit pull timed out mid-export -- so no gain figure is recorded here.
+  {date:"2026-08-25", dist:4.01, mins:31.07, hrAvg:159, hrMax:181,
+   elev:"rolling — downhill in mile 2, uphill in mile 3; no gain figure recorded",
+   splits:[
+     {mi:1, mins:8.450, hrAvg:141, powerW:235},
+     {mi:2, mins:6.900, hrAvg:163, powerW:311},
+     {mi:3, mins:6.617, hrAvg:177, powerW:321},
+     {mi:4, mins:8.950, hrAvg:160, powerW:271},
    ]},
 ];
 
