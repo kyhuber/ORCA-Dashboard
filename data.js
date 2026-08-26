@@ -84,7 +84,7 @@ window.SEEDED_ACTUALS = [
   // too small to carry as a segment. Elevation and cadence weren't retrieved -- the
   // HealthKit pull timed out mid-export -- so no gain figure is recorded here.
   {date:"2026-08-25", dist:4.01, mins:31.07, hrAvg:159, hrMax:181,
-   elev:"rolling — downhill in mile 2, uphill in mile 3; no gain figure recorded",
+   elev:"flat overall — a downhill stretch in mile 2, uphill in mile 3; no gain figure recorded",
    splits:[
      {mi:1, mins:8.450, hrAvg:141, powerW:235},
      {mi:2, mins:6.900, hrAvg:163, powerW:311},
