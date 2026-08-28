@@ -138,6 +138,7 @@
   .pill.cross{background:rgba(135,171,180,0.16); color:var(--text-muted);}
   .s-desc{font-size:0.88rem; color:var(--text-muted); margin-top:4px;}
   .s-target{font-family:var(--font-mono); font-size:0.78rem; color:var(--text-dim); margin-top:3px;}
+  .s-cap{color:var(--coral);}
   .s-right{flex:none; text-align:right; min-width:118px;}
   .badge{display:inline-block; font-size:0.74rem; padding:3px 9px; border-radius:20px; font-weight:600; white-space:nowrap;}
   .badge.done{background:var(--teal-dim); color:var(--teal);}
@@ -354,6 +355,11 @@
   // Easy was 8:50-9:20, which is not easy: it sits ~20 bpm above the true Zone 2
   // anchor of 10:00-10:30 at 136-142 bpm, so following it turned every recovery
   // day into a tempo day and left the aerobic base with nothing to grow on.
+  // Reset again on Aug 27 from 10:00-10:30 to 9:30-10:15. That anchor was set at
+  // 136-142 bpm; the Aug 27 run held 9:45/mi at 142 and 9:33/mi average at 144,
+  // so the old band now reads a legitimate Zone 2 effort as too fast on pace
+  // while the heart rate says otherwise. The band is what moved, not the effort:
+  // easy days are still judged on HR, and Zone 2 remains the actual target.
   // Long stays 8:40-9:10 -- roughly 60-90 s/mi slower than goal pace, which is
   // where a long run belongs.
   // Heart-rate zones exactly as Apple Fitness computes them for Kai, read off the
@@ -376,7 +382,7 @@
   const ZONE2_MAX_HR = HR_ZONES.bands.find(b=>b.zone===2).max;
 
   const PACE_ZONES = {
-    Easy:[10.0,10.5], Group:[9.0,9.5], Tempo:[7.667,7.917],
+    Easy:[9.5,10.25], Group:[9.0,9.5], Tempo:[7.667,7.917],
     Long:[8.667,9.167], Interval:[6.917,7.333]
   };
 
@@ -419,7 +425,15 @@
     {week:5, phase:"Peak build", range:"Aug 24 – Aug 30", sessions:[
       {date:"2026-08-25", day:"Tue", type:"Tempo", desc:"1mi WU + 2mi @ goal pace + 1mi CD", dist:4, useGoal:true},
       {date:"2026-08-27", day:"Thu", type:"Easy", desc:"Easy run — solo, no group. True Zone 2, hold back.", dist:4},
-      {date:"2026-08-30", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace", dist:10},
+      // The closing 2 mi carry their own band. Two things meet on this run: it is
+      // the longest of the cycle, and the last time goal pace was asked for
+      // (Aug 25) it came back 55 s/mi hot with 8:49 spent above 170 bpm. Finishing
+      // surges are a standing pattern -- last year's Orca closed with a 6:58 mile.
+      // The whole-run target cannot say this: 8 easy miles and 2 at goal pace
+      // average to a number that describes neither. Offsets are seconds per mile
+      // against GOAL_PACE so the band follows the goal and no pace is written twice.
+      {date:"2026-08-30", day:"Sun", type:"Long", desc:"Long run — last 2mi @ goal pace, not faster", dist:10,
+       closing:{dist:2, slowestSec:8, fastestSec:-7}},
     ]},
     {week:6, phase:"Peak", range:"Aug 31 – Sep 6", sessions:[
       {date:"2026-09-01", day:"Tue", type:"Tempo", desc:"1mi WU + 3mi @ goal pace + 1mi CD", dist:5, useGoal:true},
@@ -522,6 +536,19 @@
   function getTargetRange(session){
     if(session.useGoal) return [GOAL_PACE-0.08, GOAL_PACE+0.08];
     return PACE_ZONES[session.type] || null;
+  }
+
+  // A goal-pace finish inside a long run needs a band of its own, and a floor more
+  // than a ceiling -- the risk on these is running them too hard off tired legs,
+  // not too easy. Everything derives from GOAL_PACE and converts through uPace, so
+  // the line stays correct in km and moves if the goal is ever reset.
+  function closingTargetStr(session){
+    const c = session.closing;
+    if(!c) return null;
+    const slowest = GOAL_PACE + c.slowestSec/60;
+    const fastest = GOAL_PACE + c.fastestSec/60;
+    return `last ${uDist(c.dist,1)} ${uLabel()} @ ${fmtPace(uPace(GOAL_PACE))}–${fmtUPace(slowest)}`
+         + ` · no faster than ${fmtUPace(fastest)}`;
   }
 
   // Segments that support a hard effort rather than being one. They are real
@@ -736,6 +763,7 @@
       : session.type==="Rest" ? ""
       : range ? `${uDist(session.dist,1)} ${uLabel()} @ ${fmtPace(uPace(range[0]))}–${fmtUPace(range[1])}`
               : `${uDist(session.dist,1)} ${uLabel()}`;
+    const closingStr = closingTargetStr(session);
 
     let badge, actualLine="";
     if(status==="done"){
@@ -775,6 +803,7 @@
         <span class="pill ${session.type.toLowerCase()}">${session.type}</span>
         <div class="s-desc">${desc}</div>
         ${targetStr?`<div class="s-target">${targetStr}</div>`:""}
+        ${closingStr?`<div class="s-target s-cap">${closingStr}</div>`:""}
       </div>
       <div class="s-right">${badge}${actualLine}</div>
     </div>`;
