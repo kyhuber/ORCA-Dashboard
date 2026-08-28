@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=2"></script>
+<script src="data.js?v=3"></script>
 
 <style>
   :root{
@@ -357,14 +357,16 @@
   // Long stays 8:40-9:10 -- roughly 60-90 s/mi slower than goal pace, which is
   // where a long run belongs.
   // Heart-rate zones exactly as Apple Fitness computes them for Kai, read off the
-  // Heart Rate detail screen for the Aug 25 run. Apple recalibrates these as
-  // fitness changes, so they are a dated snapshot rather than a fixed constant --
-  // when an export reports different boundaries, update them here and move the
-  // date with them. These replace a hand-set ceiling of 142 bpm.
+  // Heart Rate detail screen for the Aug 25 run, and reported unchanged by the
+  // Aug 27 export. Apple recalibrates these as fitness changes, so they are a dated
+  // snapshot rather than a fixed constant -- when an export reports different
+  // boundaries, update them here and move the date with them. asOf tracks the last
+  // export that confirmed the bands, not the first that introduced them. These
+  // replace a hand-set ceiling of 142 bpm.
   //
   // Apple prints zone 1 as "<140" and zone 2 as "141-149", which leaves 140 itself
   // unlabelled; it is treated here as the top of zone 1.
-  const HR_ZONES = {asOf:"2026-08-25", bands:[
+  const HR_ZONES = {asOf:"2026-08-27", bands:[
     {zone:1, max:140}, {zone:2, max:149}, {zone:3, max:159},
     {zone:4, max:169}, {zone:5, max:Infinity},
   ]};
@@ -740,7 +742,10 @@
       badge = `<span class="badge done">✓ Synced</span>`;
       const pace = actual.mins/actual.dist;
       actualLine = `<div class="s-actual">Actual: ${uDist(actual.dist)} ${uLabel()} @ ${fmtUPace(pace)}</div>`;
-      if(actual.hrAvg) actualLine += `<div class="s-actual" style="color:var(--coral);">♥ ${actual.hrAvg} avg · ${actual.hrMax} max</div>`;
+      // hrMax is optional: a pull can return an average without a peak, and the
+      // Aug 27 run is the first that does. Print only what was actually measured
+      // rather than "undefined max".
+      if(actual.hrAvg) actualLine += `<div class="s-actual" style="color:var(--coral);">♥ ${actual.hrAvg} avg${actual.hrMax ? ` · ${actual.hrMax} max` : ""}</div>`;
       if(actual.elev) actualLine += `<div class="s-actual" style="color:var(--text-dim);">${actual.elev}</div>`;
       // On easy days the only question worth asking is whether they were actually
       // easy. Name the zone the run landed in and stop there -- no verdict. Zone 1
