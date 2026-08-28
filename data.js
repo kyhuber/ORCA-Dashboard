@@ -15,12 +15,16 @@ window.GOAL_PACE = "7:42";
 // "Awaiting data" instead of being called missed on no evidence.
 //
 // Set this to the last COMPLETE day a pull covers, not the day the pull ran --
-// the Aug 26 00:18 pull covers Aug 25 in full but says nothing about the rest of
-// Aug 26. Move it on every merge, along with the ?v= on the data.js script tag
-// in index.html.
-window.DATA_THROUGH = "2026-08-25";
+// the Aug 27 21:00 pull covers Aug 26 in full but says nothing about the last
+// three hours of Aug 27. Move it on every merge, along with the ?v= on the
+// data.js script tag in index.html.
+//
+// The Aug 27 run still reads as done regardless: a logged run matches its session
+// before this check runs. Nothing was planned for Aug 26, so the two candidate
+// values render identically here -- 2026-08-26 is the one the rule above gives.
+window.DATA_THROUGH = "2026-08-26";
 
-// Logged runs. Seeded from Apple Health; latest pull Aug 26, 2026 via the
+// Logged runs. Seeded from Apple Health; latest pull Aug 27, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
 // Runs under 1.0 mi are excluded (accidental / partial recordings).
 // Fields: date (YYYY-MM-DD), dist (mi), mins — hrAvg / hrMax / elev optional.
@@ -102,6 +106,45 @@ window.SEEDED_ACTUALS = [
      {mi:2, mins:6.900, hrAvg:163, powerW:311},
      {mi:3, mins:6.617, hrAvg:177, powerW:321},
      {mi:4, mins:8.950, hrAvg:160, powerW:271},
+   ]},
+  // Week 5 Thursday, run solo around Delridge / Westcrest Park at 7:27pm. The plan
+  // asked for an easy 4 mi in true Zone 2, holding back. He ran 3.86 and did it.
+  // The export hedges that Thursday is "typically the Westies 5K group run" -- that
+  // was the pre-Aug-23 week 5. The rebuilt plan programs this day as a solo Zone 2
+  // run, so this is the session, run as written.
+  //
+  // Time in zone, on Apple's boundaries (unchanged from Aug 25):
+  // 6:25 / 25:39 / 3:52 / 0:03 / 0:00. About 70% of the run inside Zone 2, the
+  // drift falling to both sides rather than one, and three seconds above 160 bpm.
+  // Kai's read was that he kept slipping out of the band; the data says he held it
+  // better than it felt, and that he erred low more often than high -- 6:25 too
+  // easy against 3:52 too hard. That is the opposite of Aug 13 and Aug 18, which
+  // ran easy days at 157 and 153 bpm avg.
+  //
+  // The number worth keeping: HR read 142 / 144 / 145 / 146 across the four splits
+  // while pace moved 9:45 -> 9:05 -> 9:40. Four beats of drift across 37 minutes,
+  // and mile 2 bought 40 s/mi for two of them. Compare Aug 23 -- the same 144
+  // average, but arrived at by climbing 132 -> 162. That run was inside 24 hours of
+  // an all-out 10K, so fatigue explains part of the gap; the flat 10 mi on Aug 30
+  // is the honest decoupling test, not a 37-minute evening run.
+  //
+  // No hrMax: the export did not carry one, so none is recorded rather than
+  // estimated. The 0:03 in Zone 4 puts the peak just over 160, which is a floor,
+  // not a maximum. Post-run HR fell 138 -> 126 -> 120. The 12 bpm first minute
+  // reads smaller than Aug 25's 24, but that drop started from 144 at the end of a
+  // Zone 5 session -- recovery scales with how high the finish was, so the two
+  // numbers are not comparable.
+  //
+  // Mile 4 is a real 0.86 mi read off the splits screen (8:18), not inferred by
+  // subtraction as on Aug 22 and Aug 23. The ~5 s it leaves against the 36:53 total
+  // is rounding across the four displayed splits.
+  {date:"2026-08-27", dist:3.86, mins:36.89, hrAvg:144,
+   elev:"no significant elevation change — no gain figure recorded",
+   splits:[
+     {mi:1, mins:9.750, hrAvg:142},
+     {mi:2, mins:9.083, hrAvg:144},
+     {mi:3, mins:9.667, hrAvg:145},
+     {mi:3.86, mins:8.300, hrAvg:146},
    ]},
 ];
 
