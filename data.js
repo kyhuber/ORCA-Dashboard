@@ -15,16 +15,16 @@ window.GOAL_PACE = "7:42";
 // "Awaiting data" instead of being called missed on no evidence.
 //
 // Set this to the last COMPLETE day a pull covers, not the day the pull ran --
-// the Aug 27 21:00 pull covers Aug 26 in full but says nothing about the last
-// three hours of Aug 27. Move it on every merge, along with the ?v= on the
-// data.js script tag in index.html.
+// the Aug 30 13:33 pull covers Aug 29 in full but says nothing about the rest of
+// Aug 30. Move it on every merge, along with the ?v= on the data.js script tag in
+// index.html.
 //
-// The Aug 27 run still reads as done regardless: a logged run matches its session
-// before this check runs. Nothing was planned for Aug 26, so the two candidate
-// values render identically here -- 2026-08-26 is the one the rule above gives.
-window.DATA_THROUGH = "2026-08-26";
+// A logged run matches its session before this check runs, so the Aug 30 long run
+// reads as done either way. Week 5 is now complete and week 6 has not started, so
+// nothing is marked missed at this value.
+window.DATA_THROUGH = "2026-08-29";
 
-// Logged runs. Seeded from Apple Health; latest pull Aug 27, 2026 via the
+// Logged runs. Seeded from Apple Health; latest pull Aug 30, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
 // Runs under 1.0 mi are excluded (accidental / partial recordings).
 // Fields: date (YYYY-MM-DD), dist (mi), mins — hrAvg / hrMax / elev optional.
@@ -146,6 +146,52 @@ window.SEEDED_ACTUALS = [
      {mi:3, mins:9.667, hrAvg:145},
      {mi:3.86, mins:8.300, hrAvg:146},
    ]},
+  // Week 5 Sunday, the peak long run: 10.18 mi in 89:47 (8:47/mi), and the longest
+  // run in the file -- past the 9.14 from June and the 9.02 in August. Run the
+  // morning after a three-hour hike.
+  //
+  // The session it was written against: 8 easy miles, then the closing 2 at goal
+  // pace, banded 7:42-7:50 with 7:35 as a floor after Aug 25 came back 55 s/mi hot.
+  // Miles 9 and 10 were 7:33 and 7:52 -- mile 9 two seconds under the floor, mile 10
+  // two seconds past the slow end, and a two-mile average of 7:42.6 against a 7:42
+  // goal. That is the cap held, not missed. The comparison is Aug 25, which asked
+  // for 7:37-7:47 and returned 6:54 and 6:37 with 8:49 spent above 170 bpm. Today
+  // peaked at 168 and never entered Zone 5.
+  //
+  // The durability read matters more than the finish. Miles 1-8 averaged 9:02/mi at
+  // about 139 bpm, and the heart rate did not trend: 140, 139, 134, 139, 138, 139,
+  // 136, 145, while pace moved from 9:18 down to 8:56. Eight miles with effectively
+  // no cardiac drift, the day after three hours on foot. 49:29 of the 89 minutes sat
+  // in Zone 1. This is the decoupling test the Aug 27 entry said was still owed, and
+  // it came back clean.
+  //
+  // Against the Zone 2 anchor of 10:00-10:30 at 136-142 bpm, 9:02/mi at 139 is 60-90
+  // s/mi faster at the same heart rate. Terrain and conditions are not controlled
+  // between those two, and no elevation figure was retrievable here, so read it as a
+  // strong signal rather than a measurement.
+  //
+  // The export's planMatch calls this "last 3mi @ goal pace"; the plan says 2, and 2
+  // is what was run. It also scores the closing miles against a 7:56 goal, which has
+  // been 7:42 since the Aug 22 benchmark reset. Both are stale notes on the phone
+  // side; the measurements themselves are sound.
+  //
+  // Splits sum to 89:26 against the 89:28 total -- rounding across eleven segments.
+  // No elevation: flightsClimbed came back inconsistent and nothing was estimated
+  // from it. The closing 0.18 mi at 9:53/mi is the easy finish after the effort.
+  {date:"2026-08-30", dist:10.18, mins:89.47, hrAvg:142, hrMax:168,
+   splits:[
+     {mi:1, mins:9.300, hrAvg:140},
+     {mi:2, mins:9.050, hrAvg:139},
+     {mi:3, mins:9.420, hrAvg:134},
+     {mi:4, mins:8.930, hrAvg:139},
+     {mi:5, mins:8.850, hrAvg:138},
+     {mi:6, mins:8.630, hrAvg:139},
+     {mi:7, mins:9.120, hrAvg:136},
+     {mi:8, mins:8.930, hrAvg:145},
+     {mi:9, mins:7.550, hrAvg:158},
+     {mi:10, mins:7.870, hrAvg:156},
+     {mi:10.18, mins:1.780, hrAvg:148},
+   ]},
 ];
 
 // Non-running load — counted for training stress, excluded from pace analysis.
@@ -156,4 +202,15 @@ window.CROSS_TRAINING = [
   {date:"2026-08-09", kind:"Ruck", dist:4.17, mins:105.2, hrAvg:113, hrMax:151, note:"60+ lb pack · ~430 ft gain"},
   {date:"2026-08-10", kind:"Ruck", dist:4.06, mins:112.4, hrAvg:104, hrMax:149, note:"60+ lb pack · ~650 ft gain"},
   {date:"2026-08-22", kind:"Walking", dist:1.03, mins:20.24, hrAvg:123, hrMax:141, note:"Cool-down after the benchmark — recovery, not load"},
+  // Saturday hike, 2h57m at 94 bpm average and 119 max -- aerobic time on feet, well
+  // under any running zone. Logged here rather than in SEEDED_ACTUALS because it is
+  // not a run and must stay out of pace analysis.
+  //
+  // The export files it as replacing "Week 5 Sat -- Tempo" and flags that the week's
+  // tempo effort did not happen. Both are wrong: the Aug 23 rebuild removed the
+  // Saturday tempos, week 5 runs Tue/Thu/Sun, and its tempo was Aug 25, which was
+  // run. This hike displaced nothing and is added load on top of a complete week.
+  // No elevation figure -- flightsClimbed returned inconsistent totals for the window.
+  {date:"2026-08-29", kind:"Hiking", dist:7.25, mins:177.21, hrAvg:94, hrMax:119,
+   note:"2h57m easy — added load, not a replacement for any session"},
 ];
