@@ -19,12 +19,16 @@ window.GOAL_PACE = "7:42";
 // Aug 30. Move it on every merge, along with the ?v= on the data.js script tag in
 // index.html.
 //
-// A logged run matches its session before this check runs, so the Aug 30 long run
-// reads as done either way. Week 5 is now complete and week 6 has not started, so
-// nothing is marked missed at this value.
-window.DATA_THROUGH = "2026-08-29";
+// The Sep 1 pull ran at 22:45 Pacific, so it does not cover Sep 1 in full and Aug 31
+// is the last date it closes over. Aug 31 was queried for resting HR but not for
+// workouts, which would matter if the plan had asked for a run that day -- it does
+// not, week 6 runs Tue/Thu/Sun. A logged run matches its session before this check
+// runs, so Sep 1's tempo reads as done regardless. Nothing is marked missed at this
+// value that was not already missed at 2026-08-29; erring a day early costs nothing
+// and is the safe direction.
+window.DATA_THROUGH = "2026-08-31";
 
-// Logged runs. Seeded from Apple Health; latest pull Aug 30, 2026 via the
+// Logged runs. Seeded from Apple Health; latest pull Sep 1, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
 // Runs under 1.0 mi are excluded (accidental / partial recordings).
 // Fields: date (YYYY-MM-DD), dist (mi), mins — hrAvg / hrMax / elev optional.
@@ -192,6 +196,49 @@ window.SEEDED_ACTUALS = [
      {mi:10, mins:7.870, hrAvg:156},
      {mi:10.18, mins:1.780, hrAvg:148},
    ]},
+  // Week 6 Tuesday, the peak-week tempo: 1mi WU + 3mi @ goal pace + 1mi CD. Run solo
+  // in the evening, started 9:38pm. 4.52 mi against 5 planned -- the missing half mile
+  // is all cool-down, so the session's quality volume was hit in full.
+  //
+  // The three quality miles came back 8:00 / 8:02 / 7:54, averaging 7:59/mi against a
+  // 7:37-7:47 band. That is 12 s/mi outside the slow edge and 17 s/mi off the 7:42 goal.
+  // Read the whole-run average with the same care Aug 25 needed, for the opposite
+  // reason: 8:34/mi overall folds in a 9:45 warm-up and a 9:13 cool-down and makes the
+  // session look far worse than it was.
+  //
+  // The heart rate is the story, not the pace. Mile 4 ran 7:54 at 170 bpm; on Aug 30,
+  // two days earlier, mile 10 ran 7:52 at 156 -- the same pace for 14 more beats, and
+  // 170 is the floor of Zone 5. The cool-down then held 170 bpm while pace fell away to
+  // 9:13/mi, which is not what a recovered runner's heart does when the effort stops.
+  // Resting HR that morning was 86 against a 79 median over the preceding week.
+  // Everything here reads as accumulated load: a 3-hour hike on Aug 29, the longest run
+  // of the cycle on Aug 30, then a hard evening session on Sep 1.
+  //
+  // Merged from two watch recordings with a ~6.5 min stop between them, sitting between
+  // mile 2 and mile 3. So the "3 continuous miles" in the export's planMatch is not what
+  // the file shows: it was 1 mi at pace, a break, then 2 mi at pace. Whether that was a
+  // real rest or the watch dropping the recording is not answerable from the data --
+  // mile 3 opens at a 166 avg, which is higher than a 6.5 min standing rest would leave
+  // it, so ask Kai before reading the 150 -> 166 -> 170 progression as pure drift.
+  //
+  // The export scores mile 4 against a 7:56 goal pace and calls the session an interval
+  // workout of 4x1mi. Both are stale phone-side notes -- GOAL_PACE has been 7:42 since
+  // the Aug 22 benchmark, and the plan has asked for 3 continuous goal-pace miles since
+  // the Aug 23 rebuild. The measurements themselves are sound.
+  //
+  // Splits sum to 38:06 against the 38:45 total; the ~39 s difference is a 0.04 mi tail
+  // at the end of the first recording that has no split of its own. That tail also means
+  // the closing partial covers 0.48 mi rather than 0.52, putting it at ~9:13/mi against
+  // the 9:17 the export states -- indicative either way over so short a remainder.
+  // Cadence averaged 168 spm. No elevation or weather: neither was retrievable.
+  {date:"2026-09-01", dist:4.52, mins:38.75, hrAvg:160, hrMax:180,
+   splits:[
+     {mi:1, mins:9.750, hrAvg:151},
+     {mi:2, mins:8.000, hrAvg:150},
+     {mi:3, mins:8.030, hrAvg:166},
+     {mi:4, mins:7.900, hrAvg:170},
+     {mi:4.52, mins:4.420, hrAvg:170},
+   ]},
 ];
 
 // Non-running load — counted for training stress, excluded from pace analysis.
@@ -213,4 +260,26 @@ window.CROSS_TRAINING = [
   // No elevation figure -- flightsClimbed returned inconsistent totals for the window.
   {date:"2026-08-29", kind:"Hiking", dist:7.25, mins:177.21, hrAvg:94, hrMax:119,
    note:"2h57m easy — added load, not a replacement for any session"},
+];
+
+// Daily resting heart rate, as reported by the exports. It is the cheapest recovery
+// signal in the pipeline and until now the page threw it away, so the series starts
+// where the exports start rather than where training did -- Aug 27 is the first pull
+// that carried it, not the first day it was measured.
+//
+// A single reading says very little: this series moves 72 -> 80 -> 72 on consecutive
+// days that held a run, a hike and nothing at all. What is worth reading is the level
+// against the recent run of days, which is why the dashboard shows the latest figure
+// beside a trailing median instead of a day-over-day delta.
+window.RESTING_HR = [
+  {date:"2026-08-27", bpm:72},
+  {date:"2026-08-28", bpm:80},
+  {date:"2026-08-29", bpm:72},
+  {date:"2026-08-30", bpm:79},
+  {date:"2026-08-31", bpm:80},
+  // 86 is the high of the series, two days after the 10.18 mi long run and three after
+  // the hike -- the 80 on Aug 31 is the morning-after reading. Resting HR still climbing
+  // on day two is the ordinary shape of a hard weekend, not a warning on its own; what
+  // makes it worth reading is that the Sep 1 tempo agrees with it.
+  {date:"2026-09-01", bpm:86},
 ];

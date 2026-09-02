@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=4"></script>
+<script src="data.js?v=5"></script>
 
 <style>
   :root{
@@ -247,6 +247,11 @@
         <div class="num" id="cd-long">–</div>
         <p class="cap" id="cd-long-cap"></p>
       </div>
+      <div class="count-card" id="card-rhr" hidden>
+        <p class="label">Resting HR</p>
+        <div class="num" id="cd-rhr">–</div>
+        <p class="cap" id="cd-rhr-cap"></p>
+      </div>
     </div>
 
     <div class="goal-row">
@@ -423,7 +428,12 @@
     // aerobic miles. Long runs are untouched -- they are the point.
     // 53.6 mi across W5-W7 against the 73.8 originally planned.
     {week:5, phase:"Peak build", range:"Aug 24 – Aug 30", sessions:[
-      {date:"2026-08-25", day:"Tue", type:"Tempo", desc:"1mi WU + 2mi @ goal pace + 1mi CD", dist:4, useGoal:true},
+      // No band of its own: this session was written before the floor idea existed and
+      // is judged on the plain useGoal range it was actually set under. The `quality`
+      // block is only what lets the page score the two goal-pace miles instead of the
+      // four-mile average -- 8:27 / 6:54 / 6:37 / 8:57 averages to a textbook 7:45.
+      {date:"2026-08-25", day:"Tue", type:"Tempo", desc:"1mi WU + 2mi @ goal pace + 1mi CD", dist:4, useGoal:true,
+       quality:{dist:2, where:"middle"}},
       {date:"2026-08-27", day:"Thu", type:"Easy", desc:"Easy run — solo, no group. True Zone 2, hold back.", dist:4},
       // The closing 2 mi carry their own band. Two things meet on this run: it is
       // the longest of the cycle, and the last time goal pace was asked for
@@ -433,12 +443,25 @@
       // average to a number that describes neither. Offsets are seconds per mile
       // against GOAL_PACE so the band follows the goal and no pace is written twice.
       {date:"2026-08-30", day:"Sun", type:"Long", desc:"Long run — last 2mi @ goal pace, not faster", dist:10,
-       closing:{dist:2, slowestSec:8, fastestSec:-7}},
+       quality:{dist:2, where:"last", slowestSec:8, fastestSec:-7}},
     ]},
     {week:6, phase:"Peak", range:"Aug 31 – Sep 6", sessions:[
-      {date:"2026-09-01", day:"Tue", type:"Tempo", desc:"1mi WU + 3mi @ goal pace + 1mi CD", dist:5, useGoal:true},
+      {date:"2026-09-01", day:"Tue", type:"Tempo", desc:"1mi WU + 3mi @ goal pace + 1mi CD", dist:5, useGoal:true,
+       quality:{dist:3, where:"middle"}},
       {date:"2026-09-03", day:"Thu", type:"Easy", desc:"Easy run — solo, no group. True Zone 2, hold back.", dist:4},
-      {date:"2026-09-06", day:"Sun", type:"Long", desc:"Peak long run, middle 3mi @ goal pace", dist:11.5},
+      // The hardest session in the plan: three goal-pace miles with five still to run
+      // after them, at the top of the volume curve. Distance is unchanged -- Aug 30
+      // returned eight miles at 9:02/mi with no cardiac drift at all, which is the
+      // evidence for going to 11.5, and long runs are what this block is for.
+      //
+      // What changes is the band. Sep 1 asked for goal pace under the plain range and
+      // came back 12 s/mi slow at 166-170 bpm, two days after the long run; Aug 25
+      // asked the same way and came back 55 s/mi fast. The band that has actually
+      // held is Aug 30's -- a slow edge to aim at and a floor to stop the surge --
+      // so it carries over here, where the miles land mid-run and there is a lot of
+      // running left to pay for them.
+      {date:"2026-09-06", day:"Sun", type:"Long", desc:"Peak long run, middle 3mi @ goal pace", dist:11.5,
+       quality:{dist:3, where:"middle", slowestSec:8, fastestSec:-7}},
     ]},
     {week:7, phase:"Taper begins", range:"Sep 7 – Sep 13", sessions:[
       {date:"2026-09-08", day:"Tue", type:"Interval", desc:"1mi WU + 4×800m @ goal pace + 1mi CD", dist:4, useGoal:true},
@@ -538,17 +561,67 @@
     return PACE_ZONES[session.type] || null;
   }
 
-  // A goal-pace finish inside a long run needs a band of its own, and a floor more
-  // than a ceiling -- the risk on these is running them too hard off tired legs,
-  // not too easy. Everything derives from GOAL_PACE and converts through uPace, so
-  // the line stays correct in km and moves if the goal is ever reset.
-  function closingTargetStr(session){
-    const c = session.closing;
-    if(!c) return null;
-    const slowest = GOAL_PACE + c.slowestSec/60;
-    const fastest = GOAL_PACE + c.fastestSec/60;
-    return `last ${uDist(c.dist,1)} ${uLabel()} @ ${fmtPace(uPace(GOAL_PACE))}–${fmtUPace(slowest)}`
-         + ` · no faster than ${fmtUPace(fastest)}`;
+  // The goal-pace miles inside a longer session need a band of their own, wherever
+  // they sit in the run. A `quality` block names how many of them there are and
+  // where they fall; the band is either explicit -- offsets in seconds against
+  // GOAL_PACE -- or the session's own target range.
+  //
+  // An explicit block carries a floor as well as a band, and the floor is the point:
+  // the risk on these is running them too hard off tired legs, not too easy. Aug 25
+  // asked for goal pace with no floor and came back 55 s/mi fast; Aug 30 asked with
+  // one and held it. Everything derives from GOAL_PACE and converts through uPace,
+  // so the line stays correct in km and moves if the goal is ever reset.
+  function qualityBand(session){
+    const q = session.quality;
+    if(!q) return null;
+    if(q.slowestSec!=null) return {
+      fast:  GOAL_PACE,
+      slow:  GOAL_PACE + q.slowestSec/60,
+      floor: q.fastestSec!=null ? GOAL_PACE + q.fastestSec/60 : null,
+    };
+    const r = getTargetRange(session);
+    return r ? {fast:r[0], slow:r[1], floor:null} : null;
+  }
+
+  function qualityTargetStr(session){
+    const q = session.quality, b = qualityBand(session);
+    if(!b) return null;
+    return `${q.where} ${uDist(q.dist,1)} ${uLabel()} @ ${fmtPace(uPace(b.fast))}–${fmtUPace(b.slow)}`
+         + (b.floor!=null ? ` · no faster than ${fmtUPace(b.floor)}` : "");
+  }
+
+  // What a structured session is actually judged on. Its whole-run average describes
+  // neither half of it: Aug 25 ran 8:27 / 6:54 / 6:37 / 8:57, which averages to 7:45
+  // -- dead centre of a band not one of those four miles was run in -- and the page
+  // read it as a clean hit for a week. Sep 1 fails the same way in the other
+  // direction: 8:34/mi overall, warm-up and cool-down included, against three quality
+  // miles that were only 12 s/mi outside their band.
+  //
+  // The quality miles are found in the data rather than declared, as the fastest
+  // contiguous run of full-mile splits. Warm-up and cool-down miles are the slow ones
+  // by construction, so the fastest window lands on the effort whether it sits at the
+  // end of a long run or in the middle of a tempo. Partial splits are excluded: a
+  // 0.18 mi fragment has a pace, but not one that compares to a mile.
+  function qualitySegment(actual, n){
+    if(!actual || !actual.splits || !(n>0)) return null;
+    const full = actual.splits.filter(s=>Number.isInteger(s.mi) && s.mins>0);
+    if(full.length < n) return null;
+    let best = null;
+    for(let i=0; i+n<=full.length; i++){
+      const seg  = full.slice(i, i+n);
+      const mins = seg.reduce((t,x)=>t+x.mins, 0);
+      if(!best || mins < best.mins) best = {mins, seg};
+    }
+    // Every entry is exactly one mile, so the block's pace is the mean of its splits.
+    // HR is only reported when every mile in the block carried one -- averaging over
+    // the subset that did would quietly describe a different segment.
+    const hrs = best.seg.filter(x=>x.hrAvg).map(x=>x.hrAvg);
+    return {
+      pace:  best.mins/n,
+      from:  best.seg[0].mi,
+      to:    best.seg[n-1].mi,
+      hrAvg: hrs.length===n ? Math.round(hrs.reduce((a,b)=>a+b,0)/n) : null,
+    };
   }
 
   // Segments that support a hard effort rather than being one. They are real
@@ -583,6 +656,32 @@
   }
 
   // ---------- rendering ----------
+  // Resting HR is the cheapest recovery signal in the pipeline and, until now, the
+  // one the page discarded. It is reported against a trailing median rather than
+  // against yesterday: this series moves 72 -> 80 -> 72 across days that held a run,
+  // a hike and nothing at all, so a day-over-day delta is mostly noise, while the
+  // level against the last week is not. No verdict on the card -- an elevated
+  // morning reading means something only alongside how the running felt.
+  function median(xs){
+    const v=[...xs].sort((a,b)=>a-b), m=v.length>>1;
+    return v.length%2 ? v[m] : (v[m-1]+v[m])/2;
+  }
+  function renderRestingHr(){
+    const card=document.getElementById("card-rhr");
+    const series=(window.RESTING_HR||[]).filter(r=>r && r.bpm)
+                   .sort((a,b)=>a.date.localeCompare(b.date));
+    if(!series.length){ card.hidden=true; return; }
+    card.hidden=false;
+    const latest=series[series.length-1];
+    document.getElementById("cd-rhr").textContent=latest.bpm;
+    // Up to the seven readings before this one. Fewer than three and there is no
+    // baseline worth quoting, so the card just dates the number instead.
+    const prior=series.slice(Math.max(0, series.length-8), series.length-1).map(r=>r.bpm);
+    document.getElementById("cd-rhr-cap").textContent = prior.length>=3
+      ? `bpm on ${fmtDate(latest.date)} · recent median ${median(prior)}`
+      : `bpm on ${fmtDate(latest.date)}`;
+  }
+
   // The benchmark counter used to live here and read "Done" forever once Aug 22
   // passed. Longest run replaces it: endurance is the limiter now, and it is the
   // one number still genuinely unsettled. Deliberately not a bar toward 13.1 --
@@ -763,7 +862,7 @@
       : session.type==="Rest" ? ""
       : range ? `${uDist(session.dist,1)} ${uLabel()} @ ${fmtPace(uPace(range[0]))}–${fmtUPace(range[1])}`
               : `${uDist(session.dist,1)} ${uLabel()}`;
-    const closingStr = closingTargetStr(session);
+    const qualityStr = qualityTargetStr(session);
 
     let badge, actualLine="";
     if(status==="done"){
@@ -775,6 +874,30 @@
       // rather than "undefined max".
       if(actual.hrAvg) actualLine += `<div class="s-actual" style="color:var(--coral);">♥ ${actual.hrAvg} avg${actual.hrMax ? ` · ${actual.hrMax} max` : ""}</div>`;
       if(actual.elev) actualLine += `<div class="s-actual" style="color:var(--text-dim);">${actual.elev}</div>`;
+      // A structured session lives or dies on its quality miles, so when the plan
+      // named a block and the run carries splits, say what those miles came back at.
+      // Without this the line above is the only verdict on the page, and on a run
+      // that is mostly warm-up and cool-down it is a verdict on the wrong thing.
+      //
+      // Too fast is a miss, not a win -- it trains top-end speed and skips the
+      // limiter, which is holding a pace -- so the line names the direction rather
+      // than just the gap. The floor, where one is set, is the fast edge that counts.
+      const qBand = session.quality && qualityBand(session);
+      const qSeg  = qBand && qualitySegment(actual, session.quality.dist);
+      if(qSeg && qBand){
+        const uq   = uPace(qSeg.pace);
+        const fast = uPace(qBand.floor!=null ? qBand.floor : qBand.fast);
+        const slow = uPace(qBand.slow);
+        const held = uq >= fast && uq <= slow;
+        const off  = Math.round((uq < fast ? fast-uq : uq-slow)*60);
+        const where = qSeg.from===qSeg.to ? `Mile ${qSeg.from}`
+                                          : `Miles ${qSeg.from}–${qSeg.to}`;
+        const hr = qSeg.hrAvg ? ` · \u2665 ${qSeg.hrAvg}` : "";
+        actualLine += `<div class="s-zone ${held?"in":"out"}">${held
+          ? `\u2713 ${where} @ ${fmtUPace(qSeg.pace)}${hr}`
+          : `${where} @ ${fmtUPace(qSeg.pace)} – ${off} sec/${uLabel()} too ${uq<fast?"fast":"slow"}${hr}`}</div>`;
+      }
+
       // On easy days the only question worth asking is whether they were actually
       // easy. Name the zone the run landed in and stop there -- no verdict. Zone 1
       // passes too: an easy day run easier than Zone 2 is still an easy day.
@@ -803,7 +926,7 @@
         <span class="pill ${session.type.toLowerCase()}">${session.type}</span>
         <div class="s-desc">${desc}</div>
         ${targetStr?`<div class="s-target">${targetStr}</div>`:""}
-        ${closingStr?`<div class="s-target s-cap">${closingStr}</div>`:""}
+        ${qualityStr?`<div class="s-target s-cap">${qualityStr}</div>`:""}
       </div>
       <div class="s-right">${badge}${actualLine}</div>
     </div>`;
@@ -1012,6 +1135,7 @@
     const actuals = allActuals();
     renderUnits();
     renderCountdowns(actuals);
+    renderRestingHr();
     renderPhase();
     renderGoal();
     renderUpNext(actuals);
