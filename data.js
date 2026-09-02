@@ -215,11 +215,20 @@ window.SEEDED_ACTUALS = [
   // of the cycle on Aug 30, then a hard evening session on Sep 1.
   //
   // Merged from two watch recordings with a ~6.5 min stop between them, sitting between
-  // mile 2 and mile 3. So the "3 continuous miles" in the export's planMatch is not what
-  // the file shows: it was 1 mi at pace, a break, then 2 mi at pace. Whether that was a
-  // real rest or the watch dropping the recording is not answerable from the data --
-  // mile 3 opens at a 166 avg, which is higher than a 6.5 min standing rest would leave
-  // it, so ask Kai before reading the 150 -> 166 -> 170 progression as pure drift.
+  // mile 2 and mile 3. Kai's account, which settles it: the watch was not recording the
+  // way he wanted and he stopped to sort it out. So the stop was a full standing recovery
+  // rather than anything the session asked for, and the "3 continuous miles" of the
+  // export's planMatch is not what happened -- it was 1 mi at pace, a break, then 2 mi at
+  // pace. That is an easier session than the continuous three that were written.
+  //
+  // Which makes the heart rate worse, not better, and corrects the reading first recorded
+  // here: mile 3's 166 is a mean across a restart ramp, not a steady state. HR fell
+  // through the break and climbed back over the opening minutes of the mile, so 8:02/mi
+  // was costing more than 166 by the end of it. Mile 2's 150 understates the cost the
+  // same way from the other side -- it came straight off the 9:45 warm-up with HR still
+  // catching up. Mile 4 is the one split carrying neither artifact, and it says 7:54/mi
+  // cost 170 bpm. Read the progression as two ramps around a genuine ~170 steady state,
+  // not as 150 -> 166 -> 170 of drift.
   //
   // The export scores mile 4 against a 7:56 goal pace and calls the session an interval
   // workout of 4x1mi. Both are stale phone-side notes -- GOAL_PACE has been 7:42 since
