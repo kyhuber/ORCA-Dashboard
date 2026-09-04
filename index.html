@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=5"></script>
+<script src="data.js?v=6"></script>
 
 <style>
   :root{
@@ -465,12 +465,22 @@
     ]},
     {week:7, phase:"Taper begins", range:"Sep 7 – Sep 13", sessions:[
       {date:"2026-09-08", day:"Tue", type:"Interval", desc:"1mi WU + 4×800m @ goal pace + 1mi CD", dist:4, useGoal:true},
-      {date:"2026-09-10", day:"Thu", type:"Group", desc:"Group run — fixed pace, 5K", dist:3.1},
+      // Programmed as the session Kai needs rather than as the club, because the Westies
+      // meet Thursday or Sunday and he often does not know which until the week is on
+      // him -- a plan that names a Group run here depends on attendance it cannot
+      // predict. Sep 3 is the case in point: the club went out at 9:58/mi over 4.02 mi,
+      // which is an easy day by pace and by heart rate, and the Group type would have
+      // scored it against 3.1 mi at 9:00-9:30 and called a well-run easy day a miss.
+      // Easy is what a taper Thursday wants regardless, and the club substitutes into
+      // it cleanly whichever day it lands.
+      {date:"2026-09-10", day:"Thu", type:"Easy", desc:"Easy run — club run substitutes if the Westies meet Thursday", dist:3.1},
       {date:"2026-09-13", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace", dist:8},
     ]},
     {week:8, phase:"Race week", range:"Sep 14 – Sep 19", sessions:[
       {date:"2026-09-14", day:"Mon", type:"Easy", desc:"Easy run", dist:3},
-      {date:"2026-09-17", day:"Thu", type:"Group", desc:"Group run — shakeout, 5K", dist:3.1},
+      // Same reasoning as week 7, and it matters more here: the last run before a race
+      // is the one session that must not be contingent on other people showing up.
+      {date:"2026-09-17", day:"Thu", type:"Easy", desc:"Shakeout — easy and short; club run substitutes if it lands", dist:3.1},
       {date:"2026-09-18", day:"Fri", type:"Rest", desc:"Rest", dist:0},
       {date:"2026-09-19", day:"Sat", type:"Race", desc:"🏁 ORCA HALF MARATHON", dist:13.1, useGoal:true},
     ]},

@@ -19,16 +19,14 @@ window.GOAL_PACE = "7:42";
 // Aug 30. Move it on every merge, along with the ?v= on the data.js script tag in
 // index.html.
 //
-// The Sep 1 pull ran at 22:45 Pacific, so it does not cover Sep 1 in full and Aug 31
-// is the last date it closes over. Aug 31 was queried for resting HR but not for
-// workouts, which would matter if the plan had asked for a run that day -- it does
-// not, week 6 runs Tue/Thu/Sun. A logged run matches its session before this check
-// runs, so Sep 1's tempo reads as done regardless. Nothing is marked missed at this
-// value that was not already missed at 2026-08-29; erring a day early costs nothing
-// and is the safe direction.
-window.DATA_THROUGH = "2026-08-31";
+// The Sep 3 pull ran at 22:02 Pacific over a Sep 3 window, so it does not cover Sep 3
+// in full and Sep 2 is the last date it closes over -- the same reasoning that set
+// this to Aug 31 off the Sep 1 22:45 pull. A logged run matches its session before
+// this check runs, so Thursday's easy run reads as done regardless, and Sunday's long
+// run sits past the line and reads "Awaiting data" until an export covers it.
+window.DATA_THROUGH = "2026-09-02";
 
-// Logged runs. Seeded from Apple Health; latest pull Sep 1, 2026 via the
+// Logged runs. Seeded from Apple Health; latest pull Sep 3, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
 // Runs under 1.0 mi are excluded (accidental / partial recordings).
 // Fields: date (YYYY-MM-DD), dist (mi), mins — hrAvg / hrMax / elev optional.
@@ -248,6 +246,50 @@ window.SEEDED_ACTUALS = [
      {mi:4, mins:7.900, hrAvg:170},
      {mi:4.52, mins:4.420, hrAvg:170},
    ]},
+  // Week 6 Thursday, the easy day: 4 mi solo in true Zone 2, hold back. Run at the
+  // Westies club run instead of solo -- Delridge / West Duwamish Greenbelt, 7:13pm.
+  // The club going out at 9:58/mi made that substitution free: this is the session as
+  // written, not a compromise on it. 4.02 mi at 141 bpm average against a Zone 2 that
+  // tops out at 149, and at the top of the 136-142 band that counts as genuinely easy.
+  //
+  // This is the run the Sep 1 entry said was owed. Resting HR came back 74 on both
+  // Sep 2 and Sep 3 against 86 on Sep 1 -- the lowest two readings in the series, and
+  // the fatigue behind Tuesday's 170 bpm at 8:00/mi has cleared rather than compounded.
+  //
+  // No cardiac drift, and the claim rests on miles 2-4: 10:01 / 10:08 / 10:00 while HR
+  // read 145 / 139 / 141. Heart rate falling while pace holds flat is the opposite of
+  // decoupling. Mile 1's 145 is the one figure here not to lean on -- see below.
+  //
+  // Worth holding next to the easy days from three weeks ago. Aug 13 ran 8:24/mi at
+  // 157 bpm and Aug 18 ran 8:45/mi at 153, both programmed easy and neither of them
+  // easy. Tonight is 141. Most of that is discipline rather than physiology -- he is
+  // choosing to hold back where he used to drift -- but it is the change that makes
+  // the aerobic base actually accumulate.
+  //
+  // Two data caveats, both from the export and neither affecting the read above.
+  // Kai confirmed the watch lost wrist contact from 19:16:23 to 19:21:44 and he
+  // adjusted it mid-run; those 52 samples read 92-110 bpm while he was running and are
+  // invalid. They were dropped, not backfilled -- a synthesized sample is
+  // indistinguishable from a measured one downstream. hrAvg 141 survives it: the 282
+  // clean samples mean 141.59 against Apple's time-weighted 141, two methods agreeing
+  // inside 0.6 bpm. The bad window sits entirely inside mile 1 (which ended 19:22:59),
+  // so mile 1's displayed 145 comes from Apple's smoothed stream rather than the raw
+  // one, and this session's Apple zone breakdown -- Zone 1 in particular -- is
+  // contaminated and must stay out of any time-in-zone trend.
+  //
+  // mins is moving time. Wall clock was 43:53 against 40:01 of movement, about 3:52 of
+  // pauses at traffic lights; the splits reconcile to moving time within half a second,
+  // and pace analysis wants the time he was actually running. Cadence 168 spm. No
+  // elevation: health_query_v0's workout record does not expose it and flightsClimbed
+  // is not a substitute, so this is a tool limit, not a gap in the watch data.
+  {date:"2026-09-03", dist:4.02, mins:40.02, hrAvg:141, hrMax:163,
+   splits:[
+     {mi:1, mins:9.700, hrAvg:145},
+     {mi:2, mins:10.020, hrAvg:145},
+     {mi:3, mins:10.130, hrAvg:139},
+     {mi:4, mins:10.000, hrAvg:141},
+     {mi:4.02, mins:0.170, hrAvg:141},
+   ]},
 ];
 
 // Non-running load — counted for training stress, excluded from pace analysis.
@@ -291,4 +333,10 @@ window.RESTING_HR = [
   // on day two is the ordinary shape of a hard weekend, not a warning on its own; what
   // makes it worth reading is that the Sep 1 tempo agrees with it.
   {date:"2026-09-01", bpm:86},
+  // The spike resolves. Two days at 74 -- the lowest pair in the series -- and the
+  // Sep 3 easy run agrees with them, so Sep 1's 86 was the weekend's load clearing
+  // rather than the start of a hole. The Sep 3 export re-reported Aug 28 - Sep 1
+  // unchanged, which is the first independent confirmation these readings are stable.
+  {date:"2026-09-02", bpm:74},
+  {date:"2026-09-03", bpm:74},
 ];
