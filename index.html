@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=6"></script>
+<script src="data.js?v=7"></script>
 
 <style>
   :root{
@@ -460,27 +460,46 @@
       // held is Aug 30's -- a slow edge to aim at and a floor to stop the surge --
       // so it carries over here, where the miles land mid-run and there is a lot of
       // running left to pay for them.
-      {date:"2026-09-06", day:"Sun", type:"Long", desc:"Peak long run, middle 3mi @ goal pace", dist:11.5,
-       quality:{dist:3, where:"middle", slowestSec:8, fastestSec:-7}},
+      // startMi pins the effort to miles 6-8. "Middle 3" left the one decision that
+      // actually shapes the run -- when to start -- to be made while running it. Five
+      // easy miles first puts the block about 45 minutes in, which is close to where
+      // mile 6 of the race falls at goal pace, and leaves 3.5 miles to run afterwards.
+      // Those 3.5 are the point: finishing easy after a hard effort is the habit Kai
+      // does not have, and a block at the end would just be a fitness test he kicks.
+      //
+      // easyPace bands everything outside the effort. Without it the only pace on the
+      // card is the Long zone for the whole run, which is an average across three miles
+      // at 7:46 and eight at 9:15 and describes neither. Slightly easier than Aug 30's
+      // 9:02 because there is a goal-pace block coming and miles to run after it.
+      //
+      // startMi is instruction, not scoring: qualitySegment still finds the effort as
+      // the fastest contiguous block, so running it at miles 7-9 still reads correctly.
+      {date:"2026-09-06", day:"Sun", type:"Long", desc:"Peak long run, goal pace at miles 6-8", dist:11.5,
+       quality:{dist:3, where:"middle", startMi:6, slowestSec:8, fastestSec:-7},
+       easyPace:[9.0, 9.75]},
     ]},
     {week:7, phase:"Taper begins", range:"Sep 7 – Sep 13", sessions:[
       {date:"2026-09-08", day:"Tue", type:"Interval", desc:"1mi WU + 4×800m @ goal pace + 1mi CD", dist:4, useGoal:true},
-      // Programmed as the session Kai needs rather than as the club, because the Westies
-      // meet Thursday or Sunday and he often does not know which until the week is on
-      // him -- a plan that names a Group run here depends on attendance it cannot
-      // predict. Sep 3 is the case in point: the club went out at 9:58/mi over 4.02 mi,
-      // which is an easy day by pace and by heart rate, and the Group type would have
-      // scored it against 3.1 mi at 9:00-9:30 and called a well-run easy day a miss.
-      // Easy is what a taper Thursday wants regardless, and the club substitutes into
-      // it cleanly whichever day it lands.
-      {date:"2026-09-10", day:"Thu", type:"Easy", desc:"Easy run — club run substitutes if the Westies meet Thursday", dist:3.1},
-      {date:"2026-09-13", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace", dist:8},
+      // Thursdays name the session and say nothing about the company. The Westies meet
+      // Thursday or Sunday, Kai rarely knows which until the week is on him, and Sep 3
+      // he ran alone on a scheduling conflict -- so whether a run is solo or with the
+      // club is not a property the plan can know in advance, and not one it needs. The
+      // run gets recorded either way. What the old Group type did was worse than
+      // guessing: it scored the day against 3.1 mi at 9:00-9:30, which would have
+      // called Sep 3's well-run 4.02 at 9:58 and 141 bpm a miss.
+      {date:"2026-09-10", day:"Thu", type:"Easy", desc:"Easy run — true Zone 2, hold back", dist:3.1},
+      // Same shape as Aug 30, which is the one goal-pace session that has held its band,
+      // so it carries the same floor. It had asked for goal pace in prose with nothing
+      // scoring it.
+      {date:"2026-09-13", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace", dist:8,
+       quality:{dist:2, where:"last", slowestSec:8, fastestSec:-7},
+       easyPace:[9.0, 9.75]},
     ]},
     {week:8, phase:"Race week", range:"Sep 14 – Sep 19", sessions:[
       {date:"2026-09-14", day:"Mon", type:"Easy", desc:"Easy run", dist:3},
       // Same reasoning as week 7, and it matters more here: the last run before a race
-      // is the one session that must not be contingent on other people showing up.
-      {date:"2026-09-17", day:"Thu", type:"Easy", desc:"Shakeout — easy and short; club run substitutes if it lands", dist:3.1},
+      // should not be contingent on anyone else.
+      {date:"2026-09-17", day:"Thu", type:"Easy", desc:"Shakeout — easy and short, legs only", dist:3.1},
       {date:"2026-09-18", day:"Fri", type:"Rest", desc:"Rest", dist:0},
       {date:"2026-09-19", day:"Sat", type:"Race", desc:"🏁 ORCA HALF MARATHON", dist:13.1, useGoal:true},
     ]},
@@ -593,11 +612,33 @@
     return r ? {fast:r[0], slow:r[1], floor:null} : null;
   }
 
+  // Where the effort sits. A block declared with startMi has a definite answer and
+  // should give it -- "middle 3 mi" leaves the decision that most shapes the run to
+  // be made while running it. Mile marks are mile marks, so metric gets the
+  // cumulative range rather than a mistranslated ordinal.
+  function qualitySpanStr(q){
+    if(q.startMi==null) return `${q.where} ${uDist(q.dist,1)} ${uLabel()}`;
+    const from = q.startMi-1;
+    return isMetric()
+      ? `${uDist(from,1)}–${uDist(from+q.dist,1)} ${uLabel()}`
+      : `miles ${q.startMi}–${q.startMi+q.dist-1}`;
+  }
+
   function qualityTargetStr(session){
     const q = session.quality, b = qualityBand(session);
     if(!b) return null;
-    return `${q.where} ${uDist(q.dist,1)} ${uLabel()} @ ${fmtPace(uPace(b.fast))}–${fmtUPace(b.slow)}`
+    return `${qualitySpanStr(q)} @ ${fmtPace(uPace(b.fast))}–${fmtUPace(b.slow)}`
          + (b.floor!=null ? ` · no faster than ${fmtUPace(b.floor)}` : "");
+  }
+
+  // The miles either side of an embedded effort. The session's own pace zone is an
+  // average across both halves and instructs neither: 11.5 mi at 8:40-9:10 is what
+  // three miles at 7:46 and eight at 9:15 come out to, and running the whole thing
+  // at 8:55 would be a different session entirely.
+  function easyPaceStr(session){
+    const e = session.easyPace;
+    if(!e) return null;
+    return `every other ${uLabel()} @ ${fmtPace(uPace(e[0]))}–${fmtUPace(e[1])}`;
   }
 
   // What a structured session is actually judged on. Its whole-run average describes
@@ -873,6 +914,7 @@
       : range ? `${uDist(session.dist,1)} ${uLabel()} @ ${fmtPace(uPace(range[0]))}–${fmtUPace(range[1])}`
               : `${uDist(session.dist,1)} ${uLabel()}`;
     const qualityStr = qualityTargetStr(session);
+    const easyStr = easyPaceStr(session);
 
     let badge, actualLine="";
     if(status==="done"){
@@ -937,6 +979,7 @@
         <div class="s-desc">${desc}</div>
         ${targetStr?`<div class="s-target">${targetStr}</div>`:""}
         ${qualityStr?`<div class="s-target s-cap">${qualityStr}</div>`:""}
+        ${easyStr?`<div class="s-target">${easyStr}</div>`:""}
       </div>
       <div class="s-right">${badge}${actualLine}</div>
     </div>`;

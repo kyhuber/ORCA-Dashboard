@@ -246,11 +246,22 @@ window.SEEDED_ACTUALS = [
      {mi:4, mins:7.900, hrAvg:170},
      {mi:4.52, mins:4.420, hrAvg:170},
    ]},
-  // Week 6 Thursday, the easy day: 4 mi solo in true Zone 2, hold back. Run at the
-  // Westies club run instead of solo -- Delridge / West Duwamish Greenbelt, 7:13pm.
-  // The club going out at 9:58/mi made that substitution free: this is the session as
-  // written, not a compromise on it. 4.02 mi at 141 bpm average against a Zone 2 that
-  // tops out at 149, and at the top of the 136-142 band that counts as genuinely easy.
+  // Week 6 Thursday, the easy day: 4 mi solo in true Zone 2, hold back. Run exactly
+  // that way -- solo, 7:13pm, Delridge / West Duwamish Greenbelt. 4.02 mi at 141 bpm
+  // average against a Zone 2 that tops out at 149, and at the top of the 136-142 band
+  // that counts as genuinely easy.
+  //
+  // The export files this as "Westies club run" and matches it to a Group session.
+  // Both are wrong: Kai had a scheduling conflict and ran alone, and the plan has
+  // programmed this day as a solo Zone 2 run since the Aug 23 rebuild. It is the same
+  // failure mode as the Aug 27 export, which also assumed the Thursday club run, and
+  // the same family as the stale goal paces -- the phone cannot read the repo, so it
+  // reconstructs context from memory and gets it wrong. The measurements are sound.
+  //
+  // It matters here because it changes what the run demonstrates. A club run at
+  // 9:58/mi would mean the group happened to go out easy; running 9:58 alone, with
+  // nobody setting the pace, is a deliberate choice to hold back. That is the harder
+  // version and the one that transfers.
   //
   // This is the run the Sep 1 entry said was owed. Resting HR came back 74 on both
   // Sep 2 and Sep 3 against 86 on Sep 1 -- the lowest two readings in the series, and
