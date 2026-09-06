@@ -19,14 +19,12 @@ window.GOAL_PACE = "7:42";
 // Aug 30. Move it on every merge, along with the ?v= on the data.js script tag in
 // index.html.
 //
-// The Sep 3 pull ran at 22:02 Pacific over a Sep 3 window, so it does not cover Sep 3
-// in full and Sep 2 is the last date it closes over -- the same reasoning that set
-// this to Aug 31 off the Sep 1 22:45 pull. A logged run matches its session before
-// this check runs, so Thursday's easy run reads as done regardless, and Sunday's long
-// run sits past the line and reads "Awaiting data" until an export covers it.
-window.DATA_THROUGH = "2026-09-02";
+// The Sep 6 pull ran at 16:50 Pacific over a Sep 6 window, so Sep 5 is the last date
+// it closes over -- same reasoning as the two before it. Week 6 is now fully logged
+// and week 7 has not started, so nothing is marked missed at this value.
+window.DATA_THROUGH = "2026-09-05";
 
-// Logged runs. Seeded from Apple Health; latest pull Sep 3, 2026 via the
+// Logged runs. Seeded from Apple Health; latest pull Sep 6, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
 // Runs under 1.0 mi are excluded (accidental / partial recordings).
 // Fields: date (YYYY-MM-DD), dist (mi), mins — hrAvg / hrMax / elev optional.
@@ -301,6 +299,79 @@ window.SEEDED_ACTUALS = [
      {mi:4, mins:10.000, hrAvg:141},
      {mi:4.02, mins:0.170, hrAvg:141},
    ]},
+  // Week 6 Sunday, the peak long run: 11.73 mi, the longest of the cycle by 1.55 mi and
+  // the longest in the file. The session asked for 11.5 with goal pace at miles 6-8.
+  // What came back is two different runs stapled together, and worth reading that way.
+  //
+  // The aerobic session was excellent. Miles 1-5 ran 9:37 / 9:43 / 9:42 / 9:41 / 9:38
+  // against the 9:00-9:45 band the plan set for them, at 119-130 bpm -- Zone 1 the whole
+  // way. Then miles 9-11.73 came home 9:26 / 9:34 / 9:46 / 9:45 at 125-133 bpm. He ran
+  // the closing 3.7 miles easy after the hard part, which is the exact habit the mid-run
+  // placement of the effort block was built to train and the one Aug 30 and last year's
+  // Orca both say he does not have. hrAvg 131 across nearly two hours, hrMax 159 -- one
+  // beat under the Zone 4 floor, so this run never left Zone 3.
+  //
+  // The quality session did not happen. The route turned into an unplanned climb where
+  // the goal-pace miles were meant to go, and the fastest mile of the day was mile 8 at
+  // 8:15. Miles 6-8 are still where the effort went -- 9:08 / 9:21 / 8:15 at 132 / 146 /
+  // 151 bpm against 119-130 for the five before them -- so the page finds them and scores
+  // them against the band, which reads 65 s/mi slow. That number is true and the reason
+  // it is true is terrain, not fitness. Which is what note and flags below are for.
+  //
+  // mins is HealthKit MOVING time, deliberately, and this is the one place the file
+  // departs from the schema's "elapsed duration" wording. Wall clock was 118.68 min
+  // against 111.01 of movement; the 7:39 difference is a genuine standstill, not a
+  // sensor fault -- HR sampling is continuous across it and falls to 87-96 bpm for about
+  // five minutes around 15:10 local. Reconstructing the splits with the gap inserted at
+  // the mile 5/6 boundary lands the final split within 3 s of the recorded end, which is
+  // where it sits. 111.01 matches the split sum of 110.97 and gives 9:28/mi. Do not
+  // "correct" this to elapsed: 118.68 would render the run at 10:07/mi and charge the
+  // pace chart twice for the same stop.
+  //
+  // The first flag quotes goal pace as 7:56. GOAL_PACE has been 7:42 since the Aug 22
+  // benchmark, so the parenthetical is stale -- the same phone-side drift as the Aug 30
+  // and Sep 1 exports. The claim itself survives either figure: the fastest mile was
+  // 8:15. GOAL_PACE is untouched here; a hilly long run is not benchmark evidence.
+  //
+  // No elevation. This run is entirely a hills story, which makes it the most tempting
+  // entry in the file to put a number on, and there is still no measured one to put --
+  // health_query_v0 exposes no feet-based type and flightsClimbed buckets are
+  // inconsistent. Power from the splits screen is the only terrain proxy and it is in
+  // the flags, not invented into a field. Cadence likewise: two measured segments in the
+  // flags rather than a whole-run average the stop would have contaminated.
+  {date:"2026-09-06", dist:11.73, mins:111.01, hrAvg:131, hrMax:159,
+   // Kai's account of the run. Kept alongside flags rather than merged into them: the
+   // two do not fully agree -- this says a brief walk, the flags say a 7:39 standstill
+   // and no goal-pace mile -- and the disagreement is the useful part.
+   note:"First ~5 mi as approach running to a park, then the goal-pace block was intended. " +
+        "Park route was hillier than expected; an unfamiliar path led to a steeper climb. " +
+        "Chose to slow and climb rather than hold goal pace, and walked briefly. " +
+        "Distance exceeded the 11.5 mi plan.",
+   // What the watch recorded, as the export wrote them. Observations, not verdicts.
+   flags:[
+     "No mile averaged goal pace (7:56/mi). Fastest split was mile 8 at 8:15/mi.",
+     "Effort block is miles 6-8: HR avg 132/146/151 vs 119-130 for miles 1-5. HR held 150-159 continuously from 15:26 to 15:42 local, spanning miles 7-8.",
+     "hrMax 159 from sample-level query. Apple Fitness zone table reports 00:00 in Zone 4 (160+ bpm) — peak was one beat below the Zone 4 floor.",
+     "Zone 1 on this device is <139 bpm, an unusually wide bucket that covers walking through easy running. The 1:30:12 Zone 1 total reflects bucket width, not an unusually low effort.",
+     "Closing miles 9-12 (9:26, 9:34, 9:46, 9:49/mi) are the slowest running of the day, with power dropping to 210-242W from 288-296W in the effort block. No goal-pace segment after the climb.",
+     "Cadence measured on two segments only: ~170 spm across mile 8 (fastest split), ~162 spm across the final 8.5 minutes. Roughly 8 spm decline into the closing miles.",
+     "runningSpeed samples include values as low as 0.47 m/s (~57:00/mi) during the 15:17-16:17 local hour, consistent with walking on the climb separate from the 7:39 standstill.",
+     "Wall-clock elapsed 118.68 min against 111.01 moving; the 7:39 gap sits at the mile 5/6 boundary, placed by split reconstruction and corroborated by an HR trough to 87-96 bpm.",
+   ],
+   splits:[
+     {mi:1, mins:9.617, hrAvg:126},
+     {mi:2, mins:9.717, hrAvg:130},
+     {mi:3, mins:9.700, hrAvg:124},
+     {mi:4, mins:9.683, hrAvg:125},
+     {mi:5, mins:9.633, hrAvg:119},
+     {mi:6, mins:9.133, hrAvg:132},
+     {mi:7, mins:9.350, hrAvg:146},
+     {mi:8, mins:8.250, hrAvg:151},
+     {mi:9, mins:9.433, hrAvg:133},
+     {mi:10, mins:9.567, hrAvg:133},
+     {mi:11, mins:9.767, hrAvg:128},
+     {mi:11.73, mins:7.117, hrAvg:125},
+   ]},
 ];
 
 // Non-running load — counted for training stress, excluded from pace analysis.
@@ -349,5 +420,13 @@ window.RESTING_HR = [
   // rather than the start of a hole. The Sep 3 export re-reported Aug 28 - Sep 1
   // unchanged, which is the first independent confirmation these readings are stable.
   {date:"2026-09-02", bpm:74},
-  {date:"2026-09-03", bpm:74},
+  // 75, not the 74 first recorded here. The Sep 3 export pulled at 22:02 that evening,
+  // before the day was over; the Sep 6 pull reports the settled figure. First time a
+  // resting-HR reading has been revised, and the direction to prefer is the later pull --
+  // Apple recomputes the day as more of it arrives.
+  {date:"2026-09-03", bpm:75},
+  {date:"2026-09-04", bpm:80},
+  {date:"2026-09-05", bpm:80},
+  // 72 on the morning of the peak long run, and the low of the series.
+  {date:"2026-09-06", bpm:72},
 ];

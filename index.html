@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=7"></script>
+<script src="data.js?v=8"></script>
 
 <style>
   :root{
@@ -125,7 +125,7 @@
   @media (max-width:560px){ .hist-hint{display:none;} }
 
   /* ---- session rows ---- */
-  .session{display:flex; align-items:center; gap:14px; padding:12px 0; border-top:1px solid var(--border);}
+  .session{display:flex; flex-wrap:wrap; align-items:center; gap:14px; padding:12px 0; border-top:1px solid var(--border);}
   .session:first-of-type{border-top:none;}
   .s-date{flex:none; width:64px; font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted); text-align:left; line-height:1.3;}
   .s-date .dow{display:block; color:var(--text); font-weight:600;}
@@ -146,6 +146,23 @@
   .badge.upcoming{background:transparent; color:var(--text-dim); border:1px solid var(--border);}
   .badge.awaiting{background:transparent; color:var(--gold); border:1px solid var(--gold);}
   .s-actual{font-family:var(--font-mono); font-size:0.76rem; color:var(--text); margin-top:5px;}
+
+  /* Two records of one run, kept visibly apart. Kai's account and the watch's do not
+     always agree -- on Sep 6 the note says a brief walk and the flags say a 7:39
+     standstill -- and the page is not the place that decides between them. */
+  .s-log{flex:1 1 100%; margin-top:9px;}
+  .s-log summary{cursor:pointer; list-style:none; font-family:var(--font-mono);
+    font-size:0.72rem; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-muted);}
+  .s-log summary::-webkit-details-marker{display:none;}
+  .s-log summary::before{content:"\25b8"; display:inline-block; margin-right:6px; transition:transform 0.12s;}
+  .s-log[open] summary::before{transform:rotate(90deg);}
+  .s-log-caveat{font-size:0.74rem; color:var(--text-dim); font-style:italic; margin:8px 0 2px;}
+  .s-log-src{margin-top:9px;}
+  .s-log-src > b{display:block; font-family:var(--font-mono); font-size:10px; letter-spacing:0.09em;
+    text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;}
+  .s-log-note{font-size:0.8rem; color:var(--text-muted); line-height:1.55;}
+  .s-log-flags{margin:0; padding-left:17px; font-size:0.78rem; color:var(--text-dim); line-height:1.5;}
+  .s-log-flags li{margin-bottom:4px;}
 
   /* A missed session is history — keep it readable, but don't let it compete
      with sessions you can still act on. */
@@ -904,6 +921,37 @@
     return `<div class="missed-note">+ ${n} missed session${n===1?"":"s"} hidden</div>`;
   }
 
+  // Nothing else on the page escapes, because everything else it prints is a number or
+  // a string this repo wrote. Flags are neither: they come through the export in the
+  // watch's own words and carry "<139 bpm" and the like, which is a tag start as far as
+  // innerHTML is concerned.
+  function esc(t){
+    return String(t).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  }
+
+  // The note is Kai's account of the run; the flags are what the watch recorded. They
+  // are rendered as two labelled sources and never merged, because where they disagree
+  // the disagreement is the information -- it is what separates the part of a session
+  // that was measured from the part that was remembered. Collapsed by default: this is
+  // the detail you go looking for, not the headline.
+  function runLogHTML(actual){
+    const flags = actual && actual.flags && actual.flags.length ? actual.flags : null;
+    const note  = actual && actual.note ? actual.note : null;
+    if(!flags && !note) return "";
+    const caveat = note && flags
+      ? `<div class="s-log-caveat">Two records of the same run. Neither has been edited to agree with the other.</div>`
+      : "";
+    const noteHTML = note
+      ? `<div class="s-log-src"><b>Kai's account</b><div class="s-log-note">${esc(note)}</div></div>`
+      : "";
+    const flagHTML = flags
+      ? `<div class="s-log-src"><b>What the watch recorded</b><ul class="s-log-flags">`
+        + flags.map(f=>`<li>${esc(f)}</li>`).join("") + `</ul></div>`
+      : "";
+    return `<details class="s-log"><summary>Run notes</summary>`
+         + `${caveat}${noteHTML}${flagHTML}</details>`;
+  }
+
   function sessionRowHTML(session, actuals, today, opts){
     const isNext = opts && opts.isNext;
     const desc = uDesc(session.desc);
@@ -982,6 +1030,7 @@
         ${easyStr?`<div class="s-target">${easyStr}</div>`:""}
       </div>
       <div class="s-right">${badge}${actualLine}</div>
+      ${status==="done" ? runLogHTML(actual) : ""}
     </div>`;
   }
 
