@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=9"></script>
+<script src="data.js?v=10"></script>
 
 <style>
   :root{
@@ -77,6 +77,9 @@
   .race-plan{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:11px;
     font-size:0.9rem; line-height:1.55; color:var(--text-muted);}
   .race-plan b{color:var(--text);}
+  .race-band{display:inline-block; font-family:var(--font-mono); font-size:0.76rem;
+    color:var(--gold); background:var(--gold-dim); padding:1px 7px; border-radius:5px;
+    margin:0 3px 0 1px; white-space:nowrap;}
   .race-note{margin:18px 0 0; padding-top:14px; border-top:1px solid var(--border);
     font-size:0.87rem; line-height:1.55; color:var(--text-muted);}
   .race-note b{color:var(--teal);}
@@ -312,6 +315,7 @@
         <span id="race-finish">–</span>
       </div>
       <ol class="race-plan" id="race-plan"></ol>
+      <p class="race-note" id="race-check"></p>
       <p class="race-note"><b>Run your own race from the gun.</b> In the benchmark you ran
         <span id="race-gap">28 sec/mi</span> faster once you were on your own effort rather than a
         partner's. Wish Doug well at the start and go.</p>
@@ -838,28 +842,83 @@
 
   // Segment boundaries in miles; the labels are written per unit because
   // "Mile 1" and "the first 1.6 km" are different idioms, not a conversion.
+  // Race pacing, as segments with their own bands rather than one number for 13.1 mi.
+  // Offsets are seconds against GOAL_PACE, so the whole plan moves if the goal is reset
+  // and no pace is ever written twice.
+  //
+  // Not even pace, deliberately, and for three reasons that are all in the data:
+  //
+  //   The opening miles climb. Holding goal PACE up a grade means spending more than
+  //   goal EFFORT to do it, and buying 20 seconds there costs minutes after mile 10.
+  //
+  //   Going out fast is his documented failure. Aug 25 asked for goal pace and came
+  //   back 55 s/mi quicker, and a start line with adrenaline and a training partner on
+  //   it is a stronger pull than a solo Tuesday evening.
+  //
+  //   Closing hard is his documented strength. Last year's Orca, untrained, negative
+  //   split and finished with a 6:58 mile off an 8:30 average; Aug 30 ran mile 9 in
+  //   7:33 off eight easy miles. A plan that leaves something for the last 5K is
+  //   playing to the thing he actually does.
+  //
+  // The bands average out to GOAL_PACE across the distance, so this is a redistribution
+  // of the same effort, not a slower race.
   const RACE_PLAN = [
-    {mi:"Mile 1", km:"First 1.6 km", head:"hold back",
-     body:"Open around {open}. It should feel mildly frustrating."},
-    {mi:"Miles 2–6", km:"1.6–9.7 km", head:"settle to {goal}",
-     body:"Comfortably hard. Three or four words, not a sentence."},
-    {mi:"Miles 7–9", km:"9.7–14.5 km", head:"the honest stretch",
-     body:"This is where it starts costing. Hold the pace, don't chase it."},
-    {mi:"Miles 10–13.1", km:"14.5–21.1 km", head:"spend it",
-     body:"You have closed hard in every single effort on record. Trust that."},
+    {mi:"Miles 1–2", km:"First 3.2 km", head:"let the hill have them",
+     slowSec:18, fastSec:8,
+     body:"The only climbing of the day. Run it by effort and let the pace be what it is — "
+        + "this is the one place where being slower than goal is the plan working, not failing. "
+        + "If mile 1 comes up under {fastest}, you have made the classic mistake: ease off now. "
+        + "You cannot bank time in a half, you can only borrow it at a terrible rate."},
+    {mi:"Miles 3–6", km:"3.2–9.7 km", head:"settle onto {goal}",
+     slowSec:3, fastSec:0,
+     body:"Flat from here. Find the pace and let it feel almost easy — three or four words at a "
+        + "time, not a sentence. Heart rate should sit in the low-to-mid 160s. If you are at "
+        + "{hot} bpm by mile 5, you are ahead of yourself: give back 5–10 sec/mi and take it later."},
+    {mi:"Miles 7–10", km:"9.7–16.1 km", head:"the honest stretch",
+     slowSec:0, fastSec:-4,
+     body:"This is where it starts costing, and where the race is actually decided. Hold the "
+        + "pace, don't chase it. Every mile here past the eighth is longer than any goal-pace "
+        + "effort you have run in training."},
+    {mi:"Miles 11–13.1", km:"16.1–21.1 km", head:"spend it",
+     slowSec:-4, fastSec:-12,
+     body:"Now you empty it. You have closed hard in every genuine effort on record — a 6:58 "
+        + "final mile here last year, 7:33 for mile 9 off eight miles on Aug 30. Trust that and "
+        + "let it go."},
   ];
-  // The deliberately held-back first mile, 8 s/mi off goal. Derived rather than typed:
-  // it was 7.8333 against a 7:42 goal, which silently becomes the wrong instruction
-  // the moment GOAL_PACE is reset -- the same failure the rest of the page was fixed
-  // for. Every other pace on this card already follows the goal; now this one does.
+
   const RACE_OPEN_SEC = 8;
   const RACE_OPEN_PACE = GOAL_PACE + RACE_OPEN_SEC/60;
 
+  // The heart rate that means "ahead of yourself" is the Zone 5 floor, taken from Apple's
+  // bands rather than typed, so it follows a recalibration like everything else.
+  const HOT_HR = HR_ZONES.bands.find(b=>b.zone===4).max + 1;
+
   function renderRacePlan(){
     const sub = t => t.replace("{open}", fmtUPace(RACE_OPEN_PACE))
-                      .replace("{goal}", fmtUPace(GOAL_PACE));
-    document.getElementById("race-plan").innerHTML = RACE_PLAN.map(x=>
-      `<li><b>${isMetric()?x.km:x.mi} — ${sub(x.head)}.</b> ${sub(x.body)}</li>`).join("");
+                      .replace("{goal}", fmtUPace(GOAL_PACE))
+                      .replace("{hot}",  String(HOT_HR));
+    document.getElementById("race-plan").innerHTML = RACE_PLAN.map(x=>{
+      const band = `${fmtPace(uPace(GOAL_PACE + x.fastSec/60))}–${fmtUPace(GOAL_PACE + x.slowSec/60)}`;
+      // {fastest} is the segment's own fast edge -- on the opening miles it is the number
+      // that says "you went out too hard", which is the single most likely way this race
+      // gets away from him.
+      const body = sub(x.body).replace("{fastest}", fmtUPace(GOAL_PACE + x.fastSec/60));
+      return `<li><b>${isMetric()?x.km:x.mi} — ${sub(x.head)}.</b>`
+           + ` <span class="race-band">${band}</span> ${body}</li>`;
+    }).join("");
+
+    // The bail-out, and it is the most useful line on the card. An aggressive goal is
+    // only worth chasing if backing off it is a decision rather than a collapse: settling
+    // to goal + 8 s/mi for the closing miles still finishes inside 1:43, where fading to
+    // 8:30s from mile 10 does not.
+    const settle = 8*(GOAL_PACE + 3/60) + (HALF_MI-8)*(GOAL_PACE + 8/60);
+    document.getElementById("race-check").innerHTML =
+      `<b>Checkpoint at mile 8.</b> You have never held goal pace past two miles, so this is `
+      + `where the plan gets tested rather than rehearsed. Still on ${fmtUPace(GOAL_PACE)} and `
+      + `still able to get three or four words out — it is on, race the last 5K. Counting down, `
+      + `or over ${HOT_HR} bpm — settle to ${fmtUPace(GOAL_PACE + 8/60)} and hold it. That still `
+      + `finishes around ${fmtClock(settle)}, and it is a far better day than fading to `
+      + `${fmtUPace(GOAL_PACE + 48/60)} from mile 10.`;
     // 28 sec/mi is a pace differential, so it scales like pace, not distance.
     document.getElementById("race-gap").textContent =
       `${Math.round(isMetric() ? 28/KM_PER_MI : 28)} sec/${uLabel()}`;
@@ -896,7 +955,10 @@
     } else {
       banner.hidden = true;
     }
-    const showRace = phase==="raceweek" || phase==="raceday";
+    // The race card comes up at the taper, not at race week. Planning the race is what
+    // the taper is for, and the pacing questions get asked while there is still time to
+    // rehearse the answer -- on Sep 13 there is one goal-pace session left to try it on.
+    const showRace = phase==="taper" || phase==="raceweek" || phase==="raceday";
     raceCard.hidden = !showRace;
     if(showRace){
       renderRacePlan();
