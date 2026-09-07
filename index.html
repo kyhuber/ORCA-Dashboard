@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=7"></script>
+<script src="data.js?v=10"></script>
 
 <style>
   :root{
@@ -77,6 +77,9 @@
   .race-plan{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:11px;
     font-size:0.9rem; line-height:1.55; color:var(--text-muted);}
   .race-plan b{color:var(--text);}
+  .race-band{display:inline-block; font-family:var(--font-mono); font-size:0.76rem;
+    color:var(--gold); background:var(--gold-dim); padding:1px 7px; border-radius:5px;
+    margin:0 3px 0 1px; white-space:nowrap;}
   .race-note{margin:18px 0 0; padding-top:14px; border-top:1px solid var(--border);
     font-size:0.87rem; line-height:1.55; color:var(--text-muted);}
   .race-note b{color:var(--teal);}
@@ -125,7 +128,7 @@
   @media (max-width:560px){ .hist-hint{display:none;} }
 
   /* ---- session rows ---- */
-  .session{display:flex; align-items:center; gap:14px; padding:12px 0; border-top:1px solid var(--border);}
+  .session{display:flex; flex-wrap:wrap; align-items:center; gap:14px; padding:12px 0; border-top:1px solid var(--border);}
   .session:first-of-type{border-top:none;}
   .s-date{flex:none; width:64px; font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted); text-align:left; line-height:1.3;}
   .s-date .dow{display:block; color:var(--text); font-weight:600;}
@@ -146,6 +149,41 @@
   .badge.upcoming{background:transparent; color:var(--text-dim); border:1px solid var(--border);}
   .badge.awaiting{background:transparent; color:var(--gold); border:1px solid var(--gold);}
   .s-actual{font-family:var(--font-mono); font-size:0.76rem; color:var(--text); margin-top:5px;}
+
+  /* Two records of one run, kept visibly apart. Kai's account and the watch's do not
+     always agree -- on Sep 6 the note says a brief walk and the flags say a 7:39
+     standstill -- and the page is not the place that decides between them. */
+  .s-log{flex:1 1 100%; margin-top:9px;}
+  .s-log summary{cursor:pointer; list-style:none; font-family:var(--font-mono);
+    font-size:0.72rem; letter-spacing:0.05em; text-transform:uppercase; color:var(--text-muted);}
+  .s-log summary::-webkit-details-marker{display:none;}
+  .s-log summary::before{content:"\25b8"; display:inline-block; margin-right:6px; transition:transform 0.12s;}
+  .s-log[open] summary::before{transform:rotate(90deg);}
+  .s-log-caveat{font-size:0.74rem; color:var(--text-dim); font-style:italic; margin:8px 0 2px;}
+  .s-log-src{margin-top:9px;}
+  .s-log-src > b{display:block; font-family:var(--font-mono); font-size:10px; letter-spacing:0.09em;
+    text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;}
+  .s-log-note{font-size:0.8rem; color:var(--text-muted); line-height:1.55;}
+  .s-log-flags{margin:0; padding-left:17px; font-size:0.78rem; color:var(--text-dim); line-height:1.5;}
+  .s-log-flags li{margin-bottom:4px;}
+
+  .gp-row{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px;
+    padding:10px 0; border-top:1px solid var(--border);}
+  .gp-row:first-of-type{border-top:none;}
+  .gp-when{flex:none; width:112px; font-family:var(--font-mono); font-size:0.78rem;}
+  .gp-when b{display:block; color:var(--text); font-weight:600;}
+  .gp-when span{color:var(--text-muted); font-size:0.72rem;}
+  .gp-ask{flex:1; min-width:132px; font-family:var(--font-mono); font-size:0.76rem; color:var(--text-dim);}
+  .gp-got{flex:none; text-align:right; font-family:var(--font-mono); font-size:0.78rem;}
+  .gp-got .gp-pace{font-weight:600;}
+  .gp-got .gp-pace.in{color:var(--teal);}
+  .gp-got .gp-pace.out{color:var(--coral);}
+  .gp-got .gp-off{display:block; font-size:0.72rem; color:var(--text-dim); margin-top:2px;}
+  .gp-summary{font-size:0.8rem; color:var(--text-muted); margin:14px 0 0; line-height:1.5;}
+  @media (max-width:560px){
+    .gp-when{width:100%;} .gp-when b{display:inline; margin-right:8px;}
+    .gp-ask{flex:1 1 100%;} .gp-got{flex:1 1 100%; text-align:left;}
+  }
 
   /* A missed session is history — keep it readable, but don't let it compete
      with sessions you can still act on. */
@@ -277,6 +315,7 @@
         <span id="race-finish">–</span>
       </div>
       <ol class="race-plan" id="race-plan"></ol>
+      <p class="race-note" id="race-check"></p>
       <p class="race-note"><b>Run your own race from the gun.</b> In the benchmark you ran
         <span id="race-gap">28 sec/mi</span> faster once you were on your own effort rather than a
         partner's. Wish Doug well at the start and go.</p>
@@ -286,6 +325,13 @@
       <h2 id="next-title">Up Next</h2>
       <p class="card-sub" id="next-sub"></p>
       <div id="next-sessions"></div>
+    </div>
+
+    <div class="card">
+      <h2>Goal-Pace Record</h2>
+      <p class="card-sub">Every session that asked for goal pace, and what came back. The reasons live in each session's run notes — this is execution, not explanation.</p>
+      <div id="gp-record"></div>
+      <p class="gp-summary" id="gp-summary"></p>
     </div>
 
     <div class="card">
@@ -479,7 +525,23 @@
        easyPace:[9.0, 9.75]},
     ]},
     {week:7, phase:"Taper begins", range:"Sep 7 – Sep 13", sessions:[
-      {date:"2026-09-08", day:"Tue", type:"Interval", desc:"1mi WU + 4×800m @ goal pace + 1mi CD", dist:4, useGoal:true},
+      // 4x800m at goal pace is the wrong session for the limiter. Speed was settled by
+      // the Aug 22 benchmark -- 7:21/mi for six miles, alone, in direct sun -- and repeats
+      // with recovery between them train precisely the thing that is not the problem.
+      // What is unsettled is holding a pace. Four goal-pace attempts this cycle have
+      // produced one clean execution: Aug 30's two miles. Aug 25 ran 55 s/mi too fast,
+      // Sep 1 came back 12 s/mi slow with a 6:39 stop through the middle of it, and Sep 6
+      // was taken by an unplanned climb before it started.
+      //
+      // So: two continuous miles, the distance he has actually executed, eleven days out.
+      // It is less total stress than four 800s at the same pace with rest between them,
+      // it rehearses the one thing race day asks for, and it is a session he can win --
+      // which counts, because pacing confidence is as much the limiter as the legs are.
+      // It carries the Aug 30 band and floor rather than the plain useGoal range that
+      // Aug 25 and Sep 1 were both set under and both missed.
+      {date:"2026-09-08", day:"Tue", type:"Tempo", desc:"1mi WU + 2mi @ goal pace + 1mi CD", dist:4,
+       quality:{dist:2, where:"middle", startMi:2, slowestSec:8, fastestSec:-7},
+       easyPace:[9.0, 9.75]},
       // Thursdays name the session and say nothing about the company. The Westies meet
       // Thursday or Sunday, Kai rarely knows which until the week is on him, and Sep 3
       // he ran alone on a scheduling conflict -- so whether a run is solo or with the
@@ -489,9 +551,15 @@
       // called Sep 3's well-run 4.02 at 9:58 and 141 bpm a miss.
       {date:"2026-09-10", day:"Thu", type:"Easy", desc:"Easy run — true Zone 2, hold back", dist:3.1},
       // Same shape as Aug 30, which is the one goal-pace session that has held its band,
-      // so it carries the same floor. It had asked for goal pace in prose with nothing
-      // scoring it.
-      {date:"2026-09-13", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace", dist:8,
+      // so it carries the same floor.
+      //
+      // Flat and familiar is now part of the session, not a nicety. This is the last
+      // rehearsal before the race, and the last two long runs have both had their
+      // quality taken by something outside the plan -- a watch that stopped recording
+      // on Sep 1, an unfamiliar path that climbed on Sep 6. Neither was a fitness
+      // problem and both cost the session anyway. Six days out there is no time to
+      // spend on a third.
+      {date:"2026-09-13", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace — flat, familiar route", dist:8,
        quality:{dist:2, where:"last", slowestSec:8, fastestSec:-7},
        easyPace:[9.0, 9.75]},
     ]},
@@ -499,7 +567,10 @@
       {date:"2026-09-14", day:"Mon", type:"Easy", desc:"Easy run", dist:3},
       // Same reasoning as week 7, and it matters more here: the last run before a race
       // should not be contingent on anyone else.
-      {date:"2026-09-17", day:"Thu", type:"Easy", desc:"Shakeout — easy and short, legs only", dist:3.1},
+      // Strides are neuromuscular priming, not a workout: four 20-second pickups two
+      // days out let him feel race pace on fresh legs at a cost of about 80 seconds of
+      // running. They are also the last time he touches that pace before the start.
+      {date:"2026-09-17", day:"Thu", type:"Easy", desc:"Shakeout — easy and short, then 4×20s strides at race pace", dist:3.1},
       {date:"2026-09-18", day:"Fri", type:"Rest", desc:"Rest", dist:0},
       {date:"2026-09-19", day:"Sat", type:"Race", desc:"🏁 ORCA HALF MARATHON", dist:13.1, useGoal:true},
     ]},
@@ -771,23 +842,83 @@
 
   // Segment boundaries in miles; the labels are written per unit because
   // "Mile 1" and "the first 1.6 km" are different idioms, not a conversion.
+  // Race pacing, as segments with their own bands rather than one number for 13.1 mi.
+  // Offsets are seconds against GOAL_PACE, so the whole plan moves if the goal is reset
+  // and no pace is ever written twice.
+  //
+  // Not even pace, deliberately, and for three reasons that are all in the data:
+  //
+  //   The opening miles climb. Holding goal PACE up a grade means spending more than
+  //   goal EFFORT to do it, and buying 20 seconds there costs minutes after mile 10.
+  //
+  //   Going out fast is his documented failure. Aug 25 asked for goal pace and came
+  //   back 55 s/mi quicker, and a start line with adrenaline and a training partner on
+  //   it is a stronger pull than a solo Tuesday evening.
+  //
+  //   Closing hard is his documented strength. Last year's Orca, untrained, negative
+  //   split and finished with a 6:58 mile off an 8:30 average; Aug 30 ran mile 9 in
+  //   7:33 off eight easy miles. A plan that leaves something for the last 5K is
+  //   playing to the thing he actually does.
+  //
+  // The bands average out to GOAL_PACE across the distance, so this is a redistribution
+  // of the same effort, not a slower race.
   const RACE_PLAN = [
-    {mi:"Mile 1", km:"First 1.6 km", head:"hold back",
-     body:"Open around {open}. It should feel mildly frustrating."},
-    {mi:"Miles 2–6", km:"1.6–9.7 km", head:"settle to {goal}",
-     body:"Comfortably hard. Three or four words, not a sentence."},
-    {mi:"Miles 7–9", km:"9.7–14.5 km", head:"the honest stretch",
-     body:"This is where it starts costing. Hold the pace, don't chase it."},
-    {mi:"Miles 10–13.1", km:"14.5–21.1 km", head:"spend it",
-     body:"You have closed hard in every single effort on record. Trust that."},
+    {mi:"Miles 1–2", km:"First 3.2 km", head:"let the hill have them",
+     slowSec:18, fastSec:8,
+     body:"The only climbing of the day. Run it by effort and let the pace be what it is — "
+        + "this is the one place where being slower than goal is the plan working, not failing. "
+        + "If mile 1 comes up under {fastest}, you have made the classic mistake: ease off now. "
+        + "You cannot bank time in a half, you can only borrow it at a terrible rate."},
+    {mi:"Miles 3–6", km:"3.2–9.7 km", head:"settle onto {goal}",
+     slowSec:3, fastSec:0,
+     body:"Flat from here. Find the pace and let it feel almost easy — three or four words at a "
+        + "time, not a sentence. Heart rate should sit in the low-to-mid 160s. If you are at "
+        + "{hot} bpm by mile 5, you are ahead of yourself: give back 5–10 sec/mi and take it later."},
+    {mi:"Miles 7–10", km:"9.7–16.1 km", head:"the honest stretch",
+     slowSec:0, fastSec:-4,
+     body:"This is where it starts costing, and where the race is actually decided. Hold the "
+        + "pace, don't chase it. Every mile here past the eighth is longer than any goal-pace "
+        + "effort you have run in training."},
+    {mi:"Miles 11–13.1", km:"16.1–21.1 km", head:"spend it",
+     slowSec:-4, fastSec:-12,
+     body:"Now you empty it. You have closed hard in every genuine effort on record — a 6:58 "
+        + "final mile here last year, 7:33 for mile 9 off eight miles on Aug 30. Trust that and "
+        + "let it go."},
   ];
-  const RACE_OPEN_PACE = 7.8333;   // the deliberately held-back first mile
+
+  const RACE_OPEN_SEC = 8;
+  const RACE_OPEN_PACE = GOAL_PACE + RACE_OPEN_SEC/60;
+
+  // The heart rate that means "ahead of yourself" is the Zone 5 floor, taken from Apple's
+  // bands rather than typed, so it follows a recalibration like everything else.
+  const HOT_HR = HR_ZONES.bands.find(b=>b.zone===4).max + 1;
 
   function renderRacePlan(){
     const sub = t => t.replace("{open}", fmtUPace(RACE_OPEN_PACE))
-                      .replace("{goal}", fmtUPace(GOAL_PACE));
-    document.getElementById("race-plan").innerHTML = RACE_PLAN.map(x=>
-      `<li><b>${isMetric()?x.km:x.mi} — ${sub(x.head)}.</b> ${sub(x.body)}</li>`).join("");
+                      .replace("{goal}", fmtUPace(GOAL_PACE))
+                      .replace("{hot}",  String(HOT_HR));
+    document.getElementById("race-plan").innerHTML = RACE_PLAN.map(x=>{
+      const band = `${fmtPace(uPace(GOAL_PACE + x.fastSec/60))}–${fmtUPace(GOAL_PACE + x.slowSec/60)}`;
+      // {fastest} is the segment's own fast edge -- on the opening miles it is the number
+      // that says "you went out too hard", which is the single most likely way this race
+      // gets away from him.
+      const body = sub(x.body).replace("{fastest}", fmtUPace(GOAL_PACE + x.fastSec/60));
+      return `<li><b>${isMetric()?x.km:x.mi} — ${sub(x.head)}.</b>`
+           + ` <span class="race-band">${band}</span> ${body}</li>`;
+    }).join("");
+
+    // The bail-out, and it is the most useful line on the card. An aggressive goal is
+    // only worth chasing if backing off it is a decision rather than a collapse: settling
+    // to goal + 8 s/mi for the closing miles still finishes inside 1:43, where fading to
+    // 8:30s from mile 10 does not.
+    const settle = 8*(GOAL_PACE + 3/60) + (HALF_MI-8)*(GOAL_PACE + 8/60);
+    document.getElementById("race-check").innerHTML =
+      `<b>Checkpoint at mile 8.</b> You have never held goal pace past two miles, so this is `
+      + `where the plan gets tested rather than rehearsed. Still on ${fmtUPace(GOAL_PACE)} and `
+      + `still able to get three or four words out — it is on, race the last 5K. Counting down, `
+      + `or over ${HOT_HR} bpm — settle to ${fmtUPace(GOAL_PACE + 8/60)} and hold it. That still `
+      + `finishes around ${fmtClock(settle)}, and it is a far better day than fading to `
+      + `${fmtUPace(GOAL_PACE + 48/60)} from mile 10.`;
     // 28 sec/mi is a pace differential, so it scales like pace, not distance.
     document.getElementById("race-gap").textContent =
       `${Math.round(isMetric() ? 28/KM_PER_MI : 28)} sec/${uLabel()}`;
@@ -824,7 +955,10 @@
     } else {
       banner.hidden = true;
     }
-    const showRace = phase==="raceweek" || phase==="raceday";
+    // The race card comes up at the taper, not at race week. Planning the race is what
+    // the taper is for, and the pacing questions get asked while there is still time to
+    // rehearse the answer -- on Sep 13 there is one goal-pace session left to try it on.
+    const showRace = phase==="taper" || phase==="raceweek" || phase==="raceday";
     raceCard.hidden = !showRace;
     if(showRace){
       renderRacePlan();
@@ -904,13 +1038,50 @@
     return `<div class="missed-note">+ ${n} missed session${n===1?"":"s"} hidden</div>`;
   }
 
+  // Nothing else on the page escapes, because everything else it prints is a number or
+  // a string this repo wrote. Flags are neither: they come through the export in the
+  // watch's own words and carry "<139 bpm" and the like, which is a tag start as far as
+  // innerHTML is concerned.
+  function esc(t){
+    return String(t).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  }
+
+  // The note is Kai's account of the run; the flags are what the watch recorded. They
+  // are rendered as two labelled sources and never merged, because where they disagree
+  // the disagreement is the information -- it is what separates the part of a session
+  // that was measured from the part that was remembered. Collapsed by default: this is
+  // the detail you go looking for, not the headline.
+  function runLogHTML(actual){
+    const flags = actual && actual.flags && actual.flags.length ? actual.flags : null;
+    const note  = actual && actual.note ? actual.note : null;
+    if(!flags && !note) return "";
+    const caveat = note && flags
+      ? `<div class="s-log-caveat">Two records of the same run. Neither has been edited to agree with the other.</div>`
+      : "";
+    const noteHTML = note
+      ? `<div class="s-log-src"><b>Kai's account</b><div class="s-log-note">${esc(note)}</div></div>`
+      : "";
+    const flagHTML = flags
+      ? `<div class="s-log-src"><b>What the watch recorded</b><ul class="s-log-flags">`
+        + flags.map(f=>`<li>${esc(f)}</li>`).join("") + `</ul></div>`
+      : "";
+    return `<details class="s-log"><summary>Run notes</summary>`
+         + `${caveat}${noteHTML}${flagHTML}</details>`;
+  }
+
   function sessionRowHTML(session, actuals, today, opts){
     const isNext = opts && opts.isNext;
     const desc = uDesc(session.desc);
     const {status, actual} = sessionStatus(session, actuals, today);
     const range = getTargetRange(session);
+    // A session carrying both a quality block and an easy band has already stated its
+    // paces, and more precisely than a whole-run range can. Printing one on top of
+    // them describes neither half: Sep 1 read "5.0 mi @ 7:37-7:47" for a run that was
+    // one easy mile, three at pace and one easy, and no part of it was run to that.
+    const fullyBanded = !!(session.quality && session.easyPace);
     const targetStr = session.type==="Benchmark" ? "All-out effort — no target pace"
       : session.type==="Rest" ? ""
+      : fullyBanded ? `${uDist(session.dist,1)} ${uLabel()}`
       : range ? `${uDist(session.dist,1)} ${uLabel()} @ ${fmtPace(uPace(range[0]))}–${fmtUPace(range[1])}`
               : `${uDist(session.dist,1)} ${uLabel()}`;
     const qualityStr = qualityTargetStr(session);
@@ -982,7 +1153,61 @@
         ${easyStr?`<div class="s-target">${easyStr}</div>`:""}
       </div>
       <div class="s-right">${badge}${actualLine}</div>
+      ${status==="done" ? runLogHTML(actual) : ""}
     </div>`;
+  }
+
+  // Every goal-pace attempt in one place. Each session already says whether it hit its
+  // own band; together they answer a different and more useful question -- whether the
+  // goal itself is grounded in anything the legs have actually done. Twelve days out
+  // that is the question worth seeing without expanding anything.
+  //
+  // Deliberately no verdict and no advice: it prints what was asked and what came back,
+  // and the reasons stay in the run notes where the note and the flags can disagree in
+  // peace. A row summarised as "too slow" is not the same claim as "unfit", and this
+  // card is not the place that decides which it was.
+  function renderGoalPaceRecord(actuals){
+    const el = document.getElementById("gp-record");
+    const rows = PLAN.flatMap(w=>w.sessions)
+      .filter(x=>x.quality && qualityBand(x))
+      .map(x=>{
+        const actual = actuals.find(a=>a.date===x.date);
+        return {s:x, actual, b:qualityBand(x),
+                seg: actual ? qualitySegment(actual, x.quality.dist) : null};
+      });
+    if(!rows.length){ el.innerHTML = `<p class="predict-empty">No goal-pace sessions yet.</p>`; return; }
+
+    let held=0, run=0;
+    el.innerHTML = rows.map(({s,actual,seg,b})=>{
+      let got;
+      if(!actual){
+        got = `<span class="badge upcoming">Upcoming</span>`;
+      } else if(!seg){
+        // Logged, but without per-mile splits there is nothing to score the block on.
+        got = `<span class="badge awaiting">No splits</span>`;
+      } else {
+        run++;
+        const uq=uPace(seg.pace), fast=uPace(b.floor!=null?b.floor:b.fast), slow=uPace(b.slow);
+        const ok = uq>=fast && uq<=slow;
+        if(ok) held++;
+        const off = Math.round((uq<fast ? fast-uq : uq-slow)*60);
+        got = `<span class="gp-pace ${ok?"in":"out"}">${fmtUPace(seg.pace)}</span>`
+            + `<span class="gp-off">${ok ? "held the band"
+                : `${off} sec/${uLabel()} too ${uq<fast?"fast":"slow"}`}</span>`;
+      }
+      return `<div class="gp-row">
+        <div class="gp-when"><b>${fmtDate(s.date)}</b><span>${qualitySpanStr(s.quality)}</span></div>
+        <div class="gp-ask">asked ${fmtPace(uPace(b.fast))}–${fmtUPace(b.slow)}`
+        + (b.floor!=null ? ` \u00b7 floor ${fmtUPace(b.floor)}` : "") + `</div>
+        <div class="gp-got">${got}</div>
+      </div>`;
+    }).join("");
+
+    const sum = document.getElementById("gp-summary");
+    sum.textContent = run
+      ? `${held} of ${run} attempt${run===1?"":"s"} landed inside the band.`
+        + ` Goal pace is ${fmtUPace(GOAL_PACE)}, set in data.js.`
+      : "";
   }
 
   function renderUpNext(actuals){
@@ -1192,6 +1417,7 @@
     renderPhase();
     renderGoal();
     renderUpNext(actuals);
+    renderGoalPaceRecord(actuals);
     renderPrediction(actuals);
     renderMileageChart(actuals);
     renderPaceChart(actuals);
