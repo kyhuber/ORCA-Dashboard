@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=8"></script>
+<script src="data.js?v=9"></script>
 
 <style>
   :root{
@@ -164,6 +164,24 @@
   .s-log-flags{margin:0; padding-left:17px; font-size:0.78rem; color:var(--text-dim); line-height:1.5;}
   .s-log-flags li{margin-bottom:4px;}
 
+  .gp-row{display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px;
+    padding:10px 0; border-top:1px solid var(--border);}
+  .gp-row:first-of-type{border-top:none;}
+  .gp-when{flex:none; width:112px; font-family:var(--font-mono); font-size:0.78rem;}
+  .gp-when b{display:block; color:var(--text); font-weight:600;}
+  .gp-when span{color:var(--text-muted); font-size:0.72rem;}
+  .gp-ask{flex:1; min-width:132px; font-family:var(--font-mono); font-size:0.76rem; color:var(--text-dim);}
+  .gp-got{flex:none; text-align:right; font-family:var(--font-mono); font-size:0.78rem;}
+  .gp-got .gp-pace{font-weight:600;}
+  .gp-got .gp-pace.in{color:var(--teal);}
+  .gp-got .gp-pace.out{color:var(--coral);}
+  .gp-got .gp-off{display:block; font-size:0.72rem; color:var(--text-dim); margin-top:2px;}
+  .gp-summary{font-size:0.8rem; color:var(--text-muted); margin:14px 0 0; line-height:1.5;}
+  @media (max-width:560px){
+    .gp-when{width:100%;} .gp-when b{display:inline; margin-right:8px;}
+    .gp-ask{flex:1 1 100%;} .gp-got{flex:1 1 100%; text-align:left;}
+  }
+
   /* A missed session is history — keep it readable, but don't let it compete
      with sessions you can still act on. */
   .session.is-missed{opacity:0.5;}
@@ -303,6 +321,13 @@
       <h2 id="next-title">Up Next</h2>
       <p class="card-sub" id="next-sub"></p>
       <div id="next-sessions"></div>
+    </div>
+
+    <div class="card">
+      <h2>Goal-Pace Record</h2>
+      <p class="card-sub">Every session that asked for goal pace, and what came back. The reasons live in each session's run notes — this is execution, not explanation.</p>
+      <div id="gp-record"></div>
+      <p class="gp-summary" id="gp-summary"></p>
     </div>
 
     <div class="card">
@@ -496,7 +521,23 @@
        easyPace:[9.0, 9.75]},
     ]},
     {week:7, phase:"Taper begins", range:"Sep 7 – Sep 13", sessions:[
-      {date:"2026-09-08", day:"Tue", type:"Interval", desc:"1mi WU + 4×800m @ goal pace + 1mi CD", dist:4, useGoal:true},
+      // 4x800m at goal pace is the wrong session for the limiter. Speed was settled by
+      // the Aug 22 benchmark -- 7:21/mi for six miles, alone, in direct sun -- and repeats
+      // with recovery between them train precisely the thing that is not the problem.
+      // What is unsettled is holding a pace. Four goal-pace attempts this cycle have
+      // produced one clean execution: Aug 30's two miles. Aug 25 ran 55 s/mi too fast,
+      // Sep 1 came back 12 s/mi slow with a 6:39 stop through the middle of it, and Sep 6
+      // was taken by an unplanned climb before it started.
+      //
+      // So: two continuous miles, the distance he has actually executed, eleven days out.
+      // It is less total stress than four 800s at the same pace with rest between them,
+      // it rehearses the one thing race day asks for, and it is a session he can win --
+      // which counts, because pacing confidence is as much the limiter as the legs are.
+      // It carries the Aug 30 band and floor rather than the plain useGoal range that
+      // Aug 25 and Sep 1 were both set under and both missed.
+      {date:"2026-09-08", day:"Tue", type:"Tempo", desc:"1mi WU + 2mi @ goal pace + 1mi CD", dist:4,
+       quality:{dist:2, where:"middle", startMi:2, slowestSec:8, fastestSec:-7},
+       easyPace:[9.0, 9.75]},
       // Thursdays name the session and say nothing about the company. The Westies meet
       // Thursday or Sunday, Kai rarely knows which until the week is on him, and Sep 3
       // he ran alone on a scheduling conflict -- so whether a run is solo or with the
@@ -506,9 +547,15 @@
       // called Sep 3's well-run 4.02 at 9:58 and 141 bpm a miss.
       {date:"2026-09-10", day:"Thu", type:"Easy", desc:"Easy run — true Zone 2, hold back", dist:3.1},
       // Same shape as Aug 30, which is the one goal-pace session that has held its band,
-      // so it carries the same floor. It had asked for goal pace in prose with nothing
-      // scoring it.
-      {date:"2026-09-13", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace", dist:8,
+      // so it carries the same floor.
+      //
+      // Flat and familiar is now part of the session, not a nicety. This is the last
+      // rehearsal before the race, and the last two long runs have both had their
+      // quality taken by something outside the plan -- a watch that stopped recording
+      // on Sep 1, an unfamiliar path that climbed on Sep 6. Neither was a fitness
+      // problem and both cost the session anyway. Six days out there is no time to
+      // spend on a third.
+      {date:"2026-09-13", day:"Sun", type:"Long", desc:"Long run, last 2mi @ goal pace — flat, familiar route", dist:8,
        quality:{dist:2, where:"last", slowestSec:8, fastestSec:-7},
        easyPace:[9.0, 9.75]},
     ]},
@@ -516,7 +563,10 @@
       {date:"2026-09-14", day:"Mon", type:"Easy", desc:"Easy run", dist:3},
       // Same reasoning as week 7, and it matters more here: the last run before a race
       // should not be contingent on anyone else.
-      {date:"2026-09-17", day:"Thu", type:"Easy", desc:"Shakeout — easy and short, legs only", dist:3.1},
+      // Strides are neuromuscular priming, not a workout: four 20-second pickups two
+      // days out let him feel race pace on fresh legs at a cost of about 80 seconds of
+      // running. They are also the last time he touches that pace before the start.
+      {date:"2026-09-17", day:"Thu", type:"Easy", desc:"Shakeout — easy and short, then 4×20s strides at race pace", dist:3.1},
       {date:"2026-09-18", day:"Fri", type:"Rest", desc:"Rest", dist:0},
       {date:"2026-09-19", day:"Sat", type:"Race", desc:"🏁 ORCA HALF MARATHON", dist:13.1, useGoal:true},
     ]},
@@ -798,7 +848,12 @@
     {mi:"Miles 10–13.1", km:"14.5–21.1 km", head:"spend it",
      body:"You have closed hard in every single effort on record. Trust that."},
   ];
-  const RACE_OPEN_PACE = 7.8333;   // the deliberately held-back first mile
+  // The deliberately held-back first mile, 8 s/mi off goal. Derived rather than typed:
+  // it was 7.8333 against a 7:42 goal, which silently becomes the wrong instruction
+  // the moment GOAL_PACE is reset -- the same failure the rest of the page was fixed
+  // for. Every other pace on this card already follows the goal; now this one does.
+  const RACE_OPEN_SEC = 8;
+  const RACE_OPEN_PACE = GOAL_PACE + RACE_OPEN_SEC/60;
 
   function renderRacePlan(){
     const sub = t => t.replace("{open}", fmtUPace(RACE_OPEN_PACE))
@@ -957,8 +1012,14 @@
     const desc = uDesc(session.desc);
     const {status, actual} = sessionStatus(session, actuals, today);
     const range = getTargetRange(session);
+    // A session carrying both a quality block and an easy band has already stated its
+    // paces, and more precisely than a whole-run range can. Printing one on top of
+    // them describes neither half: Sep 1 read "5.0 mi @ 7:37-7:47" for a run that was
+    // one easy mile, three at pace and one easy, and no part of it was run to that.
+    const fullyBanded = !!(session.quality && session.easyPace);
     const targetStr = session.type==="Benchmark" ? "All-out effort — no target pace"
       : session.type==="Rest" ? ""
+      : fullyBanded ? `${uDist(session.dist,1)} ${uLabel()}`
       : range ? `${uDist(session.dist,1)} ${uLabel()} @ ${fmtPace(uPace(range[0]))}–${fmtUPace(range[1])}`
               : `${uDist(session.dist,1)} ${uLabel()}`;
     const qualityStr = qualityTargetStr(session);
@@ -1032,6 +1093,59 @@
       <div class="s-right">${badge}${actualLine}</div>
       ${status==="done" ? runLogHTML(actual) : ""}
     </div>`;
+  }
+
+  // Every goal-pace attempt in one place. Each session already says whether it hit its
+  // own band; together they answer a different and more useful question -- whether the
+  // goal itself is grounded in anything the legs have actually done. Twelve days out
+  // that is the question worth seeing without expanding anything.
+  //
+  // Deliberately no verdict and no advice: it prints what was asked and what came back,
+  // and the reasons stay in the run notes where the note and the flags can disagree in
+  // peace. A row summarised as "too slow" is not the same claim as "unfit", and this
+  // card is not the place that decides which it was.
+  function renderGoalPaceRecord(actuals){
+    const el = document.getElementById("gp-record");
+    const rows = PLAN.flatMap(w=>w.sessions)
+      .filter(x=>x.quality && qualityBand(x))
+      .map(x=>{
+        const actual = actuals.find(a=>a.date===x.date);
+        return {s:x, actual, b:qualityBand(x),
+                seg: actual ? qualitySegment(actual, x.quality.dist) : null};
+      });
+    if(!rows.length){ el.innerHTML = `<p class="predict-empty">No goal-pace sessions yet.</p>`; return; }
+
+    let held=0, run=0;
+    el.innerHTML = rows.map(({s,actual,seg,b})=>{
+      let got;
+      if(!actual){
+        got = `<span class="badge upcoming">Upcoming</span>`;
+      } else if(!seg){
+        // Logged, but without per-mile splits there is nothing to score the block on.
+        got = `<span class="badge awaiting">No splits</span>`;
+      } else {
+        run++;
+        const uq=uPace(seg.pace), fast=uPace(b.floor!=null?b.floor:b.fast), slow=uPace(b.slow);
+        const ok = uq>=fast && uq<=slow;
+        if(ok) held++;
+        const off = Math.round((uq<fast ? fast-uq : uq-slow)*60);
+        got = `<span class="gp-pace ${ok?"in":"out"}">${fmtUPace(seg.pace)}</span>`
+            + `<span class="gp-off">${ok ? "held the band"
+                : `${off} sec/${uLabel()} too ${uq<fast?"fast":"slow"}`}</span>`;
+      }
+      return `<div class="gp-row">
+        <div class="gp-when"><b>${fmtDate(s.date)}</b><span>${qualitySpanStr(s.quality)}</span></div>
+        <div class="gp-ask">asked ${fmtPace(uPace(b.fast))}–${fmtUPace(b.slow)}`
+        + (b.floor!=null ? ` \u00b7 floor ${fmtUPace(b.floor)}` : "") + `</div>
+        <div class="gp-got">${got}</div>
+      </div>`;
+    }).join("");
+
+    const sum = document.getElementById("gp-summary");
+    sum.textContent = run
+      ? `${held} of ${run} attempt${run===1?"":"s"} landed inside the band.`
+        + ` Goal pace is ${fmtUPace(GOAL_PACE)}, set in data.js.`
+      : "";
   }
 
   function renderUpNext(actuals){
@@ -1241,6 +1355,7 @@
     renderPhase();
     renderGoal();
     renderUpNext(actuals);
+    renderGoalPaceRecord(actuals);
     renderPrediction(actuals);
     renderMileageChart(actuals);
     renderPaceChart(actuals);
