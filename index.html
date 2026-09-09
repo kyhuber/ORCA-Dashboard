@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=10"></script>
+<script src="data.js?v=11"></script>
 
 <style>
   :root{
@@ -414,17 +414,21 @@
   // Long stays 8:40-9:10 -- roughly 60-90 s/mi slower than goal pace, which is
   // where a long run belongs.
   // Heart-rate zones exactly as Apple Fitness computes them for Kai, read off the
-  // Heart Rate detail screen for the Aug 25 run, and reported unchanged by the
-  // Aug 27 export. Apple recalibrates these as fitness changes, so they are a dated
-  // snapshot rather than a fixed constant -- when an export reports different
+  // Heart Rate detail screen. Apple recalibrates these as fitness changes, so they are
+  // a dated snapshot rather than a fixed constant -- when an export reports different
   // boundaries, update them here and move the date with them. asOf tracks the last
   // export that confirmed the bands, not the first that introduced them. These
   // replace a hand-set ceiling of 142 bpm.
   //
-  // Apple prints zone 1 as "<140" and zone 2 as "141-149", which leaves 140 itself
-  // unlabelled; it is treated here as the top of zone 1.
-  const HR_ZONES = {asOf:"2026-08-27", bands:[
-    {zone:1, max:140}, {zone:2, max:149}, {zone:3, max:159},
+  // The zone 1 ceiling moved by one beat. The Aug 25 and Aug 27 screens printed zone 1
+  // as "<140" and zone 2 as "141-149"; the Sep 6 and Sep 8 exports both report "<139"
+  // and "140-149". Apple leaves the value just under the zone 2 floor unlabelled either
+  // way, and it is treated here as the top of zone 1 -- so 139, where it used to be 140.
+  // Nothing about an easy day changes: zone 2 still tops out at 149, and both 139 and
+  // 140 were already inside the easy band. What changes is the label a 140 bpm run
+  // carries, which now reads Zone 2 exactly as Apple's own screen does.
+  const HR_ZONES = {asOf:"2026-09-08", bands:[
+    {zone:1, max:139}, {zone:2, max:149}, {zone:3, max:159},
     {zone:4, max:169}, {zone:5, max:Infinity},
   ]};
   function hrZone(bpm){ return HR_ZONES.bands.find(b=>bpm<=b.max).zone; }
