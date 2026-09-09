@@ -19,12 +19,16 @@ window.GOAL_PACE = "7:42";
 // Aug 30. Move it on every merge, along with the ?v= on the data.js script tag in
 // index.html.
 //
-// The Sep 6 pull ran at 16:50 Pacific over a Sep 6 window, so Sep 5 is the last date
-// it closes over -- same reasoning as the two before it. Week 6 is now fully logged
-// and week 7 has not started, so nothing is marked missed at this value.
-window.DATA_THROUGH = "2026-09-05";
+// The Sep 8 gap-fill pull ran at 23:19 Pacific over a Sep 4-8 window, so Sep 7 is the
+// last date it closes over. Forty-one minutes is a thin margin to leave on the table
+// and the day's training was plainly done -- the run ended at 22:38 -- but the rule
+// here is calendar completeness, not a judgement about what else was likely to happen,
+// and the export itself records Sep 8 as still in progress at pull time. Nothing turns
+// on the difference today: Sep 8 has a logged run, and week 7 has no other session
+// before Sep 10, so no session is marked missed at either value.
+window.DATA_THROUGH = "2026-09-07";
 
-// Logged runs. Seeded from Apple Health; latest pull Sep 6, 2026 via the
+// Logged runs. Seeded from Apple Health; latest pull Sep 8, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
 // Runs under 1.0 mi are excluded (accidental / partial recordings).
 // Fields: date (YYYY-MM-DD), dist (mi), mins — hrAvg / hrMax / elev optional.
@@ -372,6 +376,72 @@ window.SEEDED_ACTUALS = [
      {mi:11, mins:9.767, hrAvg:128},
      {mi:11.73, mins:7.117, hrAvg:125},
    ]},
+  // Week 7 Tuesday, the taper's one quality session: 1mi WU + 2mi @ goal pace + 1mi CD.
+  // Confirmed against PLAN, not taken from the export -- both Sep 8 exports say plainly
+  // that they could not read index.html and asked for the match to be checked here.
+  //
+  // It is the session the taper was rebuilt around, and it held. Miles 2-3 came back
+  // 7:36 and 7:53 for a 7:44/mi block against a 7:35-7:50 band, at 168 and 165 bpm.
+  // Four goal-pace attempts before this one produced exactly one clean execution
+  // (Aug 30's two miles); Aug 25 ran 55 s/mi fast, Sep 1 came back 12 s/mi slow around
+  // a 6:39 stop, and Sep 6 lost its block to an unplanned climb. This is the second,
+  // eleven days out, on the distance race day actually asks him to hold.
+  //
+  // The bookends did their job too, which is the other half of the session: 9:44 / 9:32
+  // and a 9:57 closing partial at 145 / 143 / 140 bpm. The hard effort did not bleed
+  // into the miles around it, and the run finished easy rather than kicking -- the habit
+  // Aug 30 and last year's Orca both say he does not have.
+  //
+  // Two exports cover this date and NEITHER supersedes the other; this row is a
+  // field-level merge, which the later file asked for explicitly:
+  //   export-2026-09-08-2245.json -- transcribed from Apple Fitness screenshots. Sole
+  //     source for splits, hrAvg, the zone breakdown and the recovery HR. Its own dist
+  //     (4.24) and mins (37.10) were reconstructed by summing screenshot splits.
+  //   export-2026-09-08-2319.json -- a HealthKit gap-fill pull. Sole source for dist,
+  //     mins, hrMax and calories, all read off the Apple workout record.
+  // Taking the richer row whole, as the standing dedupe rule would, keeps the twice-
+  // rounded distance and drops the measured one. dist 4.235 mi (6815.99 m) and mins
+  // 37.174 (2230.44 s) are Apple's, converted directly. The splits still sum to 37:06,
+  // 4 s under, because each screenshot row is rounded to the second -- expected, and the
+  // reason the aggregate is not derived from them.
+  //
+  // A third file, export-2026-09-09-2245.json, carried these same measurements under a
+  // Sep 9 date -- a UTC/Pacific slip in the producing session. It has been trashed in
+  // Drive and must not be merged if it reappears. Sep 8 is correct: the run ended at
+  // 22:38 local.
+  //
+  // mins is MOVING time, the same convention as Sep 6. Elapsed was 37.683 min against
+  // 37.174 of movement, so 30.6 s of pause. Small enough not to change the read; recorded
+  // so the next pull does not "correct" it upward and charge the pace chart for the stop.
+  //
+  // No elevation and no cadence, both deliberately absent rather than estimated. This
+  // HealthKit instance exposes no running-cadence type at all; step count over the query
+  // window would give anywhere from 161 to 173 spm depending on which denominator you
+  // pick, and the step total itself came back fractional (6445.5), so it is a prorated
+  // bucket rather than a count. Power from the splits screen is in the flags.
+  {date:"2026-09-08", dist:4.235, mins:37.174, hrAvg:153, hrMax:176,
+   note:"Night run, 22:00–22:38 local. Easy opener, two continuous miles at goal pace, " +
+        "then an easy close. Ran as written.",
+   flags:[
+     "Goal-pace block held: miles 2-3 at 7:36 and 7:53 average 7:44/mi, inside the 7:35-7:50 band the session was set under.",
+     "The 2245 export scores this block against a 7:56/mi goal pace, which is stale -- GOAL_PACE has been 7:42 since the Aug 22 benchmark, the same phone-side drift as the Aug 30, Sep 1 and Sep 6 exports. Against 7:42 the claim that both miles ran at or under goal pace is wrong: mile 2 was 6 s/mi fast, mile 3 was 11 s/mi slow. The block average is what held, not the individual miles.",
+     "Fast block was mildly positive-split: mile 2 ran 17 s/mi quicker than mile 3 while carrying only 3 bpm more. One data point over two miles -- not a pacing pattern.",
+     "Zone totals (Apple, 37:10): Z1 6:39 · Z2 10:01 · Z3 7:56 · Z4 6:54 · Z5 5:40. So 12:34 (33.8%) above 160 bpm and 5:40 (15.2%) above 170.",
+     "Per-mile HR averaged Zone 4 through the block (168, 165), but 5:40 of the session still sat in Zone 5. Less than the 8:49 above 170 that Aug 25 cost, and bought at the right pace rather than 55 s/mi too fast.",
+     "Apple's displayed zone floors on this screen were Z1 <139, Z2 140-149, Z3 150-159, Z4 160-169, Z5 170+ -- the same <139 the Sep 6 export reported. HR_ZONES in index.html moved to match.",
+     "Easy miles were genuinely easy: 9:44 / 9:32 / 9:57 at 145 / 143 / 140 bpm, at or just under the top of Zone 2.",
+     "Two-minute post-workout HR recovery: 139 at the 22:38 finish, 130 at +1 min, 118 at +2 -- a 21 bpm drop. Compare Sep 3 (141 to 98, easy run) and Aug 25 (144 to 114, hard structured effort). The slowest of the three; a harder session in front of it is the ordinary explanation, but it is worth watching rather than dismissing in taper week.",
+     "Per-mile running power (Apple Fitness screenshot; schemaVersion 1 splits carry no power field): 221 / 320 / 283 / 215 W, closing partial 222 W. Time-weighted average 253 W.",
+     "hrAvg 153 is Apple's own workout average. HealthKit's statistics over the 22:00-22:40 local window give 150.8, but that window is ~92 s wider than the run and includes pre-start and post-finish samples, so the 2319 export declined to write it.",
+     "hrMax 176 is a true sample-level maximum from the 2319 pull, obtained with the local-clock workaround; the 2245 file read the same figure off the Fitness chart axis. It sits at the top of the 166-176 band recorded for last year's all-out race effort.",
+   ],
+   splits:[
+     {mi:1, mins:9.730, hrAvg:145},
+     {mi:2, mins:7.600, hrAvg:168},
+     {mi:3, mins:7.880, hrAvg:165},
+     {mi:4, mins:9.530, hrAvg:143},
+     {mi:4.235, mins:2.350, hrAvg:140},
+   ]},
 ];
 
 // Non-running load — counted for training stress, excluded from pace analysis.
@@ -429,4 +499,12 @@ window.RESTING_HR = [
   {date:"2026-09-05", bpm:80},
   // 72 on the morning of the peak long run, and the low of the series.
   {date:"2026-09-06", bpm:72},
+  {date:"2026-09-07", bpm:74},
+  // No Sep 8. HealthKit returned 100 bpm for that day, against a 72-80 baseline across
+  // the rest of the window, and the 2319 export left it out of restingHr on purpose: the
+  // underlying sample spans only 16:43-22:41 local, a partial evening that overlaps a
+  // 22:00 run, where Sep 4-7 each span a full day. It is a real returned number, not a
+  // dropout -- but it is not a resting measurement, and dropped into this series it would
+  // read as the largest single-day spike in it and invite an illness or overtraining call
+  // that the data does not support. Recorded here so a later pull does not "fill the gap".
 ];
