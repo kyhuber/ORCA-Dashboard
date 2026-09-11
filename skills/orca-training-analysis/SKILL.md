@@ -13,6 +13,21 @@ description: Use when Kai asks to check his running/workout data, update his tra
 
 - **Goal race:** Brooks Orca Half Marathon, **Saturday September 19, 2026**, West Seattle
   (Lincoln Park to Don Armeni Boat Launch). The event weekend spans Sep 19–20; the half is Saturday.
+- **Time zone — Kai is in Seattle, `America/Los_Angeles`.** Every date in this project is a
+  Pacific date: the plan, `SEEDED_ACTUALS`, `DATA_THROUGH`, export filenames, and the day Kai
+  means when he says "today". **A Claude Code container's clock is UTC**, which is 7 hours ahead
+  in PDT and 8 in PST — so from 17:00 Pacific onward (16:00 in winter) the container is already
+  on tomorrow's date. An evening run is the normal case here, not the edge case, so this is a
+  trap the project has now sprung twice: the Sep 8 export was first written to Drive under a
+  Sep 9 filename and had to be retracted, and a Sep 10 run pulled at 19:10 Pacific was read a
+  day later as "yesterday's run" by a session trusting its own clock.
+  **So: never take today's date from the environment, and never describe a run as today,
+  yesterday, or last night without converting first.** `TZ=America/Los_Angeles date` gives the
+  real answer in one command; run it before any reasoning about recency, before setting
+  `DATA_THROUGH`, and before telling Kai when something happened. The dashboard itself already
+  gets this right — `PLAN_TZ` and `todayISO()` in `index.html` compute the Pacific day
+  deliberately — so a mismatch between the page and your own sense of "today" means you are
+  the one who is wrong.
 - **Goal pace:** the single source of truth is `window.GOAL_PACE` in `data.js` — **read it, do
   not quote a figure from memory.** It was **7:42/mi → 1:40:56** as of the Aug 22 benchmark,
   reset from an earlier 7:56/mi → 1:44:00; it can be reset again, so any number written here is
@@ -155,6 +170,9 @@ health_query_v0     →     orca-health-exports/   →     read → merge → da
    with, what the weather did, or where he thought the finish line was — ask before concluding
    from a number alone, and prefer his account of the run over an inference from the data.
 1. List `orca-health-exports`, read any export newer than the newest run already in `data.js`.
+   Drive reports `createdTime` in UTC while the filename and `pulledAt` are Pacific, so the two
+   disagree by a date for anything pulled after 17:00 Pacific. The filename and `pulledAt` are
+   right; `createdTime` is only for ordering.
 2. Merge into `window.SEEDED_ACTUALS`, **deduping by `date`**. Existing rows win only if the
    incoming row has strictly less detail; otherwise the richer row replaces it.
 3. Keep runs under 1.0 mi out (accidental / partial recordings). Also drop any workout with
@@ -168,7 +186,9 @@ health_query_v0     →     orca-health-exports/   →     read → merge → da
    what turns an unlogged session from "Awaiting data" into "Missed".
    - `DATA_THROUGH` is the last *complete* day covered, not the day the pull ran. A pull at
      00:18 on Aug 26 covers Aug 25 in full and says nothing about the rest of Aug 26, so it
-     sets `2026-08-25`.
+     sets `2026-08-25`. Complete means complete in **Pacific** — work from `pulledAt`'s local
+     clock, never from a UTC timestamp, or an evening pull will look like it closed a day it
+     did not.
    - Sessions after `DATA_THROUGH` with nothing logged read "Awaiting data"; on or before it
      they read "Missed". The page must never call a session missed on a day it has no data for
      — runs reach it through a manual pipeline (phone writes to Drive, a session merges it,
