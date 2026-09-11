@@ -19,16 +19,12 @@ window.GOAL_PACE = "7:42";
 // Aug 30. Move it on every merge, along with the ?v= on the data.js script tag in
 // index.html.
 //
-// The Sep 8 gap-fill pull ran at 23:19 Pacific over a Sep 4-8 window, so Sep 7 is the
-// last date it closes over. Forty-one minutes is a thin margin to leave on the table
-// and the day's training was plainly done -- the run ended at 22:38 -- but the rule
-// here is calendar completeness, not a judgement about what else was likely to happen,
-// and the export itself records Sep 8 as still in progress at pull time. Nothing turns
-// on the difference today: Sep 8 has a logged run, and week 7 has no other session
-// before Sep 10, so no session is marked missed at either value.
-window.DATA_THROUGH = "2026-09-07";
+// The Sep 10 pull ran at 19:10 Pacific over a Sep 10 window, so Sep 9 is the last date
+// it closes over -- same reasoning as every pull before it. Nothing is marked missed at
+// this value: Sep 10 has its run logged, and week 7's only remaining session is Sep 13.
+window.DATA_THROUGH = "2026-09-09";
 
-// Logged runs. Seeded from Apple Health; latest pull Sep 8, 2026 via the
+// Logged runs. Seeded from Apple Health; latest pull Sep 10, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
 // Runs under 1.0 mi are excluded (accidental / partial recordings).
 // Fields: date (YYYY-MM-DD), dist (mi), mins — hrAvg / hrMax / elev optional.
@@ -442,6 +438,57 @@ window.SEEDED_ACTUALS = [
      {mi:4, mins:9.530, hrAvg:143},
      {mi:4.235, mins:2.350, hrAvg:140},
    ]},
+  // Week 7 Thursday, the easy run, with the Westies in West Seattle. 3.11 mi at 10:03/mi
+  // against a 9:30-10:15 band and a plan that said "hold back" -- run as written, and the
+  // most quietly encouraging row in the file.
+  //
+  // The signal is the heart rate. Sep 3 was the same session at effectively the same pace
+  // (4.02 mi at 9:57/mi) and cost 141 bpm; this one cost 134. Mile for mile against that
+  // run it is 136/133/133 where Sep 3 was 145/145/139 -- down 9, 12 and 6 bpm at a pace
+  // within 6 s/mi. Easy-pace HR falling at a held pace across weeks is the aerobic
+  // fitness signal this plan has been watching for since the baseline was written, and
+  // it is now visible without squinting.
+  //
+  // It is a taper week, so freshness is part of the explanation and the honest read is
+  // "fitness plus recovery", not fitness alone. That does not weaken it: arriving at race
+  // week with easy running this cheap is the outcome the taper was for.
+  //
+  // HR also fell through the run -- 136, 133, 133, 130 -- rather than drifting up, on
+  // splits of 10:01 / 10:03 / 9:59. No cardiac drift at all across half an hour, and the
+  // evenest pacing of any run in the file.
+  //
+  // The export's second flag argues with the zone table using a "true zone 2 per project
+  // baseline (136-142bpm)". That band is the hand-set ceiling HR_ZONES replaced back in
+  // August -- the same stale phone-side figure as the recurring 7:56 goal pace -- and the
+  // flag is kept as written rather than edited. Against the zones the page actually uses,
+  // 134 bpm is Zone 1, and the plan counts Zone 1 as easy: an easy day run easier than
+  // Zone 2 is still an easy day. Nothing here is a miss.
+  //
+  // The same flag reports the device's own boundaries as Zone 1 <139 and Zone 2 140-149,
+  // which is the third export in a row to print them that way. HR_ZONES.asOf moves to
+  // Sep 10 on the strength of it; the bands themselves are unchanged.
+  //
+  // No elevation and no weather, both omitted by the export rather than estimated.
+  // Cadence is a derived figure -- HealthKit stepCount over the workout window divided by
+  // moving time -- and the export says so plainly, which is the reason it is trustworthy
+  // enough to keep where Sep 8's identical derivation was not: that one had a fractional
+  // step total over a window 92 s wider than the run, this one is over the exact window.
+  {date:"2026-09-10", dist:3.11, mins:31.26, hrAvg:134, hrMax:145,
+   note:"Easy run with the Westies, West Seattle. True Zone 2 per plan; " +
+        "pace target was 9:30–10:15/mi, actual 10:03/mi average.",
+   flags:[
+     "Avg HR 134 bpm vs 141 bpm on the Sep 3 Westies run at nearly identical pace (10:03 vs 9:58/mi) — HR trending down at same effort, consistent with taper freshness rather than a harder or easier run.",
+     "27:55 of the run logged in the watch's Zone 1 (<139bpm), only 2:03 in Zone 2 (140-149bpm) — device zones are generic/age-based; true zone 2 per project baseline (136-142bpm) matches this effort well despite the device's zone label.",
+     "Fast post-run HR recovery: 129 to 115 to 108 bpm within 2 minutes of stopping. Compare Sep 8's 139-130-118 after the goal-pace session -- 21 bpm over two minutes there against 21 here off a much lower starting point.",
+     "Avg and max HR were cross-checked two ways before being written: 352 raw heartRate samples over the exact workout window average 133.86, and the Apple Fitness Heart Rate screen shows 134 avg over a 125-145 range. They agree.",
+     "Cadence 163 spm is derived -- HealthKit stepCount over the workout window divided by moving time -- not a measured running-cadence sample.",
+   ],
+   splits:[
+     {mi:1, mins:10.020, hrAvg:136},
+     {mi:2, mins:10.050, hrAvg:133},
+     {mi:3, mins:9.980, hrAvg:133},
+     {mi:3.11, mins:1.130, hrAvg:130},
+   ]},
 ];
 
 // Non-running load — counted for training stress, excluded from pace analysis.
@@ -507,4 +554,12 @@ window.RESTING_HR = [
   // dropout -- but it is not a resting measurement, and dropped into this series it would
   // read as the largest single-day spike in it and invite an illness or overtraining call
   // that the data does not support. Recorded here so a later pull does not "fill the gap".
+  //
+  // 85 the day after the Sep 8 goal-pace session, then 79. The same shape the series
+  // showed after the Aug 30 long run -- 80 on the morning after, 86 on day two, back to
+  // 74 by day three -- so a hard session costing a day or two of elevated resting HR is
+  // this body's ordinary response, not a warning. What would be worth acting on is the
+  // spike failing to clear, and it cleared.
+  {date:"2026-09-09", bpm:85},
+  {date:"2026-09-10", bpm:79},
 ];
