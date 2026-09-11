@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=11"></script>
+<script src="data.js?v=12"></script>
 
 <style>
   :root{
@@ -427,7 +427,10 @@
   // Nothing about an easy day changes: zone 2 still tops out at 149, and both 139 and
   // 140 were already inside the easy band. What changes is the label a 140 bpm run
   // carries, which now reads Zone 2 exactly as Apple's own screen does.
-  const HR_ZONES = {asOf:"2026-09-08", bands:[
+  //
+  // The Sep 10 export reports the same <139 / 140-149 boundaries, the third in a row to
+  // do so, which is what moves asOf here. The bands themselves have not changed since.
+  const HR_ZONES = {asOf:"2026-09-10", bands:[
     {zone:1, max:139}, {zone:2, max:149}, {zone:3, max:159},
     {zone:4, max:169}, {zone:5, max:Infinity},
   ]};
