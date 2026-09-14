@@ -8,7 +8,10 @@ from `main` at https://kyhuber.github.io/ORCA-Dashboard/.
 - `index.html` — `PLAN`, `HR_ZONES`, and all rendering. Changes only when the plan changes.
 - `skills/orca-training-analysis/SKILL.md` — **the canonical reference.** Read it before
   touching either file. It carries the training context, the Drive export pipeline, and the
-  merge rules, and it is the authority where this file is silent.
+  merge rules, and it is the authority where this file is silent. Its Context section includes
+  Kai's knee history and a **monitoring rule that is a safety rule, not an analysis
+  preference** — pain that alters his stride, or swelling after a run, means stop and report,
+  never run through. Read that before offering any coaching judgement.
 - `schema/health-export.schema.json` — machine-readable contract for the Drive exports.
 
 ## Kai is in Seattle. Every date here is Pacific.

@@ -35,9 +35,51 @@ description: Use when Kai asks to check his running/workout data, update his tra
   projected finish, the pace-chart goal line, and the week 7–8 target paces from that one value.
 - **Framing:** Not competitive. Kai's own words: "solid effort, feel good about the race."
   Train the experience, not the clock.
-- **Longer arc:** This half is a stepping stone to an eventual full marathon. Favor aerobic
-  base-building over race-specific sharpening. Don't optimize purely for Sept 19 at the expense
-  of durability.
+- **Longer arc:** This half is a stepping stone to a **full marathon on Nov 29, 2026**, to be
+  built as a bridge plan covering **Weeks 9–18**. That plan does not exist yet. Favor aerobic
+  base-building over race-specific sharpening, and don't optimize purely for Sept 19 at the
+  expense of durability — the knee section below is the main input to the bridge build, and
+  the reason it was written down before the build started rather than after.
+- **Knee history — load-bearing context, added Sep 14, 2026.** Kai is 39, healthy BMI and diet.
+  In 2023 his foot locked in a rock crevice while backpacking and the pack weight twisted him:
+  complete ACL tear, with concomitant meniscus and MCL damage cleaned up surgically in the same
+  procedure. ACL reconstruction October 2023, successful. He rehabbed deliberately hard, then
+  hired a trainer specifically to build the musculature protecting the knee for skiing, sat out
+  a full ski season, and returned to skiing 15 months post-op — his own read is that he is a
+  better, more prepared skier now than before the injury, because of that work.
+  - **He did not run at all for roughly 20 years before this block**, despite staying very
+    active (cycling, hiking, walking, backpacking), and not consistently since the 2023 surgery
+    either. This is the single most important physiological fact in the project after the HR
+    zones: two decades of aerobic cross-training gave him real cardiovascular fitness and
+    **essentially zero running-specific tissue adaptation** — bone, tendon, and the structures
+    around the knee. Cardiovascular fitness improves faster than that tissue does, and that gap
+    causes pain in returning cross-trained athletes more often than any single old injury does.
+    When something hurts, reach for that explanation before reaching for the ACL.
+  - **Sep 13, 2026 — first real knee pain during a run.** Upper medial side, onset around mile 6
+    of the 8-mile taper long run; eased with a pace reduction and a foot-strike adjustment, and
+    he finished. Full incident detail is in `export-2026-09-14-0054.json` in the Drive folder.
+  - **Open as of Sep 14: how to run Sep 19, or whether to adjust the plan at all, is not
+    decided.** It waits on the PT visit and on how the knee responds across the rest of taper
+    week. Do not quietly assume the race is on as written, and do not talk him out of it either
+    — surface the decision and let him and his PT make it.
+  - **Kai has a visit scheduled with the PT who ran his original post-surgery rehab. Her
+    assessment supersedes everything in this section once it happens.** What is written here is
+    general-literature context compiled from a research conversation, not a diagnosis, and it
+    must never be presented to Kai as one.
+  - What the literature actually supports, kept brief because it is extrapolation: running is a
+    materially lower-risk category for graft stress than pivoting/cutting sports, and the
+    reinjury research is dominated by soccer/basketball mechanisms that match neither his tear
+    nor his sport. Combined ACL+MCL is common (~38% of ACL injuries) and does well when
+    addressed at surgery, as his was. The one signal worth taking seriously long-term: even a
+    "minor" concomitant meniscus injury is independently associated with higher rates of a
+    symptomatic knee and osteoarthritis at long-term follow-up versus isolated ACL
+    reconstruction. Not an emergency — the reason his PT's read outranks any population average.
+    Marathon-volume-specific data barely exists; treat all of this as reasonable extrapolation.
+- **Monitoring rule — this one is a safety rule, not an analysis preference.** Soreness gone by
+  the next morning with no change to gait is normal adaptation: keep going. **Pain that alters
+  his stride, or any swelling after a run, means stop and report it** — never run through it to
+  see what happens, and never coach him to. If an export or Kai's own account describes either,
+  say so plainly and early rather than burying it under the pace analysis.
 - **Plan structure:** **8 weeks, Jul 27 – Sep 19, 2026.** Phases by week:
   1–2 Rebuild · 3 Build · 4 Benchmark · 5 Peak build · 6 Peak · 7 Taper begins · 8 Race week.
   The authoritative week/session list is `const PLAN` in `index.html` — read it rather than
@@ -246,15 +288,21 @@ With `splits` available, also check:
 Watch for:
 - Long runs that surge in the final mile instead of finishing easy (raises injury/recovery cost,
   and last year's negative-split race pattern makes this an actual known pattern of his).
-- Weekly mileage jumps of more than ~10% week over week — the injury risk he's most exposed to
-  isn't fitness, it's ramping too fast.
+- **Long-run spikes above ~110% of the longest run in the trailing 30 days.** This is the
+  ramp-rate check to lead with; the familiar weekly-mileage 10% rule has weaker evidence behind
+  it than its reputation suggests, so treat a weekly jump as context rather than the verdict.
+  The injury risk he is most exposed to isn't fitness, it's ramping too fast — and with tissue
+  still catching up to his cardio, the single long run is where that bites.
+- Knee symptoms of any kind, against the monitoring rule in Context. A run that needed a pace
+  or form change to finish is a finding, not a footnote.
 - Two or more sessions in a row where pace at the same effort is meaningfully slower than
   baseline — possible under-recovery, not a fitness problem to push through.
 
 ## Adjustment logic (draft — Kai can override any of this)
 
 - Missed a run → shift the week, don't stack a makeup session. Never frame it as falling behind.
-- Mileage jump >10% week over week → pull it back before adding more.
+- Long run above ~110% of the longest run in the trailing 30 days → pull it back before adding
+  more. Weekly mileage is the secondary check, not the primary one.
 - Zone 2 HR drifting down at consistent pace over multiple weeks → name it as progress, it's real signal.
 - Long run finishing with a hard surge → note it, ask if it was terrain or effort, don't
   over-correct off one data point.
@@ -265,6 +313,30 @@ Watch for:
 - A goal-pace session run meaningfully *faster* than the target band is a miss, not a win — it
   trains the strength (top-end speed) and skips the limiter (holding a pace). Name it, and give
   the next goal-pace session an explicit "do not run faster than" ceiling.
+- Knee pain reported on a run → the monitoring rule in Context decides, not the training
+  calendar. Pain that changed his stride or any post-run swelling outranks whatever the plan
+  said that week, and pending the PT visit it is her call rather than this plan's.
+
+### Designing around the tissue gap (inputs for the Nov 29 bridge plan)
+
+These come from the Sep 14 knee-context document and are meant to shape the Weeks 9–18 build
+from the start rather than be bolted on. The frame: his cardio does not need running to stay
+fit — it needs running to build **tissue tolerance**, which is much slower. Program for the
+tissue, not the aerobic engine.
+
+- **Strength, 2×/week, single-leg-dominant.** Bulgarian split squats, single-leg deadlifts,
+  eccentric calf raises. This mirrors running's loading pattern and carries the strongest
+  injury-prevention evidence of anything in the review. Frame it as the same playbook that
+  already worked for his ski return — it is a continuation he believes in, not a new ask.
+- **Cadence.** Baseline is ~167–172 spm, sagging into the high 160s on slower or fatigued miles.
+  A modest 5–10% increase, especially late in long runs as form degrades, has good evidence for
+  reducing patellofemoral load and dynamic knee valgus. Cheapest available intervention.
+- **Terrain.** Downhill loads the knee eccentrically harder than flat or uphill. Factor it into
+  route choice on Highland Park's hills and into how the bridge plan's long runs are routed —
+  this is now a programming variable, not a nicety.
+- **Cross-training as filler, not compromise.** An easy bike or hike in place of a second
+  running day adds aerobic volume without adding impact to tissue that is still catching up.
+  It fits how active he already is outside running, so it costs him nothing to adopt.
 
 ## Updating the dashboard
 
