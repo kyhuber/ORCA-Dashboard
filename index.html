@@ -127,6 +127,58 @@
   .history-body{padding-top:18px;}
   @media (max-width:560px){ .hist-hint{display:none;} }
 
+  /* ---- race prep: fuelling and the PT's program ----
+     Reference material, not a daily read, so it lives behind the same disclosure
+     pattern as Training History and stays shut until the race week wants it. */
+  .prep-lede{color:var(--text-muted); font-size:0.88rem; line-height:1.6; margin:0 0 18px;}
+  .prep-lede b{color:var(--text);}
+
+  /* A callout that has to be seen before the list under it is acted on. Gold rather
+     than coral: this is a "not yet", not a warning. */
+  .prep-flag{display:flex; gap:12px; align-items:flex-start; background:var(--gold-dim);
+    border:1px solid rgba(239,194,90,0.34); border-radius:10px; padding:13px 15px; margin:0 0 18px;}
+  .prep-flag .pf-icon{flex:none; font-family:var(--font-mono); color:var(--gold); font-size:0.95rem; line-height:1.5;}
+  .prep-flag p{margin:0; font-size:0.85rem; line-height:1.6; color:var(--text);}
+  .prep-flag b{color:var(--gold);}
+
+  /* Two columns because that is how the PT wrote it -- strength and coordination
+     are done side by side, and splitting them into one list would lose that. */
+  .prep-grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  .prep-col{background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:16px 16px 8px;}
+  .prep-col h3{font-family:var(--font-mono); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--teal); margin:0 0 12px; font-weight:600;}
+  .prep-ex{display:flex; gap:10px; align-items:baseline; padding:9px 0; border-top:1px solid var(--border);}
+  .prep-ex:first-of-type{border-top:none;}
+  .prep-ex .ex-name{flex:1; font-size:0.85rem; line-height:1.45; color:var(--text);}
+  .prep-ex .ex-name small{display:block; color:var(--text-dim); font-size:0.78rem; margin-top:2px;}
+  .prep-ex .ex-dose{flex:none; font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted); white-space:nowrap;}
+
+  /* The meal plan is a sequence, so it reads as one -- a rail with the days pinned to it. */
+  .meal-list{margin:0; padding:0; list-style:none;}
+  .meal-day{display:flex; gap:16px; padding:14px 0; border-top:1px solid var(--border);}
+  .meal-day:first-child{border-top:none; padding-top:2px;}
+  .meal-when{flex:none; width:92px; font-family:var(--font-mono); font-size:0.78rem; line-height:1.4; color:var(--teal);}
+  .meal-when span{display:block; color:var(--text-dim); font-size:0.72rem; margin-top:3px;}
+  .meal-what{flex:1; min-width:0; font-size:0.86rem; line-height:1.6; color:var(--text-muted);}
+  .meal-what b{color:var(--text); font-weight:600;}
+  .meal-what ul{margin:8px 0 0; padding-left:17px;}
+  .meal-what li{margin-bottom:5px;}
+  .meal-day.is-race .meal-when{color:var(--gold);}
+
+  /* The one number on race morning that is a decision rather than a meal. */
+  .fuel-hero{display:flex; align-items:baseline; gap:14px; background:var(--teal-dim);
+    border:1px solid rgba(53,214,190,0.32); border-radius:10px; padding:14px 16px; margin:0 0 16px;}
+  .fuel-hero .fh-mile{font-family:var(--font-mono); font-weight:600; font-size:1.3rem; color:var(--teal); line-height:1; white-space:nowrap;}
+  .fuel-hero .fh-body{flex:1; font-size:0.85rem; line-height:1.55; color:var(--text);}
+
+  @media (max-width:640px){
+    .prep-grid{grid-template-columns:1fr;}
+    .meal-day{flex-direction:column; gap:5px;}
+    .meal-when{width:auto;}
+    .meal-when span{display:inline; margin-left:6px;}
+    .fuel-hero{flex-direction:column; gap:8px;}
+  }
+
   /* ---- session rows ---- */
   .session{display:flex; flex-wrap:wrap; align-items:center; gap:14px; padding:12px 0; border-top:1px solid var(--border);}
   .session:first-of-type{border-top:none;}
@@ -353,6 +405,111 @@
       </div>
       <div id="schedule"></div>
     </div>
+
+    <!-- Race prep. Collapsed by default: it is reference material Kai needs on two or
+         three specific days, not something to scroll past every time he checks what to
+         run. Kept in the repo rather than in Drive so it outlives the export folder. -->
+    <details class="history" id="prep">
+      <summary>
+        <span class="hist-title">Race Prep — Fuel &amp; Strength</span>
+        <span class="hist-hint">Meal plan, in-race fuelling, and the PT's program</span>
+        <span class="hist-arrow">›</span>
+      </summary>
+      <div class="history-body">
+
+    <div class="card">
+      <h2>In-Race Fuelling</h2>
+      <p class="card-sub">Sep 19 · one gel, one job</p>
+      <div class="fuel-hero">
+        <span class="fh-mile">Mile 6–7</span>
+        <span class="fh-body">One gel, ~20–25 g carbs, glucose or maltodextrin rather than
+          fructose-heavy. Take it with water at an aid station.</span>
+      </div>
+      <p class="prep-lede">That is roughly 47–55 minutes in at goal pace, and close to where the
+        Sep 13 pain started — which is not a coincidence worth ignoring. The muscle doing the
+        compensating is the one that fades first when fuel runs low.
+        <br><br>
+        Your PT suggested fuelling on the grounds that falling energy availability weakens
+        neuromuscular control. The sharper version is <b>central fatigue</b>: low blood glucose
+        measurably reduces how fully the nervous system can drive a muscle, and carbohydrate taken
+        during exercise preserves that — shown in studies of roughly two-hour running efforts,
+        which is about your race. <b>A few chews around mile 10–11 are optional</b> and not needed
+        at this distance. Nothing you have not already tasted on Thursday.</p>
+    </div>
+
+    <div class="card">
+      <h2>Pre-Race Meal Plan</h2>
+      <p class="card-sub">7am start, leaving home around 6:30 · mild forecast, so nothing aggressive</p>
+      <ul class="meal-list">
+        <li class="meal-day">
+          <div class="meal-when">Wed 9/16<span>3 days out</span></div>
+          <div class="meal-what">Nothing special yet. Start leaning toward <b>familiar meals</b> and
+            easing off very high-fibre or gas-prone foods — big raw salads, beans — if those are
+            regulars. Gut settling takes days, not hours. Otherwise eat normally, carb-leaning.</div>
+        </li>
+        <li class="meal-day">
+          <div class="meal-when">Thu 9/17<span>shakeout</span></div>
+          <div class="meal-what">Normal balanced meals, carbs a comfortable share of the plate.
+            <b>Test the race gel</b> — at rest is fine, the point is taste and tolerance, not
+            performance. Start easing fibre back at dinner.</div>
+        </li>
+        <li class="meal-day">
+          <div class="meal-when">Fri 9/18<span>loading day</span></div>
+          <div class="meal-what">For a 90-minute-plus effort the evidence supports <b>one focused
+            carb-forward day spread across meals</b>, not a multi-day marathon protocol.
+            <ul>
+              <li>Breakfast — oatmeal, toast, or cereal with fruit.</li>
+              <li>Lunch — a rice or pasta bowl, or a sandwich, plus fruit.</li>
+              <li>Dinner — familiar and carb-forward, moderate protein, lighter on fat and fibre
+                than usual. Lower fat digests faster and cuts race-morning GI risk.</li>
+              <li>Hydration — a bit more than usual; pale yellow is the gauge, not a target.</li>
+              <li>Evening — skip or limit alcohol. Normal caffeine, early enough not to cost sleep.</li>
+            </ul></div>
+        </li>
+        <li class="meal-day is-race">
+          <div class="meal-when">Sat 9/19<span>race morning</span></div>
+          <div class="meal-what">The tight window is the real constraint: a full meal wants 2–3
+            hours to settle, which means eating by about 4:30–5am for a 7am gun. Two ways to play it.
+            <ul>
+              <li><b>Wake ~5am</b> — light, low-fibre breakfast: toast or a bagel with honey or jam,
+                a banana, maybe a small bowl of low-fibre cereal.</li>
+              <li><b>Sleep later, eat 6:15–6:30</b> — keep it small and liquid or semi-solid: a
+                banana, a few dates, a sports drink. A full solid meal will not digest in time.</li>
+              <li>Either way: <b>nothing new</b>, nothing high-fibre or high-fat.</li>
+              <li>Hydration — sip 16–20 oz across the two hours before the gun, tapering off in the
+                last 30–45 minutes so you are not looking for a bathroom on course.</li>
+              <li>Caffeine — if you normally drink coffee, the usual cup 45–60 min before the start
+                (~6:00–6:15) is well supported. Skipping it risks mild withdrawal working against
+                you. If you are not a regular user, race morning is not the day to start.</li>
+            </ul></div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>PT Strength &amp; Coordination Program</h2>
+      <p class="card-sub">Prescribed Sep 15 · targets the vastus medialis and valgus control</p>
+      <div class="prep-flag">
+        <span class="pf-icon">▲</span>
+        <p><b>Starts after Saturday, not during race week.</b> Loaded single-leg squats, loaded
+          lunges and plyometric hopping are a real training stimulus, and novel loading this close
+          to a race buys exactly the soreness the taper exists to avoid. The one safe exception is
+          the unloaded runner's balance hold, if you want something proactive before then — it is
+          not necessary.</p>
+      </div>
+      <div class="prep-grid" id="prep-program"></div>
+      <p class="prep-lede" style="margin:18px 0 0;">Two columns, done side by side. This is the
+        long-term answer to what the Sep 13 run surfaced: single-leg-dominant work is what the
+        general injury-prevention literature recommends anyway, and this version is aimed squarely
+        at the diagnosed mechanism rather than at prevention in general. It is also the natural
+        input to the Nov 29 bridge plan — the same playbook that got you back on skis.
+        <br><br>
+        <b>This is a photographed excerpt — rows 3–10 of a larger sheet.</b> Get the complete
+        program from your PT before treating it as the whole prescription.</p>
+    </div>
+
+      </div>
+    </details>
 
     <details class="history" id="history">
       <summary>
@@ -909,12 +1066,50 @@
      body:"This is where it starts costing, and where the race is actually decided. Hold the "
         + "pace, don't chase it. Every mile here past the eighth is longer than any goal-pace "
         + "effort you have run in training."},
-    {mi:"Miles 11–13.1", km:"16.1–21.1 km", head:"spend it",
+    // Softened Sep 15. "Now you empty it" was written before the Sep 13 knee pain and the
+    // diagnosis that followed, and it sat badly beside a card that now says the default is to
+    // finish. The closing speed is real and worth naming -- but it is conditional on the knee
+    // being quiet, and the honest version says so rather than making the last two miles a test
+    // of nerve. Goal framing is unchanged: solid effort, feel good. The clock was never the point.
+    {mi:"Miles 11–13.1", km:"16.1–21.1 km", head:"spend what is left",
      slowSec:-4, fastSec:-12,
-     body:"Now you empty it. You have closed hard in every genuine effort on record — a 6:58 "
-        + "final mile here last year, 7:33 for mile 9 off eight miles on Aug 30. Trust that and "
-        + "let it go."},
+     body:"If the knee has stayed quiet, this is where you spend it — you have closed hard in "
+        + "every genuine effort on record, a 6:58 final mile here last year and 7:33 for mile 9 "
+        + "off eight miles on Aug 30. If it has not, let go of the number instead and run it in. "
+        + "Finishing this one well is the whole goal; the time is not."},
   ];
+
+  // The PT's prescribed program, Sep 15. Kept as data rather than markup because it is
+  // knowingly incomplete -- a photographed excerpt of rows 3-10 -- and the missing rows get
+  // added here when Kai has the full sheet. `sub` carries the progression where she wrote one.
+  const PT_PROGRAM = [
+    {col:"Leg Strength", items:[
+      {name:"Single bridge", sub:"foot on foam roller", dose:"2×20"},
+      {name:"Pistol squat", sub:"15 lb kettlebell — keep the knee in line with the foot", dose:"3×10"},
+      {name:"Lateral lunges", sub:"15 lb kettlebell", dose:"3×10"},
+      {name:"Barbell or goblet squat", sub:"reps not captured in the excerpt", dose:"—"},
+    ]},
+    {col:"Coordination / Agility", items:[
+      {name:"Runner's balance", sub:"progress to a one-side 15 lb kettlebell", dose:"2×10"},
+      {name:"Skaters", sub:"progress with further hops side to side", dose:"2×20"},
+      {name:"Forward hop, single leg ×3", sub:"progress with further hops forward", dose:"10 rounds"},
+      {name:"Single-leg pogo hop", sub:"", dose:"1×20s"},
+      {name:"Pogo hop, front to back", sub:"", dose:"1×20s"},
+      {name:"Pogo hop, side to side", sub:"", dose:"1×20s"},
+      {name:"Clock hop, double leg", sub:"progress to single-leg clock hop", dose:"10 rounds"},
+    ]},
+  ];
+
+  function renderPtProgram(){
+    const host = document.getElementById("prep-program");
+    if(!host) return;
+    host.innerHTML = PT_PROGRAM.map(c=>
+      `<div class="prep-col"><h3>${c.col}</h3>` + c.items.map(x=>
+        `<div class="prep-ex"><span class="ex-name">${x.name}`
+        + (x.sub ? `<small>${x.sub}</small>` : "")
+        + `</span><span class="ex-dose">${x.dose}</span></div>`).join("")
+      + `</div>`).join("");
+  }
 
   const RACE_OPEN_SEC = 8;
   const RACE_OPEN_PACE = GOAL_PACE + RACE_OPEN_SEC/60;
@@ -1453,6 +1648,7 @@
     renderPaceChart(actuals);
     renderSchedule(actuals);
     renderCrossTraining();
+    renderPtProgram();
     renderManualList();
   }
 
