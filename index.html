@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=12"></script>
+<script src="data.js?v=13"></script>
 
 <style>
   :root{
@@ -315,6 +315,17 @@
         <span id="race-finish">–</span>
       </div>
       <ol class="race-plan" id="race-plan"></ol>
+      <p class="race-note"><b>One cue, all day: knee tracking straight forward-back.</b> Foam roll
+        the quad before you start. Let the foot land however it lands — managing foot strike is what
+        you tried on Sep 13 and it pulled your attention off the thing that actually needed it.
+        Reset the cue every few miles as a check-in. The PT has cleared this race: the default is
+        to finish. Stop only if something sharpens meaningfully or changes your stride, and if it
+        does, stop trying to push through it.</p>
+      <p class="race-note"><b>Take the gel at mile 6–7</b>, with water at an aid station. That is
+        about 47–55 minutes in, and close to where the Sep 13 pain started — not a coincidence
+        worth ignoring, since the muscle doing the compensating is the one that fades first when
+        fuel runs low. A few chews around mile 10–11 are optional. Nothing you have not already
+        tasted on Thursday.</p>
       <p class="race-note" id="race-check"></p>
       <p class="race-note"><b>Run your own race from the gun.</b> In the benchmark you ran
         <span id="race-gap">28 sec/mi</span> faster once you were on your own effort rather than a
@@ -428,9 +439,9 @@
   // 140 were already inside the easy band. What changes is the label a 140 bpm run
   // carries, which now reads Zone 2 exactly as Apple's own screen does.
   //
-  // The Sep 10 export reports the same <139 / 140-149 boundaries, the third in a row to
-  // do so, which is what moves asOf here. The bands themselves have not changed since.
-  const HR_ZONES = {asOf:"2026-09-10", bands:[
+  // The Sep 10 and Sep 13 exports both report the same <139 / 140-149 boundaries -- four
+  // exports running now -- which is what moves asOf. The bands have not changed since.
+  const HR_ZONES = {asOf:"2026-09-13", bands:[
     {zone:1, max:139}, {zone:2, max:149}, {zone:3, max:159},
     {zone:4, max:169}, {zone:5, max:Infinity},
   ]};
@@ -570,6 +581,13 @@
        quality:{dist:2, where:"last", slowestSec:8, fastestSec:-7},
        easyPace:[9.0, 9.75]},
     ]},
+    // Race week as modified after the Sep 15 PT visit. Nothing about the running changes --
+    // no distance, type or session moves -- because the plan already had Tue and Wed as rest,
+    // which happens to give the vastus medialis the recovery it needs before it works again.
+    // What changes is what he does on the runs that were already there: foam roll first, and
+    // one cue, knee tracking straight forward-back. The Sep 13 in-run fix was foot-strike, and
+    // both Kai and the PT now read that as the wrong focus -- it pulled attention off the thing
+    // that needed correcting. One cue, not two, is the instruction.
     {week:8, phase:"Race week", range:"Sep 14 – Sep 19", sessions:[
       {date:"2026-09-14", day:"Mon", type:"Easy", desc:"Easy run", dist:3},
       // Same reasoning as week 7, and it matters more here: the last run before a race
@@ -577,9 +595,14 @@
       // Strides are neuromuscular priming, not a workout: four 20-second pickups two
       // days out let him feel race pace on fresh legs at a cost of about 80 seconds of
       // running. They are also the last time he touches that pace before the start.
-      {date:"2026-09-17", day:"Thu", type:"Easy", desc:"Shakeout — easy and short, then 4×20s strides at race pace", dist:3.1},
-      {date:"2026-09-18", day:"Fri", type:"Rest", desc:"Rest", dist:0},
-      {date:"2026-09-19", day:"Sat", type:"Race", desc:"🏁 ORCA HALF MARATHON", dist:13.1, useGoal:true},
+      // Unchanged in distance and structure, and now also the dress rehearsal: it is the only
+      // run between the diagnosis and the race, so it is the one chance to find out whether the
+      // cue survives the strides, when effort and cadence rise. Also the day to taste the gel --
+      // for tolerance, not fatigue, which 3.1 easy miles will not produce.
+      {date:"2026-09-17", day:"Thu", type:"Easy",
+       desc:"Shakeout — foam roll first, easy and short, then 4×20s strides at race pace. Rehearse the knee-forward cue; test the race gel.", dist:3.1},
+      {date:"2026-09-18", day:"Fri", type:"Rest", desc:"Rest — main carb-loading day, spread across meals", dist:0},
+      {date:"2026-09-19", day:"Sat", type:"Race", desc:"🏁 ORCA HALF MARATHON — 7am start. Foam roll in warmup, one cue all day.", dist:13.1, useGoal:true},
     ]},
   ];
 

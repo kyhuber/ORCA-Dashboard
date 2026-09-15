@@ -35,6 +35,15 @@ description: Use when Kai asks to check his running/workout data, update his tra
   projected finish, the pace-chart goal line, and the week 7–8 target paces from that one value.
 - **Framing:** Not competitive. Kai's own words: "solid effort, feel good about the race."
   Train the experience, not the clock.
+- **Sep 19 race, as of Sep 15: it is on.** Kai runs it, applying the cue, the mile 6–7 gel and
+  the pre-race meal plan below. Race-week running is unchanged — Tue/Wed were already rest, which
+  happens to give the muscle its recovery; Thursday's shakeout doubles as the cue rehearsal and
+  the gel taste-test; Friday is the carb-loading day. **Revised stop-rule for race day, now that
+  the mechanism is understood and the PT has cleared it: the default is to finish**, resetting the
+  cue every few miles as a check-in. He still stops — and stops trying to push through — if
+  anything sharpens meaningfully or changes his stride, but that is now a low-probability fallback
+  rather than an open question about whether running at all is safe. Goal framing is unchanged:
+  "solid effort, feel good," not a time goal.
 - **Longer arc:** This half is a stepping stone to a **full marathon on Nov 29, 2026**, to be
   built as a bridge plan covering **Weeks 9–18**. That plan does not exist yet. Favor aerobic
   base-building over race-specific sharpening, and don't optimize purely for Sept 19 at the
@@ -58,14 +67,25 @@ description: Use when Kai asks to check his running/workout data, update his tra
   - **Sep 13, 2026 — first real knee pain during a run.** Upper medial side, onset around mile 6
     of the 8-mile taper long run; eased with a pace reduction and a foot-strike adjustment, and
     he finished. Full incident detail is in `export-2026-09-14-0054.json` in the Drive folder.
-  - **Open as of Sep 14: how to run Sep 19, or whether to adjust the plan at all, is not
-    decided.** It waits on the PT visit and on how the knee responds across the rest of taper
-    week. Do not quietly assume the race is on as written, and do not talk him out of it either
-    — surface the decision and let him and his PT make it.
-  - **Kai has a visit scheduled with the PT who ran his original post-surgery rehab. Her
-    assessment supersedes everything in this section once it happens.** What is written here is
-    general-literature context compiled from a research conversation, not a diagnosis, and it
-    must never be presented to Kai as one.
+  - **DIAGNOSED Sep 15, 2026 by his PT — and it is not the knee.** The problem is an
+    **overloaded vastus medialis**, the inner quad just above the knee. Not a joint issue, not a
+    graft issue, and in her words **not a long-term blocker to marathon training or racing**.
+    The mechanism: a native ACL carries mechanoreceptors feeding real-time joint-position sense,
+    and a graft restores the mechanical restraint but not that sensory network, so proprioception
+    can stay subtly reduced for years. The downstream effect is a faint tendency for the knee to
+    drift inward (dynamic valgus) under running's repeated single-leg loading; the vastus
+    medialis is the muscle that corrects that drift, so it has been doing extra work every
+    stride. That reads as muscle overload, not joint pain — and it worsens with fatigue, which is
+    why the pain arrived at mile 6 rather than mile 1.
+  - **The Sep 13 in-run fix was the wrong one.** Kai focused on foot-strike and shoe contact.
+    He and the PT now both read that as counterproductive: it pulled attention away from the
+    knee, which is the thing that actually needed correcting.
+  - **The cue, in force immediately and including race day:** foam roll the quad/vastus medialis
+    before running, then run with **one** cue — keep the knee tracking straight forward-back, and
+    let the foot land however it naturally lands. One cue, not two.
+  - **This supersedes the risk framing that used to live here.** The general ACL/meniscus
+    literature below is still background worth keeping in view, but the acute question is
+    answered and it is a muscle, not the graft. Do not re-open it as though it were still open.
   - What the literature actually supports, kept brief because it is extrapolation: running is a
     materially lower-risk category for graft stress than pivoting/cutting sports, and the
     reinjury research is dominated by soccer/basketball mechanisms that match neither his tear
@@ -324,19 +344,69 @@ from the start rather than be bolted on. The frame: his cardio does not need run
 fit — it needs running to build **tissue tolerance**, which is much slower. Program for the
 tissue, not the aerobic engine.
 
-- **Strength, 2×/week, single-leg-dominant.** Bulgarian split squats, single-leg deadlifts,
-  eccentric calf raises. This mirrors running's loading pattern and carries the strongest
-  injury-prevention evidence of anything in the review. Frame it as the same playbook that
-  already worked for his ski return — it is a continuation he believes in, not a new ask.
+- **Strength, 2×/week — and the PT has now written it.** Her prescribed program *is* this slot,
+  no longer a generic recommendation: it is single-leg-dominant work aimed squarely at the
+  diagnosed mechanism (vastus medialis / valgus control). **It starts after Saturday's race, not
+  during race week** — loaded single-leg squats, loaded lunges and plyometric hopping are a real
+  training stimulus, and novel loading this close to a race buys exactly the soreness taper
+  exists to avoid. The one safe exception is the unloaded "runner's balance" hold, if he wants
+  something proactive before Saturday; it is not necessary.
+  - *Leg strength:* single bridge with foot on a foam roller 2×20 · pistol squat with 15 lb
+    kettlebell, knee in line with foot, 3×10 · lateral lunges with 15 lb kettlebell 3×10 ·
+    barbell or goblet squat (reps not captured).
+  - *Coordination / agility:* runner's balance, progressing to a one-side 15 lb kettlebell,
+    2×10 · skaters, progressing to longer side-to-side hops, 2×20 · forward single-leg hop ×3,
+    progressing further forward, 10 rounds · single-leg pogo hop 1×20s, plus front-to-back and
+    side-to-side variants 1×20s each · clock hop double-leg progressing to single-leg, 10 rounds.
+  - **This table is a photographed excerpt — rows 3–10 of a larger sheet. Get the complete
+    program from Kai before treating it as the whole prescription.**
 - **Cadence.** Baseline is ~167–172 spm, sagging into the high 160s on slower or fatigued miles.
-  A modest 5–10% increase, especially late in long runs as form degrades, has good evidence for
-  reducing patellofemoral load and dynamic knee valgus. Cheapest available intervention.
+  A modest 5–10% increase reduces dynamic knee valgus in the research, which is directly on
+  mechanism now rather than generically useful. Expect it to rise somewhat on its own if the
+  knee-forward cue is working — do not stack a conscious cadence target on top of the cue.
+- **Fueling on long runs.** Carry the race-day approach below into the bridge plan's long runs,
+  not just race day: the same central-fatigue mechanism applies any time a run goes long enough
+  for it to set in, and a muscle already compensating off a degraded sensorimotor signal is where
+  a general loss of neuromuscular precision would show up first.
 - **Terrain.** Downhill loads the knee eccentrically harder than flat or uphill. Factor it into
   route choice on Highland Park's hills and into how the bridge plan's long runs are routed —
   this is now a programming variable, not a nicety.
 - **Cross-training as filler, not compromise.** An easy bike or hike in place of a second
   running day adds aerobic volume without adding impact to tissue that is still catching up.
   It fits how active he already is outside running, so it costs him nothing to adopt.
+
+## Race-day fueling and the pre-race meal plan (Sep 15)
+
+High-level and deliberately not gram-calculated — Kai asked for ideas and reasoning, not a
+nutrition protocol. Forecast for Sep 19 is mild (upper-50s°F at the 7am start, mid-70s later),
+so hydration and electrolyte needs are ordinary.
+
+- **In-race:** one gel of ~20–25 g carbs, glucose/maltodextrin-based rather than fructose-heavy,
+  around **mile 6–7** (~47–55 min at goal pace) with water at an aid station. A few chews around
+  mile 10–11 are optional and not necessary at this distance. The PT suggested fueling on the
+  grounds that falling energy availability weakens neuromuscular control; the sharper mechanism
+  is *central fatigue* — hypoglycemia measurably reduces voluntary muscle activation, and
+  carbohydrate during exercise preserves it in studies of ~2-hour running efforts, which is close
+  to his expected race duration. "No risk" is accurate for health; the only real risk is GI
+  distress from something untested, which is why Thursday's taste-test matters.
+- **Wed Sep 16:** nothing special. Start leaning toward familiar meals and easing off very
+  high-fibre or gas-prone foods — gut settling takes days, not hours.
+- **Thu Sep 17:** normal balanced meals, carbs a comfortable share of the plate. Test the gel
+  (at rest is fine — the point is taste and tolerance). Start easing fibre back at dinner.
+- **Fri Sep 18, the main loading day:** for a >90-minute effort the evidence supports a single
+  focused carb-forward day spread across meals, not a multi-day marathon-style protocol.
+  Breakfast oatmeal/toast/cereal with fruit; lunch a rice or pasta bowl or a sandwich plus fruit;
+  dinner familiar and carb-forward, moderate protein, lighter on fat and fibre than usual. Extra
+  hydration through the day, pale-yellow urine as a rough gauge. Skip or limit alcohol; normal
+  caffeine, timed early enough not to cost sleep.
+- **Sat Sep 19, 7am start, leaving ~6:30am.** The tight window is the real constraint — a full
+  meal wants 2–3 hours, meaning eating by ~4:30–5am. Either wake ~5am for a light low-fibre
+  breakfast (toast or a bagel with honey or jam, a banana, maybe low-fibre cereal), or sleep
+  later and keep it small and liquid/semi-solid at 6:15–6:30 (banana, a few dates, a sports
+  drink). Nothing new, nothing high-fibre or high-fat. Sip 16–20 oz across the two hours before
+  the gun, tapering in the last 30–45 min. If he is a regular coffee drinker, the normal cup
+  45–60 min before the start is well supported — skipping it risks mild withdrawal working
+  against him. If he is not, race morning is not the day to start.
 
 ## Updating the dashboard
 
