@@ -19,12 +19,13 @@ window.GOAL_PACE = "7:42";
 // Aug 30. Move it on every merge, along with the ?v= on the data.js script tag in
 // index.html.
 //
-// The Sep 10 pull ran at 19:10 Pacific over a Sep 10 window, so Sep 9 is the last date
-// it closes over -- same reasoning as every pull before it. Nothing is marked missed at
-// this value: Sep 10 has its run logged, and week 7's only remaining session is Sep 13.
-window.DATA_THROUGH = "2026-09-09";
+// The Sep 14 pull ran at 00:54 Pacific over a Sep 11-14 window, so it closes Sep 13 in full
+// and says nothing about the rest of Sep 14 -- the same shape as the Aug 26 00:18 pull. Week 7
+// is now fully logged. Monday Sep 14's easy 3 mi reads "Awaiting data" at this value, which is
+// correct: no pull has covered that day yet.
+window.DATA_THROUGH = "2026-09-13";
 
-// Logged runs. Seeded from Apple Health; latest pull Sep 10, 2026 via the
+// Logged runs. Seeded from Apple Health; latest pull Sep 14, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
 // Runs under 1.0 mi are excluded (accidental / partial recordings).
 // Fields: date (YYYY-MM-DD), dist (mi), mins — hrAvg / hrMax / elev optional.
@@ -489,6 +490,63 @@ window.SEEDED_ACTUALS = [
      {mi:3, mins:9.980, hrAvg:133},
      {mi:3.11, mins:1.130, hrAvg:130},
    ]},
+  // Week 7 Sunday, the last long run before the race, and the one that changed the plan.
+  // 8.01 mi at 9:19/mi. Started at 23:08 straight off a work shift, so it crossed midnight
+  // and ended on the 14th; it is logged under Sep 13 per Kai's call, which is right -- it is
+  // Sunday's session and the plan is written in Pacific days.
+  //
+  // Real knee pain, upper medial side, from about mile 6. First genuine pain during a run
+  // since the 2023 ACL tear and reconstruction. He slowed, adjusted foot-strike, paused once
+  // to rub it, and finished. That is the headline; the pace numbers below are downstream of it
+  // and should not be read as a fitness result.
+  //
+  // The session asked for the last 2 mi at goal pace and did not get them: the page finds
+  // miles 7-8 as the effort and scores them 8:48/mi against a 7:35-7:50 band, 58 s/mi slow.
+  // True, and not a pacing miss. Mile 6 (9:35) was the slowest full mile of the run and is
+  // where the pain started; mile 7 then came back 8:14, the fastest of the day, before mile 8
+  // faded to 9:21. A surge-then-fade shape with a physical interruption through the middle
+  // of it is not evidence about his pacing discipline either way.
+  //
+  // The export's second flag quotes the target band as 7:49-8:04/mi. That is the stale 7:56
+  // goal pace again -- the same phone-side drift as the Aug 30, Sep 1, Sep 6 and Sep 10
+  // exports -- and it is kept verbatim with the correction here. Against the real 7:42 and
+  // the band the session was actually set under, mile 7 was 24 s/mi slow and mile 8 was
+  // 91 s/mi slow, so the flag understates the gap rather than inventing one.
+  //
+  // What this is NOT: a knee-joint or graft problem. The Sep 15 PT visit diagnosed an
+  // overloaded vastus medialis -- the inner quad doing extra corrective work against a faint
+  // inward knee drift, which worsens under fatigue and so shows up at mile 6 rather than
+  // mile 1. Not a long-term blocker, and the race is on. The foot-strike adjustment he made
+  // mid-run is now understood to have been the wrong focus. Full context, the PT's cue and
+  // her prescribed program are in SKILL.md.
+  //
+  // hrAvg 145 with 9:12 in Zone 4 and nothing at all in Zone 5, on a run that hurt -- the
+  // cardiovascular side of this was never the problem.
+  {date:"2026-09-13", dist:8.01, mins:74.67, hrAvg:145, hrMax:169, cadenceAvg:169,
+   note:"Started right after a work shift, so the run went from 11:08pm into after midnight. " +
+        "Knee pain (upper medial) from about mile 6 — first genuine pain during a run since the " +
+        "2023 ACL reconstruction. Slowed, adjusted foot-strike, paused once to rub the knee; " +
+        "it mostly eased and he finished.",
+   flags:[
+     "Knee pain (upper medial) at ~mile 6 -- history of a complete ACL tear (2023) and ACL reconstruction (Oct 2023, successful); biking/backpacking/skiing since with almost no pain, but no consistent running since surgery until this training block.",
+     "Planned quality (last 2mi @ goal pace, target band 7:49-8:04/mi) not held: mile 7 ran 8:14/mi, mile 8 ran 9:21/mi -- both outside the band, most likely tied to the knee pain onset rather than a pacing miss.",
+     "Mile 6 (9:35/mi) was the slowest full mile and lines up with where the pain started; mile 7 then jumped to 8:14/mi, the fastest of the run, before fading again on mile 8 -- a negative-split-then-fade shape similar to last year's race, but with a physical interruption as a likely confound this time rather than a pure pacing pattern.",
+     "Watch HR zones: Z1 <139 20:25, Z2 140-149 25:47, Z3 150-159 13:59, Z4 160-169 9:12, Z5 170+ 0:00. Nothing above 170 on the whole run.",
+     "Running power by mile (W, non-schema metric): 222, 264, 192, 240, 230, 204, 278, 238, 241 (final partial).",
+     "Post-workout recovery HR: 157 at 0:27, 128 at 1 min, 116 at 2 min.",
+     "RESOLVED Sep 15 by the PT: overloaded vastus medialis, not a joint or graft issue, and not a long-term blocker. See SKILL.md for the diagnosis, the knee-forward cue and the post-race program.",
+   ],
+   splits:[
+     {mi:1, mins:9.617, hrAvg:133},
+     {mi:2, mins:9.417, hrAvg:150},
+     {mi:3, mins:9.450, hrAvg:138},
+     {mi:4, mins:9.333, hrAvg:144},
+     {mi:5, mins:9.467, hrAvg:147},
+     {mi:6, mins:9.583, hrAvg:136},
+     {mi:7, mins:8.233, hrAvg:161},
+     {mi:8, mins:9.350, hrAvg:160},
+     {mi:8.01, mins:0.150},
+   ]},
 ];
 
 // Non-running load — counted for training stress, excluded from pace analysis.
@@ -510,6 +568,12 @@ window.CROSS_TRAINING = [
   // No elevation figure -- flightsClimbed returned inconsistent totals for the window.
   {date:"2026-08-29", kind:"Hiking", dist:7.25, mins:177.21, hrAvg:94, hrMax:119,
    note:"2h57m easy — added load, not a replacement for any session"},
+  // Friday skating, two days before the Sep 13 long run. Only duration, distance and energy
+  // were queried -- no HR, cadence or elevation -- because it is cross-training and outside
+  // the running analysis. Worth more than a load line now: lateral hopping is exactly the
+  // movement pattern in the PT's coordination column, so this is a thing he already does.
+  {date:"2026-09-11", kind:"Skating", dist:4.60, mins:35.11,
+   note:"Cross-training — counts toward load, excluded from pace analysis"},
 ];
 
 // Daily resting heart rate, as reported by the exports. It is the cheapest recovery
@@ -547,13 +611,19 @@ window.RESTING_HR = [
   // 72 on the morning of the peak long run, and the low of the series.
   {date:"2026-09-06", bpm:72},
   {date:"2026-09-07", bpm:74},
-  // No Sep 8. HealthKit returned 100 bpm for that day, against a 72-80 baseline across
-  // the rest of the window, and the 2319 export left it out of restingHr on purpose: the
-  // underlying sample spans only 16:43-22:41 local, a partial evening that overlaps a
-  // 22:00 run, where Sep 4-7 each span a full day. It is a real returned number, not a
-  // dropout -- but it is not a resting measurement, and dropped into this series it would
-  // read as the largest single-day spike in it and invite an illness or overtraining call
-  // that the data does not support. Recorded here so a later pull does not "fill the gap".
+  // Sep 8 was held out of this series when it was first seen, on two grounds: the sample
+  // spanned only 16:43-22:41 local, a partial evening overlapping a 22:00 run, and the day
+  // was still in progress at the 23:19 pull, so the figure was provisional. The Sep 14 pull
+  // returns the same 100 bpm six days later, which settles the provisional half -- this is
+  // Apple's final answer for the day, not a value still being computed.
+  //
+  // So it goes in, annotated rather than suppressed. Excluding a twice-confirmed measurement
+  // because it is inconvenient is the worse habit, and the partial-window caveat is an
+  // interpretation, not grounds for deletion. Read it as what it is: an evening-only sample
+  // taken across a hard run, not a resting measurement, and not evidence of illness or
+  // overtraining. It costs the card nothing -- the trailing median reads 80 with or without
+  // it -- which is exactly why there is no reason to hide it.
+  {date:"2026-09-08", bpm:100},
   //
   // 85 the day after the Sep 8 goal-pace session, then 79. The same shape the series
   // showed after the Aug 30 long run -- 80 on the morning after, 86 on day two, back to
@@ -561,5 +631,9 @@ window.RESTING_HR = [
   // this body's ordinary response, not a warning. What would be worth acting on is the
   // spike failing to clear, and it cleared.
   {date:"2026-09-09", bpm:85},
-  {date:"2026-09-10", bpm:79},
+  // 80, not the 79 first recorded. The Sep 10 export pulled at 19:10 that evening, before the
+  // day was done; the Sep 14 pull reports the settled figure. Same revision pattern as Sep 3,
+  // and the direction to prefer is the later pull.
+  {date:"2026-09-10", bpm:80},
+  {date:"2026-09-11", bpm:72},
 ];
