@@ -160,6 +160,31 @@ description: Use when Kai asks to check his running/workout data, update his tra
     closed with a 6:58 final mile. This is the "all-out effort" reference point, not the
     training target.
   - Aerobic capacity is a strength; the limiter is muscular endurance and pacing confidence.
+- **Cadence method — settled Sep 17, and do not "correct" it.** Kai runs at a **fixed cadence of
+  ~165–170 spm anchored by music**, and modulates pace by **leaning forward from the ankles** to
+  drive a longer stride. He does not vary cadence with pace. Three things follow:
+  - **This is correct practice, not a fault.** A stable cadence with stride length carrying the
+    speed change is what most runners do across a submaximal pace range; cadence climbs materially
+    only near sprint speeds. A self-selected cadence also sits close to metabolically optimal, so
+    pushing him off it costs energy. **165–170 is not "low"** — the 180 spm figure is an
+    over-generalised observation of elites racing at ~5:00/mi, and cadence scales with leg length.
+    Never tell him to chase 180.
+  - **The music is load-bearing equipment, not a preference.** Without an external beat his cadence
+    drifts both slower and faster — his own account. The beat guards both of his documented failure
+    modes at once: going out too fast (Aug 25 came back 55 s/mi quick) and cadence sagging under
+    fatigue late. It is also *trained*, so on a race day the novel variable would be removing it.
+  - **It reconciles with the one-thing-at-a-time rule rather than breaking it.** The guidance below
+    says not to stack a conscious cadence target on top of the PT's cue. Offloading cadence to an
+    external beat is the *opposite* of added cognitive load: the music holds it so he does not have
+    to, which leaves both cue parts free. The rule targets conscious counting, not a metronome.
+  - **The one real caveat: lean from the ankles, not the waist.** Hinging at the hips pushes them
+    back, puts the foot further in front (reaching, braking), and shifts work off the glutes onto
+    the quad — the single muscle already overloaded. Whole body in a line, tipped forward.
+  - **Correcting a framing error made Sep 17:** a longer stride was described as raising eccentric
+    braking load, full stop. That only holds if the stride lengthens *in front* of the centre of
+    mass. Lean-driven speed lengthens it *behind*, through hip extension and push-off, with the
+    foot still landing under the body. Where the stride grows is the whole question; length alone
+    is not the finding.
 
 ## The data pipeline
 
@@ -386,9 +411,12 @@ tissue, not the aerobic engine.
     program from Kai before treating it as the whole prescription.**
 - **Cadence.** Baseline is ~167–172 spm, sagging into the high 160s on slower or fatigued miles.
   A modest 5–10% increase reduces dynamic knee valgus in the research, which is directly on
-  mechanism now rather than generically useful. Expect it to rise somewhat on its own if the
-  two-part cue (straight + soft landing) is working — do not stack a conscious cadence target on
-  top of it.
+  mechanism now rather than generically useful. **But read this against the cadence method in
+  Context: he runs a fixed cadence anchored by music and that is sound.** So cadence is a
+  *training* lever for the Nov 29 build — nudge the playlist's BPM band up over weeks if it is
+  worth pursuing — never a race-day instruction, and never a conscious count layered on the cue.
+  The higher-value target is the same number **not sagging** on fatigued miles, which the external
+  beat already addresses.
 - **Fueling on long runs.** Carry the race-day approach below into the bridge plan's long runs,
   not just race day: the same central-fatigue mechanism applies any time a run goes long enough
   for it to set in, and a muscle already compensating off a degraded sensorimotor signal is where
