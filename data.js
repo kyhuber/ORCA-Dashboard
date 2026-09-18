@@ -21,9 +21,20 @@ window.GOAL_PACE = "7:42";
 //
 // The Sep 14 pull ran at 00:54 Pacific over a Sep 11-14 window, so it closes Sep 13 in full
 // and says nothing about the rest of Sep 14 -- the same shape as the Aug 26 00:18 pull. Week 7
-// is now fully logged. Monday Sep 14's easy 3 mi reads "Awaiting data" at this value, which is
-// correct: no pull has covered that day yet.
-window.DATA_THROUGH = "2026-09-13";
+// is now fully logged.
+//
+// Sep 16, not Sep 17, and not from an export. The Sep 17 pull ran at 21:40 Pacific over a
+// Sep 17-only window: it closes no day in full and covers nothing between Sep 14 and Sep 16.
+// What closes those three days is Kai's own account -- he did not run Monday Sep 14, having
+// been in pain and gone to his PT instead, and Tue/Wed were rest by design. His word on his
+// own week is better evidence than an export, and the pipeline has no other way to record a
+// day that produced no workout. Sep 17 itself stays outside the window because the day was
+// still running at the pull; the run on it is logged regardless, so nothing is lost.
+//
+// Monday now reads "Not run" with the reason attached rather than a bare "Missed" -- see the
+// `skipped` field on that session in index.html. The distinction matters: the standing rule
+// is never to frame a missed run as a failure, and this one was the correct call.
+window.DATA_THROUGH = "2026-09-16";
 
 // Logged runs. Seeded from Apple Health; latest pull Sep 14, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
@@ -547,6 +558,48 @@ window.SEEDED_ACTUALS = [
      {mi:8, mins:9.350, hrAvg:160},
      {mi:8.01, mins:0.150},
    ]},
+  // Thursday Westies group run, two days out. The dress rehearsal for race day, and the
+  // first run since the Sep 15 PT visit.
+  //
+  // The headline is not the pace, it is the heart rate. 9:16/mi at 151 bpm average, which is
+  // Zone 3, on a run that was meant to be easy. Set it beside the Sep 13 long run: 9:19/mi at
+  // 145 bpm over eight miles. Same pace, a third of the distance, six beats higher. A short run
+  // should sit *below* a long one at matched pace, not above it, so this is not a pace artifact.
+  // Kai's own read is a stressful day plus afternoon coffee rather than effort or fitness, and
+  // that explanation covers the elevated resting HR the same day too -- recorded as reported,
+  // and preferred over an inference from the number, but see the RESTING_HR note below for why
+  // it is worth one question rather than a silent pass.
+  //
+  // The favourable half: pace dropped from 9:40 to 8:57 between miles 2 and 3 while HR moved
+  // 149 -> 152. Pace improving three beats is the opposite of cardiac drift, and it is the same
+  // negative-split habit the project has logged since last year's race.
+  //
+  // The export's third flag quotes the closing fragment as 8:28/mi; over the 0.14 mi remainder
+  // it computes to 8:21/mi. Both are inside the rounding error a fragment that short carries --
+  // the flag is kept verbatim per convention, and neither figure should carry any weight.
+  //
+  // The second flag describes the cue as knee tracking alone. That was the instruction as of
+  // the Sep 15b context doc; the PT's written follow-up (15c, same evening) makes the cue two
+  // parts -- knee straight AND landing absorbed rather than stiff. Flag kept verbatim; whether
+  // Thursday rehearsed one part or both is an open question for Kai, not something to infer.
+  {date:"2026-09-17", dist:3.14, mins:29.11, hrAvg:151, hrMax:157, cadenceAvg:166,
+   note:"Thursday Westies group run, 2 days before the Orca half, and the one dress rehearsal " +
+        "before race day. No knee pain at any point. Running Power (Watch-reported, not a " +
+        "schema field) ranged ~212-236 W across the splits.",
+   flags:[
+     "HR average 151 bpm (Zone 3) -- Kai attributes this to a stressful day plus afternoon coffee, not effort or a fitness concern",
+     "No knee pain during this run; Kai followed his PT's cue on knee tracking -- his own read, not a clearance from the PT",
+     "Splits negative-split (9:16 -> 9:40 -> 8:57 -> 8:28/mi) with HR essentially flat (151 -> 149 -> 152 -> 153) -- consistent with his known negative-split tendency, not cardiac drift",
+     "Cadence 166 spm sits at or just under the 167-172 baseline floor. Expected on a slow group run and not read as a finding on its own.",
+     "Elevation omitted, not estimated: a flightsClimbed proxy of 3 was available and the export correctly excluded it.",
+     "HR for the first ~6.5 minutes is absent from the Watch record. Apple's own zone breakdown for the workout sums to 22:34 against a 29:11 duration, which confirms the gap is in the recording rather than in the query -- so hrAvg 151 is an average over ~22.5 min, not the full run.",
+   ],
+   splits:[
+     {mi:1, mins:9.27, hrAvg:151},
+     {mi:2, mins:9.67, hrAvg:149},
+     {mi:3, mins:8.95, hrAvg:152},
+     {mi:3.14, mins:1.17, hrAvg:153},
+   ]},
 ];
 
 // Non-running load — counted for training stress, excluded from pace analysis.
@@ -636,4 +689,24 @@ window.RESTING_HR = [
   // and the direction to prefer is the later pull.
   {date:"2026-09-10", bpm:80},
   {date:"2026-09-11", bpm:72},
+  // 89 on Sep 17, and it needs three caveats before it is read as anything.
+  //
+  // 1. It is the highest genuine reading in the series -- the prior high is 86 on Sep 1. The 100
+  //    on Sep 8 is not the comparison; that one is an evening-only sample taken across a 10pm
+  //    run and is annotated above as not a resting measurement.
+  // 2. It is provisional. The pull ran at 21:40 Pacific with the day still going, which is
+  //    exactly the shape that got revised on Sep 3 (74 -> 75) and Sep 10 (79 -> 80). Both moved
+  //    up by one, so expect this to settle at 89-90 rather than to fall.
+  // 3. There is a five-day hole in front of it. HealthKit returned nothing for Sep 12 or 13 (the
+  //    Sep 14 export says so in `missing`), and no pull covered Sep 14-16 at all. So the last
+  //    known value before this is the 72 on Sep 11 -- a series low -- and there is no way to tell
+  //    whether 89 climbed gradually or arrived at once. That absence is why this is one question
+  //    for Kai rather than a trend.
+  //
+  // What makes it worth raising at all is that it does not stand alone: the same day's easy run
+  // came in six beats above the Sep 13 long run at matched pace. Kai's stressful-day-plus-coffee
+  // read explains both, and it is his run to describe. The reason to ask anyway is that early
+  // illness explains both identically, and two days before a race the two have different
+  // answers. No pain and no swelling, so the monitoring rule is not engaged.
+  {date:"2026-09-17", bpm:89},
 ];
