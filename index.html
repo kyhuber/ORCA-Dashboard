@@ -14,7 +14,7 @@
      separately, so without it a fresh page can load a stale dataset -- and
      since the page now reads DATA_THROUGH from data.js, that pairing would
      silently fall back to calling unsynced sessions missed. -->
-<script src="data.js?v=14"></script>
+<script src="data.js?v=15"></script>
 
 <style>
   :root{
@@ -198,6 +198,7 @@
   .badge{display:inline-block; font-size:0.74rem; padding:3px 9px; border-radius:20px; font-weight:600; white-space:nowrap;}
   .badge.done{background:var(--teal-dim); color:var(--teal);}
   .badge.missed{background:transparent; color:var(--text-dim); border:1px dashed var(--border);}
+  .badge.skipped{background:transparent; color:var(--text-dim); border:1px solid var(--border);}
   .badge.upcoming{background:transparent; color:var(--text-dim); border:1px solid var(--border);}
   .badge.awaiting{background:transparent; color:var(--gold); border:1px solid var(--gold);}
   .s-actual{font-family:var(--font-mono); font-size:0.76rem; color:var(--text); margin-top:5px;}
@@ -376,12 +377,12 @@
         Reset both every few miles as a check-in. The PT has cleared this race: the default is
         to finish. Stop only if something sharpens meaningfully or changes your stride, and if it
         does, stop trying to push through it.</p>
-      <p class="race-note"><b>Take the gel at mile 6–7.</b> If it is the isotonic one, no water
-        needed — that is the whole reason to prefer it, because mile 6–7 is exactly where your
-        attention belongs on the knee and not on timing a cup grab. That is about 47–55 minutes
-        in, and close to where the Sep 13 pain started — not a coincidence worth ignoring, since
-        the muscle doing the compensating is the one that fades first when fuel runs low. A few
-        chews around mile 10–11 are optional. Nothing you have not already tasted on Thursday.</p>
+      <p class="race-note"><b>Take the Maurten at mile 6–7. No water needed</b> — the hydrogel
+        is built to go down without it, which is the property that matters here: mile 6–7 is
+        exactly where your attention belongs on the knee, not on timing a cup grab. That is about
+        47–55 minutes in, and close to where the Sep 13 pain started — not a coincidence worth
+        ignoring, since the muscle doing the compensating is the one that fades first when fuel
+        runs low. Tested Thursday, stomach fine. A few chews around mile 10–11 are optional.</p>
       <p class="race-note" id="race-check"></p>
       <p class="race-note"><b>Run your own race from the gun.</b> In the benchmark you ran
         <span id="race-gap">28 sec/mi</span> faster once you were on your own effort rather than a
@@ -426,18 +427,21 @@
       <p class="card-sub">Sep 19 · one gel, one job</p>
       <div class="fuel-hero">
         <span class="fh-mile">Mile 6–7</span>
-        <span class="fh-body">One gel, ~20–25 g carbs, glucose or maltodextrin rather than
-          fructose-heavy. Caffeine-free — you are already having coffee before the start.</span>
+        <span class="fh-body">One Maurten GEL 100 — about 25 g of carbs, taken without water.
+          Tested Thursday and it sat fine.</span>
       </div>
-      <p class="prep-lede"><b>The pick: an isotonic gel</b> — SIS GO Isotonic Energy, or SIS GO
-        Energy&nbsp;+&nbsp;Electrolyte if you want the sodium. About 22 g of carbs, and it goes
-        down without needing water, which is the actual reason it wins here: mile 6–7 is where
-        your attention should be on the knee cue, not on coordinating a gel and a cup at speed.
-        If SIS is not findable locally on short notice, a <b>caffeine-free GU Original</b>
-        (21–23 g) is the reliable fallback — widely stocked, just take it with a few sips of
-        water. Buy two or three of whichever, and skip anything sold as "recovery" (protein and
-        fat, absorbs slower) or any high-fibre bar. Both raise GI risk for no benefit at this
-        distance.</p>
+      <p class="prep-lede"><b>Settled, and it was the test that settled it.</b> The pre-race note
+        had pencilled in an isotonic SIS gel, picked for one property above all: that it goes down
+        without needing to time a water-cup grab at mile 6–7, where your attention belongs on the
+        knee instead. Maurten's hydrogel gives you the same property, at the top of the 20–25 g
+        band rather than the bottom. It carries a glucose–fructose blend rather than the
+        glucose-only profile the note leaned toward — which matters exactly as much as your gut
+        says it does, and your gut has now answered. A tolerance question gets settled by testing,
+        not by a label, and that is what Thursday was for.
+        <br><br>
+        <b>One thing to check on the box:</b> plain <b>GEL 100</b>, not <b>GEL 100 CAF 100</b> —
+        the CAF version carries 100 mg of caffeine, and you already have coffee in the plan. No
+        need to stack more on a race morning.</p>
       <p class="prep-lede">That is roughly 47–55 minutes in at goal pace, and close to where the
         Sep 13 pain started — which is not a coincidence worth ignoring. The muscle doing the
         compensating is the one that fades first when fuel runs low.
@@ -463,8 +467,8 @@
         <li class="meal-day">
           <div class="meal-when">Thu 9/17<span>shakeout</span></div>
           <div class="meal-what">Normal balanced meals, carbs a comfortable share of the plate.
-            <b>Test the race gel</b> — at rest is fine, the point is taste and tolerance, not
-            performance. Start easing fibre back at dinner.</div>
+            <b>Race gel tested — Maurten, and it sat fine.</b> That was the one open GI question
+            and it is now closed. Start easing fibre back at dinner.</div>
         </li>
         <li class="meal-day">
           <div class="meal-when">Fri 9/18<span>loading day</span></div>
@@ -774,7 +778,11 @@
     // the eccentric-capacity finding -- the right leg lands stiffer than it should and does not
     // cushion through the quad -- and a soft landing is the cue for it. Two parts, both hers.
     {week:8, phase:"Race week", range:"Sep 14 – Sep 19", sessions:[
-      {date:"2026-09-14", day:"Mon", type:"Easy", desc:"Easy run", dist:3},
+      // Not run. Kai was in pain and used the day to get in front of his PT instead --
+      // which is the monitoring rule working exactly as written, not a lapse. The visit
+      // is what produced the diagnosis and the cue the rest of this week runs on.
+      {date:"2026-09-14", day:"Mon", type:"Easy", desc:"Easy run", dist:3,
+       skipped:"Rested and saw the PT — the right call, and it produced the diagnosis"},
       // Same reasoning as week 7, and it matters more here: the last run before a race
       // should not be contingent on anyone else.
       // Strides are neuromuscular priming, not a workout: four 20-second pickups two
@@ -1285,7 +1293,11 @@
   // of what was dropped, so the gap still shows up as a line of text.
   function partitionSessions(sessions, actuals, today){
     if(!state.hideMissed) return {shown:sessions, hidden:0};
-    const shown = sessions.filter(s=>sessionStatus(s, actuals, today).status!=="missed");
+    // A session carrying `skipped` states why it did not happen, so it is a recorded
+    // decision rather than an unexplained gap -- the hide-missed toggle is for the
+    // latter, and folding the former into a "+1 hidden" line would throw away the
+    // reason. Those stay visible whatever the toggle says.
+    const shown = sessions.filter(s=>s.skipped || sessionStatus(s, actuals, today).status!=="missed");
     return {shown, hidden:sessions.length-shown.length};
   }
 
@@ -1394,6 +1406,12 @@
     } else if(status==="awaiting"){
       badge = `<span class="badge awaiting">Awaiting data</span>`;
       actualLine = `<div class="s-actual" style="color:var(--text-dim);">No export covers this date yet</div>`;
+    } else if(session.skipped){
+      // Not run, and the reason is on the record. The project's standing rule is never
+      // to frame a missed run as a failure, and a bare "Missed" against a day Kai chose
+      // to protect would do exactly that.
+      badge = `<span class="badge skipped">Not run</span>`;
+      actualLine = `<div class="s-actual" style="color:var(--text-dim);">${session.skipped}</div>`;
     } else {
       badge = `<span class="badge missed">Missed</span>`;
     }

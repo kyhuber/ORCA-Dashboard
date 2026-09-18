@@ -21,9 +21,20 @@ window.GOAL_PACE = "7:42";
 //
 // The Sep 14 pull ran at 00:54 Pacific over a Sep 11-14 window, so it closes Sep 13 in full
 // and says nothing about the rest of Sep 14 -- the same shape as the Aug 26 00:18 pull. Week 7
-// is now fully logged. Monday Sep 14's easy 3 mi reads "Awaiting data" at this value, which is
-// correct: no pull has covered that day yet.
-window.DATA_THROUGH = "2026-09-13";
+// is now fully logged.
+//
+// Sep 16, not Sep 17, and not from an export. The Sep 17 pull ran at 21:40 Pacific over a
+// Sep 17-only window: it closes no day in full and covers nothing between Sep 14 and Sep 16.
+// What closes those three days is Kai's own account -- he did not run Monday Sep 14, having
+// been in pain and gone to his PT instead, and Tue/Wed were rest by design. His word on his
+// own week is better evidence than an export, and the pipeline has no other way to record a
+// day that produced no workout. Sep 17 itself stays outside the window because the day was
+// still running at the pull; the run on it is logged regardless, so nothing is lost.
+//
+// Monday now reads "Not run" with the reason attached rather than a bare "Missed" -- see the
+// `skipped` field on that session in index.html. The distinction matters: the standing rule
+// is never to frame a missed run as a failure, and this one was the correct call.
+window.DATA_THROUGH = "2026-09-16";
 
 // Logged runs. Seeded from Apple Health; latest pull Sep 14, 2026 via the
 // orca-health-exports Drive pipeline (see skills/orca-training-analysis/SKILL.md).
