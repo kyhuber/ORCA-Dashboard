@@ -435,9 +435,29 @@ High-level and deliberately not gram-calculated — Kai asked for ideas and reas
 nutrition protocol. Forecast for Sep 19 is mild (upper-50s°F at the 7am start, mid-70s later),
 so hydration and electrolyte needs are ordinary.
 
-- **In-race:** one gel of ~20–25 g carbs, glucose/maltodextrin-based rather than fructose-heavy,
-  around **mile 6–7** (~47–55 min at goal pace — notably close to where the Sep 13 pain started).
-  **SETTLED Sep 17: it is a Maurten GEL 100** (~25 g carbs), tested Thursday, stomach fine.
+- **In-race — TWO gels, revised Sep 18, and the caffeine goes in the first one.**
+  **Mile 5 (~39 min): Maurten GEL 100 CAF 100** (25 g carbs + 100 mg caffeine).
+  **Mile 9 (~70 min): Maurten GEL 100, plain** (25 g carbs). Neither needs water.
+  - **Why two, not one.** A 1:41 projection is 1.68 h; the guideline for an effort this long is
+    30–60 g carbs/hr. One gel is ~15 g/hr — under the band. Two is ~30 g/hr, at the bottom of it.
+    The earlier "one gel, not necessary at this distance" framing came from the sub-90-minute view
+    and **this race is not sub-90.** Three lands too late to contribute and only adds GI volume;
+    a third is insurance only if the day runs past 1:50.
+  - **Why caffeine first.** Peak plasma caffeine is 30–60 min post-ingestion, so from mile 5 it
+    covers ~70–105 min — the honest stretch and the close. In the *second* gel it would peak after
+    he finishes. With morning coffee that is ~200 mg total, at or just under the bottom of the
+    3–6 mg/kg studied range. **One CAF gel, never two.** Caveat worth keeping: at least one trial
+    found coinciding exercise with peak serum caffeine did not improve performance, and
+    time-to-peak varies widely between people — treat the timing as a sensible default, not a
+    precision instrument.
+  - **Kai declined a Friday tolerance test on the caffeinated version**, confident in his tolerance
+    and not caffeine-naive. Raised and reaffirmed; recorded as his call. The hydrogel matrix is
+    identical to the plain gel he tested Thursday, so caffeine was the only new variable.
+  - The central-fatigue rationale below is an argument for fuelling *more* rather than less: a
+    vastus medialis already compensating off a degraded sensorimotor signal is where a general
+    loss of neuromuscular precision would surface first.
+  **SETTLED Sep 17: the product is Maurten** (~25 g carbs per gel), plain version tested Thursday,
+  stomach fine.
   The Sep 15 note had pencilled in an isotonic SIS gel, chosen for one operational property —
   it goes down **without needing a water-cup grab**, and mile 6–7 is exactly the window where
   his attention belongs on the knee cue rather than on a hand-off at speed. Maurten's hydrogel
